@@ -1,0 +1,136 @@
+/* 전체 기본값 */
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+/* 헤더 */
+header {
+  background: #004d61;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+}
+header .logo {
+  font-size: 22px;
+  font-weight: bold;
+}
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 25px;
+}
+nav a {
+  color: white;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+nav a:hover {
+  color: #ffcc00;
+}
+
+/* 메인 배너 */
+.hero {
+  background: url('../images/hero.jpg') center/cover no-repeat;
+  height: 480px; /* 너무 크면 400~500px 사이로 조절 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+  position: relative;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4); /* 어두운 반투명 레이어 */
+}
+.hero h1, .hero p, .btn {
+  position: relative;
+  z-index: 1;
+}
+
+.hero h1 {
+  font-size: 40px;
+  margin-bottom: 15px;
+}
+.hero p {
+  font-size: 18px;
+  margin-bottom: 30px;
+}
+.btn {
+  background: #ffcc00;
+  color: #004d61;
+  padding: 10px 25px;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: bold;
+}
+.btn:hover {
+  background: #ffd633;
+}
+
+/* 여행지 카드 */
+.tours {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.tours h2 {
+  font-size: 28px;
+  margin-bottom: 40px;
+}
+
+.tour-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+  justify-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tour-card {
+  width: 250px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  background-color: #fff;
+}
+
+.tour-card:hover {
+  transform: translateY(-5px);
+}
+
+.tour-card img {
+  width: 100%;
+  height: 200px;            /* 기존보다 약간 늘려서 비율 안정화 */
+  object-fit: cover;        /* 이미지 비율 유지하면서 잘 맞춤 */
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.tour-card h3 {
+  margin: 15px 0 5px;
+}
+
+.tour-card p {
+  color: #666;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+/* 푸터 */
+footer {
+  background: #004d61;
+  color: white;
+  text-align: center;
+  padding: 20px 0;
+  font-size: 14px;
+}
