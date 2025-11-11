@@ -35,7 +35,7 @@ nav a:hover {
 
 /* 메인 배너 */
 .hero {
-  background: url('../images/hero.jpg') center/cover no-repeat;
+  /* background: url('/images/hero.jpg') center/cover no-repeat; */
   height: 480px; /* 너무 크면 400~500px 사이로 조절 */
   display: flex;
   flex-direction: column;
@@ -49,7 +49,7 @@ nav a:hover {
   content: "";
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.4); /* 어두운 반투명 레이어 */
+  background-color: rgba(0, 0, 0, 0.4); 
 }
 .hero h1, .hero p, .btn {
   position: relative;
