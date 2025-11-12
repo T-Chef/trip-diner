@@ -1,30 +1,49 @@
+// src/App.js
 import React from "react";
+import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
 import "./App.css";
 
-function App() {
+/* src/Components 컴포넌트 링크*/
+function Header() {
   return (
-    <div>
-      {/* 헤더 */}
-      <header>
-        <div className="logo">Travel - chef</div>
-        <nav>
-          <ul>
-            <li><a href="#">홈</a></li>
-            <li><a href="#">여행상품</a></li>
-            <li><a href="#">로그인</a></li>
-            <li><a href="#">문의하기</a></li>
-          </ul>
-        </nav>
-      </header>
+    <header>
+      <div className="logo">Travel - chef</div>
+      <nav>
+        <ul>
+          <li><Link to="/">홈</Link></li>
+          <li><Link to="/tours">여행상품</Link></li>
+          <li><Link to="/login">로그인</Link></li>
+          <li><Link to="/contact">문의하기</Link></li>
+        </ul>
+      </nav>
+    </header>
+  );
+}
 
+function Footer() {
+  return (
+    <footer>
+      <p>비트교육센터</p>
+    </footer>
+  );
+}
+
+/* 메인 페이지 */
+function Home() {
+  const nav = useNavigate();
+  return (
+    <>
       {/* 메인 배너 */}
       <section className="hero">
         <h1>당신의 특별한 여행, T - chef와 함께</h1>
         <p>국내 맞춤형 여행 전문</p>
-        <a href="#" className="btn">지금 여행 상품 보기</a>
+        {/* a href="#" 대신 버튼/Link 사용 */}
+        <button className="btn" type="button" onClick={() => nav("/tours")}>
+          지금 여행 상품 보기
+        </button>
       </section>
 
-      {/* 추천 여행지 */}
+      {/* 추천 여행지 일단 8개 배치 */}
       <section className="tours">
         <h2>추천 여행지</h2>
         <div className="tour-list">
@@ -77,13 +96,48 @@ function App() {
           </div>
         </div>
       </section>
-
-      {/* 푸터 */}
-      <footer>
-        <p>비트교육센터</p>
-      </footer>
-    </div>
+    </>
   );
 }
 
-export default App;
+/* 로그인, 여행상품, 문의하기 임시로 만든 것, 추후 ai 페이지 추가 고려 */
+function Tours() {
+  return (
+    <section className="tours">
+      <h2>여행상품</h2>
+      <p></p>
+    </section>
+  );
+}
+function Login() {
+  return (
+    <section className="form">
+      <h2>로그인</h2>
+      <p></p>
+    </section>
+  );
+}
+function Contact() {
+  return (
+    <section className="form">
+      <h2>문의하기</h2>
+      <p></p>
+    </section>
+  );
+}
+
+/* Router, 홈,여행상품,로그인,문의하기 창을 분리시킴. */
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Header />
+      <Routes>
+        <Route path="/" element={<Home/>} />
+        <Route path="/tours" element={<Tours/>} />
+        <Route path="/login" element={<Login/>} />
+        <Route path="/contact" element={<Contact/>} />
+      </Routes>
+      <Footer />
+    </BrowserRouter>
+  );
+}
