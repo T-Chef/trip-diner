@@ -1,33 +1,39 @@
+// back/index.js
 import 'dotenv/config';
 import express from 'express';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
-import { PrismaClient } from '@prisma/client';
+
+// 라우터(폴더에 있는 친구들 꺼내쓰는 용도)
+import cityRouter from './routes/city.js';
+import categoryRouter from './routes/category.js';
+import placeRouter from './routes/place.js';
+import reviewRouter from './routes/review.js';
+import tripRouter from './routes/trip.js';
+import usersRouter from './routes/users.js';
 
 const app = express();
-const prisma = new PrismaClient();
 
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
 
-// 헬스
-app.get('/api/health', (req, res) => {
-  res.json({ ok: true, time: new Date().toISOString() });
+// 테스트용 라우트 (health)
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'server ok' });
 });
 
-// 도시
-app.get('/api/cities', async (req, res) => {
-  try {
-    const cities = await prisma.city.findMany();
-    res.json(cities);
-  } catch (error) {
-    console.error('도시 조회 오류:', error);
-    res.status(500).json({ message: '서버 오류' });
-  }
-});
+// 라우터들 등록(추후에 수정 할 가능성 있음.)
+app.use('/api/city', cityRouter);
+app.use('/api/category', categoryRouter);
+app.use('/api/place', placeRouter);
+app.use('/api/review', reviewRouter);
+app.use('/api/trip', tripRouter);
+app.use('/api/users', usersRouter);
 
+// 포트 (수정 x)
 const PORT = process.env.PORT || 4000;
+
 app.listen(PORT, () => {
-  console.log(`API server running at http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
