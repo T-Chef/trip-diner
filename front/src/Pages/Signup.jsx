@@ -1,8 +1,8 @@
 // src/Pages/Signup.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";   // ★ 추가
-import '../Login.css';
+import axios from "axios";
+import "../Login.css";
 
 function Signup() {
   const [email, setEmail] = useState("");
@@ -15,18 +15,14 @@ function Signup() {
 
     try {
       // 서버로 회원가입 요청 보내기
-      const res = await axios.post(
-        "http://localhost:4000/api/auth/register",
-        {
-          email: email,
-          password: password,
-          username: name,   // 백엔드가 username으로 받으니까
-        }
-      );
+      const res = await axios.post("http://localhost:4000/api/auth/register", {
+        email: email,
+        password: password,
+        username: name, // 백엔드가 username으로 받으니까
+      });
 
       alert("회원가입이 완료되었습니다!");
       navigate("/login");
-
     } catch (err) {
       console.error(err);
       alert("회원가입 중 오류가 발생했습니다.");

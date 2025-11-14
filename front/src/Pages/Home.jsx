@@ -1,17 +1,119 @@
 // src/Pages/Home.jsx
-import React from "react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
-function Home({ user }) {
+export default function Home() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      {user ? (
-        <h2>환영합니다, {user.name}님!</h2>
-      ) : (
-        <h2>Trip Diner에 오신 것을 환영합니다!</h2>
+    <div className="wrapper">
+      {/* HEADER */}
+      <header className="header">
+        <div className="header-inner">
+          <div className="header-left">
+            <div className="logo">Trip - Diner</div>
+          </div>
+
+          <div className="header-right">
+            <span className="my-reserve">내 일정</span>
+            <button className="ham-btn" onClick={() => setMenuOpen(true)}>
+              ☰
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* SIDE MENU */}
+      <div className={`side-menu ${menuOpen ? "open" : ""}`}>
+        <button className="close-btn" onClick={() => setMenuOpen(false)}>
+          ✕
+        </button>
+
+        <ul>
+          <li>
+            <Link to="/login">로그인 / 회원가입</Link>
+          </li>
+          <li>
+            <Link to="/tours">여행상품</Link>
+          </li>
+          <li>
+            <Link to="/contact">문의하기</Link>
+          </li>
+        </ul>
+
+        <div className="menu-title">여행상품 카테고리</div>
+        <ul className="submenu">
+          <li>항공</li>
+          <li>숙소</li>
+          <li>투어 · 티켓</li>
+        </ul>
+      </div>
+
+      {menuOpen && (
+        <div className="overlay" onClick={() => setMenuOpen(false)} />
       )}
-      <p>당신의 여행을 특별하게 만들어드립니다 ✈️</p>
+
+      {/* HERO SECTION */}
+      <section className="hero">
+        <img
+          src={`${process.env.PUBLIC_URL}/images/main_banner.jpg`}
+          alt="메인배너"
+          className="hero-img"
+        />
+
+        <div className="hero-content container">
+          <h1 className="hero-title">
+            BEGINNING OF <br /> TRAVEL
+          </h1>
+          <p className="hero-desc">
+            숨겨진 여행지의 매력과 여유를 느껴보세요. <br />
+            Trip - Diner 와 함께 특별한 순간을 만들어보세요.
+          </p>
+        </div>
+      </section>
+
+      {/* INTRO SECTION */}
+      <section className="intro">
+        <div className="container intro-inner">
+          <p className="badge">일정 생성 • 관리</p>
+          <h2 className="intro-title">
+            나만의 여행 일정, <br />
+            트립 디너로 간편해져요.
+          </h2>
+        </div>
+      </section>
+
+      {/* 추천상품 SECTION */}
+      <section className="recommend">
+        <div className="container">
+          <h2 className="sec-title">추천 여행상품</h2>
+          <p className="sec-desc">이번 시즌 인기 여행지</p>
+
+          <div className="recommend-list">
+            <div className="rec-card"></div>
+            <div className="rec-card"></div>
+            <div className="rec-card"></div>
+          </div>
+        </div>
+      </section>
+
+      {/* 리뷰 SECTION */}
+      <section className="review">
+        <div className="container">
+          <h2 className="sec-title">고객 리뷰</h2>
+
+          <div className="review-list">
+            {[1, 2, 3].map((id) => (
+              <div className="review-card" key={id}>
+                ⭐⭐⭐⭐⭐ <br />
+                여행 일정도 좋고 정말 좋은 경험이었어요!
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <footer className="footer">© 2025 Trip - Diner</footer>
     </div>
   );
 }
-
-export default Home;

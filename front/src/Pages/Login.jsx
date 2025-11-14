@@ -13,10 +13,10 @@ function Login({ setUser }) {
 
     try {
       // 백엔드(4000번) 로그인 요청
-      const res = await axios.post(
-        "http://localhost:4000/api/auth/login",
-        { email, password }
-      );
+      const res = await axios.post("http://localhost:4000/api/auth/login", {
+        email,
+        password,
+      });
 
       const user = res.data.user;
 
@@ -30,7 +30,6 @@ function Login({ setUser }) {
       } else {
         navigate("/");
       }
-
     } catch (err) {
       console.error(err);
 
@@ -67,10 +66,7 @@ function Login({ setUser }) {
         </button>
       </form>
 
-      <button
-        className="signup-btn"
-        onClick={() => navigate("/signup")}
-      >
+      <button className="signup-btn" onClick={() => navigate("/signup")}>
         회원가입
       </button>
     </div>

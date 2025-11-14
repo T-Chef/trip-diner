@@ -1,136 +1,285 @@
-/* 전체 기본값 */
-body {
-  font-family: 'Noto Sans KR', sans-serif;
+/* 기본 */
+html, body {
   margin: 0;
   padding: 0;
-  line-height: 1.6;
+  overflow-x: hidden;
+  background: #fff;
+  scrollbar-gutter: stable both-edges;
+  overflow-x: hidden !important;
 }
 
-/* 헤더 */
-header {
-  background: #004d61;
-  color: white;
+.wrapper {
+  padding: 0;
+  margin: 0;
+  font-family: "Pretendard", sans-serif;
+  color: #222;
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* -------------------------------------------- */
+/* HEADER */
+/* -------------------------------------------- */
+.header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 70px;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border-bottom: none !important;
+  display: flex;
+  align-items: center;
+  z-index: 2000;
+}
+
+.header-inner {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 40px;
-}
-header .logo {
-  font-size: 22px;
-  font-weight: bold;
-}
-nav ul {
-  list-style: none;
-  display: flex;
-  gap: 25px;
-}
-nav a {
-  color: white;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-nav a:hover {
-  color: #ffcc00;
-}
-
-/* 메인 배너 */
-.hero {
-  /* background: url('/images/hero.jpg') center/cover no-repeat; */
-  height: 480px; /* 너무 크면 400~500px 사이로 조절 */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  color: white;
-  position: relative;
-}
-.hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.4); 
-}
-.hero h1, .hero p, .btn {
-  position: relative;
-  z-index: 1;
-}
-
-.hero h1 {
-  font-size: 40px;
-  margin-bottom: 15px;
-}
-.hero p {
-  font-size: 18px;
-  margin-bottom: 30px;
-}
-.btn {
-  background: #ffcc00;
-  color: #004d61;
-  padding: 10px 25px;
-  text-decoration: none;
-  border-radius: 5px;
-  font-weight: bold;
-}
-.btn:hover {
-  background: #ffd633;
-}
-
-/* 여행지 카드 */
-.tours {
-  padding: 60px 20px;
-  text-align: center;
-}
-
-.tours h2 {
-  font-size: 28px;
-  margin-bottom: 40px;
-}
-
-.tour-list {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 30px;
-  justify-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.tour-card {
-  width: 250px;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-  background-color: #fff;
-}
-
-.tour-card:hover {
-  transform: translateY(-5px);
-}
-
-.tour-card img {
   width: 100%;
-  height: 200px;            /* 기존보다 약간 늘려서 비율 안정화 */
-  object-fit: cover;        /* 이미지 비율 유지하면서 잘 맞춤 */
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  height: 70px;
+  padding: 0 60px;
 }
 
-.tour-card h3 {
-  margin: 15px 0 5px;
+.logo {
+  font-weight: 800;
+  font-size: 24px;
+  color: #ff5b5b;
+  justify-self: start;
 }
 
-.tour-card p {
-  color: #666;
-  margin-bottom: 15px;
-  font-size: 14px;
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  justify-self: end;
 }
-/* 푸터 */
-footer {
-  background: #004d61;
+
+.my-reserve {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.ham-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 6px;
+}
+
+/* -------------------------------------------- */
+/* SIDE MENU */
+/* -------------------------------------------- */
+.side-menu {
+  position: fixed;
+  top: 0;
+  right: -320px;
+  width: 320px;
+  height: 100%;
+  background: #fff;
+  padding: 40px 30px;
+  transition: right 0.35s ease-in-out;
+  z-index: 3000;
+  box-shadow: -4px 0 12px rgba(0,0,0,0.25);
+
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.side-menu.open {
+  right: 0;
+}
+
+.close-btn {
+  font-size: 28px;
+  background: none;
+  border: none;
+  float: right;
+  cursor: pointer;
+}
+
+.side-menu ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 80px;
+}
+
+.side-menu li {
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.menu-title {
+  margin-top: 30px;
+  color: #777;
+  font-size: 15px;
+}
+
+.submenu {
+  margin-left: 15px;
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+/* 오버레이 */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+  z-index: 2500;
+}
+
+.header {
+  z-index: 2000;
+}
+
+.side-menu {
+  z-index: 3000;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* -------------------------------------------- */
+/* HERO SECTION */
+/* -------------------------------------------- */
+.hero {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+.hero-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+
+.hero-content {
+  position: absolute;
+  top: 45%;
+  left: 60px;
+  transform: translateY(-50%);
   color: white;
+  z-index: 1500;
+  max-width: 600px;
+}
+
+.hero-title {
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.hero-desc {
+  font-size: 22px;
+  line-height: 1.6;
+  margin-top: 20px;
+}
+
+/* -------------------------------------------- */
+/* INTRO SECTION */
+/* -------------------------------------------- */
+.intro {
+  padding: 160px 0;
+  background: #fff;
+  border-radius: 40px 40px 0 0;
+  margin-top: -80px;
+}
+
+.badge {
+  color: #4A79FF;
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+.intro-title {
+  font-size: 48px;
+  font-weight: 900;
+}
+
+/* -------------------------------------------- */
+/* 추천상품 SECTION */
+/* -------------------------------------------- */
+.recommend {
+  padding: 140px 0;
+  background: #fafafa;
+}
+
+.sec-title {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.sec-desc {
+  margin-top: 10px;
+  font-size: 15px;
+  color: #777;
+}
+
+.recommend-list {
+  margin-top: 40px;
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+}
+
+.rec-card {
+  width: 260px;
+  height: 160px;
+  background: #ddd;
+  border-radius: 15px;
+}
+
+/* -------------------------------------------- */
+/* 리뷰 SECTION */
+/* -------------------------------------------- */
+.review {
+  padding: 140px 0;
+}
+
+.review-list {
+  display: flex;
+  gap: 30px;
+}
+
+.review-card {
+  width: 260px;
+  padding: 30px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   text-align: center;
-  padding: 20px 0;
-  font-size: 14px;
+}
+
+/* -------------------------------------------- */
+/* FOOTER */
+/* -------------------------------------------- */
+.footer {
+  padding: 50px 0;
+  text-align: center;
+  background: #333;
+  color: #fff;
+  font-size: 16px;
 }
