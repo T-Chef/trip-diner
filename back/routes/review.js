@@ -6,7 +6,8 @@ const router = express.Router();
 const prisma = new PrismaClient();
 
 /**
- * GET /api/review?place_id=1
+ *  api/review?place_id=1
+ * 
  *  - 특정 장소(place_id)의 리뷰 목록
  */
 router.get('/', async (req, res) => {
@@ -40,7 +41,8 @@ router.get('/', async (req, res) => {
 });
 
 /**
- * POST /api/review
+ *  api/review
+ * 
  *  body: { user_id, place_id, rating, content }
  */
 router.post('/', async (req, res) => {

@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// GET /api/city  → 전체 도시 목록
+// api/city  → 전체 도시 목록
 router.get('/', async (req, res) => {
   try {
     const cities = await prisma.city.findMany({
@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
 });
 
 // 필요하면 단일 도시 조회도 추가 가능 (옵션)
-// GET /api/city/:id
+// api/city -> 단일 도시
 router.get('/:id', async (req, res) => {
   try {
     const cityId = Number(req.params.id);
@@ -42,8 +42,8 @@ router.get('/:id', async (req, res) => {
 
     res.json(city);
   } catch (err) {
-    console.error('도시 상세 조회 에러:', err);
-    res.status(500).json({ message: '도시 상세를 불러오는 중 오류가 발생했습니다.' });
+    console.error('도시 정보 조회 에러:', err);
+    res.status(500).json({ message: '도시 정보를 불러오는 중 오류가 발생했습니다.' });
   }
 });
 

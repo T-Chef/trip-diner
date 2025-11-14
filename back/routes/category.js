@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// GET /api/category  → 전체 카테고리
+// api/category  → 전체 카테고리
 router.get('/', async (req, res) => {
   try {
     const categories = await prisma.category.findMany({

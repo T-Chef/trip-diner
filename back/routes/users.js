@@ -10,7 +10,7 @@ router.post("/register", async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
-    // 비밀번호 암호화
+    // 비밀번호 안보이게 처리
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // DB에 저장

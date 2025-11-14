@@ -6,9 +6,9 @@ const router = express.Router();
 const prisma = new PrismaClient();
 
 /**
- * GET /api/place
- *  - 전체 장소 목록
- *  - /api/place?city_id=1&category_id=2 형태로 필터도 가능
+ *  api/place
+ * 
+ *  - 전체 장소 목록 조회
  */
 router.get('/', async (req, res) => {
   try {
@@ -50,7 +50,8 @@ router.get('/', async (req, res) => {
 });
 
 /**
- * GET /api/place/:id
+ *  api/place/:id
+ * 
  *  - 특정 place 상세 조회
  */
 router.get('/:id', async (req, res) => {

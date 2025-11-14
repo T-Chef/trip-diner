@@ -6,7 +6,7 @@ const router = express.Router();
 const prisma = new PrismaClient();
 
 /**
- * GET /api/trip/user/1
+ *  api/trip/user/1
  *  - user_id=1인 사용자의 전체 여행 일정
  *  - day, order_no 순으로 정렬
  */
@@ -45,7 +45,7 @@ router.get('/user/:userId', async (req, res) => {
 });
 
 /**
- * POST /api/trip
+ *  api/trip
  *  body: { user_id, title, day, order_no, place_id, place_name, activity, time_slot, latitude, longitude, keyword_tags }
  */
 router.post('/', async (req, res) => {

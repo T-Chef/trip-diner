@@ -3,7 +3,7 @@ import 'dotenv/config';
 import express from 'express';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
-import cors from 'cors';  // ★ 추가됨
+import cors from 'cors';  // DB에서 가져오기
 
 // 라우터 가져오기
 import cityRouter from './routes/city.js';
@@ -33,7 +33,7 @@ app.use('/api/place', placeRouter);
 app.use('/api/review', reviewRouter);
 app.use('/api/trip', tripRouter);
 
-//  회원가입 라우트는 /api/auth
+//  회원가입 라우트 api/auth
 app.use('/api/auth', usersRouter);
 
 // 포트 설정
