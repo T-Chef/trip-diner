@@ -1,8 +1,7 @@
-// src/Pages/Home.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-export default function Home() {
+export default function Home({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -30,12 +29,22 @@ export default function Home() {
         </button>
 
         <ul>
-          <li>
-            <Link to="/login">로그인 / 회원가입</Link>
-          </li>
+          {/* 로그인 여부에 따라 표시 */}
+          {user ? (
+            <li style={{ fontWeight: "bold", marginBottom: "25px" }}>
+              {user.username || user.name}님 환영합니다!
+            </li>
+          ) : (
+            <li>
+              <Link to="/login">로그인 / 회원가입</Link>
+            </li>
+          )}
+
           <li>
             <Link to="/tours">여행상품</Link>
           </li>
+
+          {/* ❗ 오타 수정: contarct → contact */}
           <li>
             <Link to="/contact">문의하기</Link>
           </li>
@@ -49,8 +58,9 @@ export default function Home() {
         </ul>
       </div>
 
+      {/* 오버레이 */}
       {menuOpen && (
-        <div className="overlay" onClick={() => setMenuOpen(false)} />
+        <div className="overlay" onClick={() => setMenuOpen(false)}></div>
       )}
 
       {/* HERO SECTION */}
@@ -103,16 +113,23 @@ export default function Home() {
           <h2 className="sec-title">고객 리뷰</h2>
 
           <div className="review-list">
-            {[1, 2, 3].map((id) => (
-              <div className="review-card" key={id}>
-                ⭐⭐⭐⭐⭐ <br />
-                여행 일정도 좋고 정말 좋은 경험이었어요!
-              </div>
-            ))}
+            <div className="review-card">
+              ⭐⭐⭐⭐⭐ <br />
+              여행 일정도 좋고 정말 좋은 경험이었어요!
+            </div>
+            <div className="review-card">
+              ⭐⭐⭐⭐⭐ <br />
+              숙소도 깔끔하고 일정도 여유로웠어요!
+            </div>
+            <div className="review-card">
+              ⭐⭐⭐⭐⭐ <br />
+              부모님과 함께한 여행인데 만족도가 높았어요.
+            </div>
           </div>
         </div>
       </section>
 
+      {/* FOOTER */}
       <footer className="footer">© 2025 Trip - Diner</footer>
     </div>
   );
