@@ -21,7 +21,7 @@ function Login({ setUser }) {
       const user = res.data.user;
 
       // 로그인 성공
-      alert(`환영합니다, ${user.username}님!`);
+      alert(`환영합니다, ${user.name}님!`);
       setUser(user);
 
       // 관리자 이메일인지 체크 (옵션)
