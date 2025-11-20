@@ -1,8 +1,17 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-export default function Home({ user }) {
+export default function Home({ user, setUser }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  // 로그아웃 기능
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+    setMenuOpen(false); // 메뉴 닫기
+    navigate("/"); // 메인페이지로 이동
+  };
 
   return (
     <div className="wrapper">
@@ -29,11 +38,25 @@ export default function Home({ user }) {
         </button>
 
         <ul>
-          {/* 로그인 여부에 따라 표시 */}
+          {/* 로그인 상태 */}
           {user ? (
-            <li style={{ fontWeight: "bold", marginBottom: "25px" }}>
-              {user.username || user.name}님 환영합니다!
-            </li>
+            <>
+              <li
+                style={{
+                  fontWeight: "bold",
+                  marginBottom: "10px",
+                  fontSize: "18px",
+                }}
+              >
+                {user.name || user.username}님 환영합니다!
+              </li>
+
+              <li>
+                <span onClick={handleLogout} className="logout-link">
+                  로그아웃
+                </span>
+              </li>
+            </>
           ) : (
             <li>
               <Link to="/login">로그인 / 회원가입</Link>
@@ -44,7 +67,6 @@ export default function Home({ user }) {
             <Link to="/tours">여행상품</Link>
           </li>
 
-          {/* ❗ 오타 수정: contarct → contact */}
           <li>
             <Link to="/contact">문의하기</Link>
           </li>

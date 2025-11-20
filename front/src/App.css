@@ -283,3 +283,20 @@ body {
   color: #fff;
   font-size: 16px;
 }
+
+/* -------------------------------------------- */
+/* 로그아웃 (메뉴 스타일 맞춤형) */
+/* -------------------------------------------- */
+.logout-link {
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  color: #5a2ca0;
+  margin-bottom: 20px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.logout-link:hover {
+  opacity: 0.8;
+}

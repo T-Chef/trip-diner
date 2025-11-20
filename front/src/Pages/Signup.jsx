@@ -16,9 +16,9 @@ function Signup() {
     try {
       // 서버로 회원가입 요청 보내기
       const res = await axios.post("http://localhost:4000/api/auth/register", {
+        name: name, // username → name 수정
         email: email,
         password: password,
-        username: name, // 백엔드가 username으로 받으니까
       });
 
       alert("회원가입이 완료되었습니다!");
