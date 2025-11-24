@@ -5,12 +5,11 @@ export default function Home({ user, setUser }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // 로그아웃 기능
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
-    setMenuOpen(false); // 메뉴 닫기
-    navigate("/"); // 메인페이지로 이동
+    setMenuOpen(false);
+    navigate("/");
   };
 
   return (
@@ -23,7 +22,6 @@ export default function Home({ user, setUser }) {
           </div>
 
           <div className="header-right">
-            <span className="my-reserve">내 일정</span>
             <button className="ham-btn" onClick={() => setMenuOpen(true)}>
               ☰
             </button>
@@ -38,7 +36,7 @@ export default function Home({ user, setUser }) {
         </button>
 
         <ul>
-          {/* 로그인 상태 */}
+          {/* 로그인 / 로그아웃 */}
           {user ? (
             <>
               <li
@@ -52,9 +50,9 @@ export default function Home({ user, setUser }) {
               </li>
 
               <li>
-                <span onClick={handleLogout} className="logout-link">
+                <button onClick={handleLogout} className="logout-link">
                   로그아웃
-                </span>
+                </button>
               </li>
             </>
           ) : (
@@ -63,24 +61,26 @@ export default function Home({ user, setUser }) {
             </li>
           )}
 
+          {/* 나머지 메뉴 */}
           <li>
-            <Link to="/tours">여행상품</Link>
+            <Link to="/tours">AI 일정표</Link>
+          </li>
+
+          <li>
+            <Link to="/map">도시별 여행 지도</Link>
+          </li>
+
+          <li>
+            <Link to="/board">게시판</Link>
           </li>
 
           <li>
             <Link to="/contact">문의하기</Link>
           </li>
         </ul>
-
-        <div className="menu-title">여행상품 카테고리</div>
-        <ul className="submenu">
-          <li>항공</li>
-          <li>숙소</li>
-          <li>투어 · 티켓</li>
-        </ul>
       </div>
 
-      {/* 오버레이 */}
+      {/* overlay */}
       {menuOpen && (
         <div className="overlay" onClick={() => setMenuOpen(false)}></div>
       )}
@@ -88,7 +88,7 @@ export default function Home({ user, setUser }) {
       {/* HERO SECTION */}
       <section className="hero">
         <img
-          src={`${process.env.PUBLIC_URL}/images/main_banner.jpg`}
+          src={`${process.env.PUBLIC_URL}/images/main.jpg`}
           alt="메인배너"
           className="hero-img"
         />

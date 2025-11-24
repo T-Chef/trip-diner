@@ -1,18 +1,24 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../Login.css";
+import "../styles/Login.css";
 
-function Login({ setUser }) {
+export default function Login({ setUser }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  // 로그인 요청
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // 간단한 빈값 체크
+    if (!email || !password) {
+      alert("이메일과 비밀번호를 모두 입력해주세요.");
+      return;
+    }
+
     try {
-      // 백엔드(4000번) 로그인 요청
       const res = await axios.post("http://localhost:4000/api/auth/login", {
         email,
         password,
@@ -20,11 +26,15 @@ function Login({ setUser }) {
 
       const user = res.data.user;
 
-      // 로그인 성공
-      alert(`환영합니다, ${user.name}님!`);
+      // user 정보 상태 반영
       setUser(user);
 
-      // 관리자 이메일인지 체크 (옵션)
+      // localStorage 저장 → 새로고침해도 로그인 유지됨
+      localStorage.setItem("user", JSON.stringify(user));
+
+      alert(`환영합니다, ${user.name}님!`);
+
+      // 관리자 여부 체크
       if (user.email === "admin@gmail.com") {
         navigate("/admin");
       } else {
@@ -33,7 +43,6 @@ function Login({ setUser }) {
     } catch (err) {
       console.error(err);
 
-      // 백엔드에서 온 에러 메시지 출력
       if (err.response) {
         alert(err.response.data.message);
       } else {
@@ -72,5 +81,3 @@ function Login({ setUser }) {
     </div>
   );
 }
-
-export default Login;

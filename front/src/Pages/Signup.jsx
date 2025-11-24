@@ -1,31 +1,55 @@
-// src/Pages/Signup.jsx
+// src/pages/Signup.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../Login.css";
+import "../styles/Login.css";
 
-function Signup() {
+export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const navigate = useNavigate();
 
+  // 이메일 유효성 체크 함수
+  const validateEmail = (email) => {
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+    return regex.test(email);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // 기본 유효성 체크
+    if (!name || !email || !password) {
+      alert("모든 항목을 입력해주세요.");
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      alert("올바른 이메일 형식이 아닙니다.");
+      return;
+    }
+
+    // ⭐ 비밀번호 길이 제한 제거됨!
+    // 기존 4자리 계정도 그대로 허용됨
+
     try {
-      // 서버로 회원가입 요청 보내기
       const res = await axios.post("http://localhost:4000/api/auth/register", {
-        name: name, // username → name 수정
-        email: email,
-        password: password,
+        name,
+        email,
+        password,
       });
 
       alert("회원가입이 완료되었습니다!");
       navigate("/login");
     } catch (err) {
       console.error(err);
-      alert("회원가입 중 오류가 발생했습니다.");
+
+      if (err.response?.data?.message) {
+        alert(err.response.data.message);
+      } else {
+        alert("회원가입 중 오류가 발생했습니다.");
+      }
     }
   };
 
@@ -69,5 +93,3 @@ function Signup() {
     </div>
   );
 }
-
-export default Signup;
