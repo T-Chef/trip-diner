@@ -1,0 +1,82 @@
+.recommend-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+}
+
+/* 전체 컨텐츠 영역 */
+.content-area {
+  display: flex;
+  gap: 60px;
+  margin-top: 40px;
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* 제목 영역 */
+.title-area {
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+.small-blue {
+  margin-top: 60px;
+  color: #497bff;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.big-title {
+  font-size: 34px;
+  margin-top: 10px;
+}
+
+.sub-desc {
+  margin-top: 10px;
+  color: #555;
+}
+
+/* LEFT LIST */
+.left-recommend {
+  width: 300px;
+}
+
+.left-item {
+  margin-bottom: 40px;
+}
+
+.left-item h4 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.left-item p {
+  margin: 4px 0 0;
+  color: #777;
+}
+
+/* RIGHT CARDS */
+.right-cards {
+  flex: 1;
+}
+
+.big-card {
+  width: 100%;
+  height: 300px;
+  background-color: #ddd;
+  border-radius: 16px;
+}
+
+.small-card-list {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.small-card {
+  height: 140px;
+  background-color: #eee;
+  border-radius: 12px;
+  flex: 1;
+}
