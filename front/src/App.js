@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+<<<<<<< HEAD
 import { Toaster } from "react-hot-toast";
 import { Navigate } from "react-router-dom";
 
@@ -11,6 +12,13 @@ import Signup from "./pages/page/Signup.jsx";
 import Dashboard from "./pages/page/Dashboard.jsx";
 import RecommendPage from "./pages/page/RecommendPage.jsx";
 import StyleSelect from "./pages/page/StyleSelect.jsx";
+=======
+
+// Pages
+import Home from "./pages/page/Home.jsx";
+import Login from "./pages/page/Login.jsx";
+import Signup from "./pages/page/Signup.jsx";
+>>>>>>> b193842a26fb596cf296e6edd1209ec9e687227d
 import Profile from "./pages/side/Profile.jsx";
 import Schedule from "./pages/side/Schedule.jsx";
 import City from "./pages/side/City.jsx";
@@ -18,12 +26,20 @@ import Board from "./pages/side/Board.jsx";
 import Contract from "./pages/side/Contract.jsx";
 import NotFound from "./pages/page/404.jsx";
 
+<<<<<<< HEAD
 // Trip-Diner 페이지
 import TripPlanner from "./pages/trip/TripPlanner.jsx";
 import TripResult from "./pages/trip/TripResult.jsx";
 
 export default function App() {
   const [user, setUser] = useState(null);
+=======
+export default function App() {
+  // 로그인 사용자 상태
+  const [user, setUser] = useState(null);
+
+  // 사이드메뉴 상태
+>>>>>>> b193842a26fb596cf296e6edd1209ec9e687227d
   const [menuOpen, setMenuOpen] = useState(false);
 
   // 새로고침 시 로그인 유지
@@ -36,10 +52,15 @@ export default function App() {
 
   return (
     <Router>
+<<<<<<< HEAD
       <Toaster position="top-center" reverseOrder={false} />
 
       <Routes>
         {/* 메인 홈 */}
+=======
+      <Routes>
+        {/* 메인 */}
+>>>>>>> b193842a26fb596cf296e6edd1209ec9e687227d
         <Route
           path="/"
           element={
@@ -58,6 +79,7 @@ export default function App() {
         {/* 회원가입 */}
         <Route path="/signup" element={<Signup />} />
 
+<<<<<<< HEAD
         {/* Trip-Diner: 여행 생성 */}
         <Route path="/tours" element={<Navigate to="/trip" replace />} />
         <Route
@@ -83,6 +105,8 @@ export default function App() {
           }
         />
 
+=======
+>>>>>>> b193842a26fb596cf296e6edd1209ec9e687227d
         {/* 프로필 */}
         <Route
           path="/profile"
@@ -100,7 +124,15 @@ export default function App() {
         <Route
           path="/schedule"
           element={
+<<<<<<< HEAD
             <Schedule user={user} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+=======
+            <Schedule
+              user={user}
+              menuOpen={menuOpen}
+              setMenuOpen={setMenuOpen}
+            />
+>>>>>>> b193842a26fb596cf296e6edd1209ec9e687227d
           }
         />
 
@@ -124,6 +156,7 @@ export default function App() {
         <Route
           path="/contract"
           element={
+<<<<<<< HEAD
             <Contract user={user} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
           }
         />
@@ -133,6 +166,9 @@ export default function App() {
           path="/recommend"
           element={
             <RecommendPage
+=======
+            <Contract
+>>>>>>> b193842a26fb596cf296e6edd1209ec9e687227d
               user={user}
               menuOpen={menuOpen}
               setMenuOpen={setMenuOpen}
@@ -140,6 +176,7 @@ export default function App() {
           }
         />
 
+<<<<<<< HEAD
         {/* 스타일 선택 */}
         <Route
           path="/style"
@@ -161,8 +198,15 @@ export default function App() {
         />
 
         {/* 404 */}
+=======
+        {/* 404 페이지 */}
+>>>>>>> b193842a26fb596cf296e6edd1209ec9e687227d
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> b193842a26fb596cf296e6edd1209ec9e687227d

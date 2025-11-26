@@ -17,8 +17,8 @@ model admin {
 
 model city {
   city_id     BigInt    @id @default(autoincrement())
+<<<<<<< HEAD
   name        String    @db.VarChar(100)
-  country     String?   @db.VarChar(100)
   description String?   @db.Text
   image_url   String?   @db.VarChar(500)
   event       event[]
@@ -54,8 +54,11 @@ model place {
   plan_item    plan_item[]
   recent       recent[]
   review_place review_place[]
+<<<<<<< HEAD
   content_id String? @unique @db.VarChar(50)
 
+=======
+>>>>>>> b193842a26fb596cf296e6edd1209ec9e687227d
 
   @@index([city_id], map: "city_id")
 }

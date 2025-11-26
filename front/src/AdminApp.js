@@ -1,7 +1,11 @@
 // src/AdminApp.js (관리자용)
 import React, { useState } from "react";
 import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
+<<<<<<< HEAD
 import Admin from "./pages/Admin.jsx";
+=======
+import Admin from "./Pages/Admin.jsx";
+>>>>>>> b193842a26fb596cf296e6edd1209ec9e687227d
 
 function AdminHeader({ user, setUser }) {
     const navigate = useNavigate();

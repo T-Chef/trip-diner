@@ -10,4 +10,3 @@ City ❌ ❌ 단순 페이지
 Signup ❌ ❌ user 필요 없음
 Contract ❌ ❌ 단순 페이지
 NotFound ❌ ❌ 단순 페이지
->>>>>>> main
