@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const API_BASE = "http://localhost:4000/api";
 
-const TripPlanner = ({ userId = 1 }) => {
+export default function Schedule({ user }) {
   const navigate = useNavigate();
 
   const [cities, setCities] = useState([]);
@@ -34,7 +34,6 @@ const TripPlanner = ({ userId = 1 }) => {
       .then((res) => setDistricts(res.data));
   }, [selectedCity]);
 
-  // AI 일정 생성
   const handleGeneratePlan = async () => {
     if (!selectedCity) return alert("도시를 선택해주세요.");
     if (!selectedDistrict) return alert("구/군을 선택해주세요.");
@@ -45,7 +44,7 @@ const TripPlanner = ({ userId = 1 }) => {
 
     try {
       const res = await axios.post(`${API_BASE}/ai/plan`, {
-        userId,
+        userId: user?.id || 1,
         cityName: selectedCity.name,
         areaCode: selectedCity.areaCode,
         districtName: selectedDistrict?.name || null,
@@ -56,7 +55,6 @@ const TripPlanner = ({ userId = 1 }) => {
         contentTypeIds,
       });
 
-      // 페이지 이동
       navigate("/trip/result", {
         state: { aiPlan: res.data.aiPlan },
       });
@@ -70,9 +68,9 @@ const TripPlanner = ({ userId = 1 }) => {
 
   return (
     <div className="trip-planner">
-      {/* 선택 UI */}
-      <div className="controls">
+      <h2>AI 여행 일정 만들기</h2>
 
+      <div className="controls">
         <select
           value={selectedCity ? selectedCity.areaCode : ""}
           onChange={(e) => {
@@ -109,13 +107,16 @@ const TripPlanner = ({ userId = 1 }) => {
 
         <select value={days} onChange={(e) => setDays(Number(e.target.value))}>
           <option value="">일수 선택</option>
-          <option value={2}>1박2일(2일)</option>
-          <option value={3}>2박3일(3일)</option>
-          <option value={4}>3박4일(4일)</option>
-          <option value={5}>4박5일(5일)</option>
+          <option value={2}>1박2일</option>
+          <option value={3}>2박3일</option>
+          <option value={4}>3박4일</option>
+          <option value={5}>4박5일</option>
         </select>
 
-        <select value={peopleType} onChange={(e) => setPeopleType(e.target.value)}>
+        <select
+          value={peopleType}
+          onChange={(e) => setPeopleType(e.target.value)}
+        >
           <option value="">동행 선택</option>
           <option>혼자</option>
           <option>친구랑</option>
@@ -133,12 +134,9 @@ const TripPlanner = ({ userId = 1 }) => {
             !peopleType
           }
         >
-          {loading ? "계획 생성 중..." : "AI 여행 계획 만들기"}
+          {loading ? "생성 중..." : "AI 여행 계획 만들기"}
         </button>
-
       </div>
     </div>
   );
-};
-
-export default TripPlanner;
+}

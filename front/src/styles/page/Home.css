@@ -53,48 +53,6 @@ html, body {
   color: white;
 }
 
-/* ============================================================
-   SIDE MENU
-============================================================ */
-.side-menu {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 280px;
-  height: 100vh;
-  background: #fff;
-  padding: 40px 20px;
-  box-shadow: -4px 0 12px rgba(0,0,0,0.15);
-  transform: translateX(100%);   /* 화면에서 완전 제거 */
-  transition: transform 0.35s ease;
-  z-index: 60;
-}
-
-.side-menu.open {
-  transform: translateX(0);      /* 보여줄 때 슬라이드 */
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 28px;
-  cursor: pointer;
-}
-
-.side-menu ul {
-  list-style: none;
-  margin-top: 40px;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.logout-btn {
-  font-size: 18px;
-  cursor: pointer;
-}
-
 /* overlay */
 .overlay {
   position: fixed;

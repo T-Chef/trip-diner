@@ -1,37 +1,40 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { Navigate } from "react-router-dom";
 
-
-// 기존 페이지
+// 기본 페이지
 import Home from "./pages/page/Home.jsx";
 import Login from "./pages/page/Login.jsx";
 import Signup from "./pages/page/Signup.jsx";
 import Dashboard from "./pages/page/Dashboard.jsx";
 import RecommendPage from "./pages/page/RecommendPage.jsx";
 import StyleSelect from "./pages/page/StyleSelect.jsx";
-import Profile from "./pages/side/Profile.jsx";
-import Schedule from "./pages/side/Schedule.jsx";
+
+// 마이페이지 관련 (mypage 폴더)
+import Profile from "./pages/side/mypage/Profile.jsx";
+import ProfileEdit from "./pages/side/mypage/ProfileEdit.jsx";
+import Favorites from "./pages/side/mypage/Favorites.jsx";
+import Unsubscribe from "./pages/side/mypage/Unsubscribe.jsx";
+import Calendar from "./pages/side/mypage/Calendar.jsx";
+
+// 사이드 메뉴 페이지
+import Schedule from "./pages/side/schedule/AISchedule.jsx";
+import ScheduleResult from "./pages/side/schedule/AIScheduleResult.jsx";
 import City from "./pages/side/City.jsx";
 import Board from "./pages/side/Board.jsx";
 import Contract from "./pages/side/Contract.jsx";
-import NotFound from "./pages/page/404.jsx";
 
-// Trip-Diner 페이지
-import TripPlanner from "./pages/trip/TripPlanner.jsx";
-import TripResult from "./pages/trip/TripResult.jsx";
+// 기타 페이지
+import NotFound from "./pages/page/404.jsx";
 
 export default function App() {
   const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // 새로고침 시 로그인 유지
+  // 로그인 유지
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
+    if (savedUser) setUser(JSON.parse(savedUser));
   }, []);
 
   return (
@@ -39,7 +42,7 @@ export default function App() {
       <Toaster position="top-center" reverseOrder={false} />
 
       <Routes>
-        {/* 메인 홈 */}
+        {/* 홈 */}
         <Route
           path="/"
           element={
@@ -52,115 +55,42 @@ export default function App() {
           }
         />
 
-        {/* 로그인 */}
+        {/* 로그인 / 회원가입 */}
         <Route path="/login" element={<Login setUser={setUser} />} />
-
-        {/* 회원가입 */}
         <Route path="/signup" element={<Signup />} />
 
-        {/* Trip-Diner: 여행 생성 */}
-        <Route path="/tours" element={<Navigate to="/trip" replace />} />
-        <Route
-          path="/trip"
-          element={
-            <TripPlanner
-              user={user}
-              menuOpen={menuOpen}
-              setMenuOpen={setMenuOpen}
-            />
-          }
-        />
+        {/* 마이페이지 */}
+        <Route path="/profile" element={<Profile user={user} setUser={setUser}/>} />
+        <Route path="/profile/edit" element={<ProfileEdit user={user} setUser={setUser}/>} />
+        <Route path="/favorites" element={<Favorites user={user} />} />
+        <Route path="/withdraw" element={<Unsubscribe user={user} />} />
 
-        {/* Trip-Diner: 결과 페이지 */}
-        <Route
-          path="/trip/result"
-          element={
-            <TripResult
-              user={user}
-              menuOpen={menuOpen}
-              setMenuOpen={setMenuOpen}
-            />
-          }
-        />
+        {/* 캘린더 */}
+        <Route path="/calendar" element={<Calendar user={user} />} />
 
-        {/* 프로필 */}
-        <Route
-          path="/profile"
-          element={
-            <Profile
-              user={user}
-              setUser={setUser}
-              menuOpen={menuOpen}
-              setMenuOpen={setMenuOpen}
-            />
-          }
-        />
-
-        {/* AI 일정표 */}
+        {/* AI 일정 */}
         <Route
           path="/schedule"
-          element={
-            <Schedule user={user} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
-          }
+          element={<Schedule user={user} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />}
         />
-
-        {/* 도시별 여행 지도 */}
         <Route
-          path="/city"
-          element={
-            <City user={user} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
-          }
+          path="/schedule/result"
+          element={<ScheduleResult user={user} />}
         />
 
-        {/* 게시판 */}
-        <Route
-          path="/board"
-          element={
-            <Board user={user} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
-          }
-        />
+        {/* 도시별 / 게시판 / 문의 */}
+        <Route path="/city" element={<City user={user} />} />
+        <Route path="/board" element={<Board user={user} />} />
+        <Route path="/contract" element={<Contract user={user} />} />
 
-        {/* 문의하기 */}
-        <Route
-          path="/contract"
-          element={
-            <Contract user={user} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
-          }
-        />
+        {/* 스타일 추천 */}
+        <Route path="/recommend" element={<RecommendPage user={user} />} />
+        <Route path="/style" element={<StyleSelect user={user} />} />
 
-        {/* 추천 페이지 */}
-        <Route
-          path="/recommend"
-          element={
-            <RecommendPage
-              user={user}
-              menuOpen={menuOpen}
-              setMenuOpen={setMenuOpen}
-            />
-          }
-        />
+        {/* 대시보드 */}
+        <Route path="/dashboard" element={<Dashboard user={user} />} />
 
-        {/* 스타일 선택 */}
-        <Route
-          path="/style"
-          element={
-            <StyleSelect
-              user={user}
-              menuOpen={menuOpen}
-              setMenuOpen={setMenuOpen}
-            />
-          }
-        />
-
-        {/* 로그인 후 대시보드 */}
-        <Route
-          path="/dashboard"
-          element={
-            <Dashboard user={user} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
-          }
-        />
-
-        {/* 404 */}
+        {/* 404 페이지 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

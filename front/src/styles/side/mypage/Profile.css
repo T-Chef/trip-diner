@@ -1,0 +1,103 @@
+.profile-wrapper {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  height: 100vh;
+}
+
+/* LEFT AREA */
+.profile-left {
+  background: #2878ff;
+  padding: 40px 20px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-icon {
+  font-size: 90px;
+  margin-bottom: 20px;
+}
+
+.profile-welcome {
+  font-size: 22px;
+  margin-top: 10px;
+}
+
+.profile-name {
+  font-size: 26px;
+  font-weight: bold;
+}
+
+.profile-links {
+  margin-top: 20px;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: center;
+}
+
+.profile-menu-icons {
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 25px;
+}
+
+.icon-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+}
+
+.icon-box svg {
+  font-size: 40px;
+  margin-bottom: 6px;
+}
+
+/* RIGHT AREA */
+.profile-right {
+  padding: 40px;
+  background: #f2f2f2;
+  overflow-y: auto;
+}
+
+.profile-calendar-section {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.calendar-icon {
+  font-size: 35px;
+}
+
+.calendar-box {
+  height: 300px;
+  margin-top: 20px;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.grid-item {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

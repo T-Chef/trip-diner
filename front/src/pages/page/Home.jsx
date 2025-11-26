@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../../styles/page/Home.css";
 
+// 분리한 SideMenu 가져오기
+import SideMenu from "../../components/side/SideMenu.jsx";
+
 export default function Home({ user, setUser }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -9,46 +12,35 @@ export default function Home({ user, setUser }) {
   const sectionsRef = useRef([]);
   const heroRef = useRef(null);
 
-  // 섹션(메뉴판 박스) 애니메이션
+  // 섹션 애니메이션
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("show");
-          } else {
-            entry.target.classList.remove("show");
-          }
+          if (entry.isIntersecting) entry.target.classList.add("show");
+          else entry.target.classList.remove("show");
         });
       },
-      { threshold: 0.5,
-        rootMargin: "-50px 0px"
-       }
+      { threshold: 0.5, rootMargin: "-50px 0px" }
     );
 
-    sectionsRef.current.forEach((sec) => {
-      if (sec) observer.observe(sec);
-    });
-
+    sectionsRef.current.forEach((sec) => sec && observer.observe(sec));
     return () => observer.disconnect();
   }, []);
 
   // 히어로 텍스트 애니메이션
   useEffect(() => {
-  const heroObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("show");
-        }
-      });
-    },
-    { threshold: 0.4 }
-  );
+    const heroObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) entry.target.classList.add("show");
+        });
+      },
+      { threshold: 0.4 }
+    );
 
-  if (heroRef.current) heroObserver.observe(heroRef.current);
-
-  return () => heroObserver.disconnect();
+    if (heroRef.current) heroObserver.observe(heroRef.current);
+    return () => heroObserver.disconnect();
   }, []);
 
   const categories = [
@@ -58,6 +50,7 @@ export default function Home({ user, setUser }) {
     "문화, 예술, 역사",
     "관광보다 맛집",
   ];
+
   const [selectedCategories, setSelectedCategories] = useState([]);
 
   const toggleCategory = (category) => {
@@ -68,67 +61,61 @@ export default function Home({ user, setUser }) {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
-    setMenuOpen(false);
-    navigate("/");
-  };
-
   return (
     <div className="home-wrapper">
-
       {/* HEADER */}
       <header className="header">
         <div className="header-inner">
           <div className="logo">Trip - Diner</div>
-          <button className="ham-btn" onClick={() => setMenuOpen(true)}>☰</button>
+
+          {/* 메뉴가 닫혀 있을 때만 햄버거 버튼 표시 */}
+          {!menuOpen && (
+            <button className="ham-btn" onClick={() => setMenuOpen(true)}>
+              ☰
+            </button>
+          )}
         </div>
       </header>
 
       {/* SIDE MENU */}
-      <div className={`side-menu ${menuOpen ? "open" : ""}`}>
-        <button className="close-btn" onClick={() => setMenuOpen(false)}>✕</button>
-
-        <ul>
-          {user ? (
-            <>
-              <li className="welcome">{user.name}님 환영합니다!</li>
-              <li className="logout-btn" onClick={handleLogout}>로그아웃</li>
-            </>
-          ) : (
-            <li><Link to="/login">로그인 / 회원가입</Link></li>
-          )}
-
-          <li><Link to="/tours">여행상품</Link></li>
-          <li><Link to="/contact">문의하기</Link></li>
-        </ul>
-      </div>
-
-      {menuOpen && <div className="overlay" onClick={() => setMenuOpen(false)} />}
+      <SideMenu
+        user={user}
+        setUser={setUser}
+        menuOpen={menuOpen}
+        setMenuOpen={setMenuOpen}
+      />
 
       {/* HERO */}
       <section className="hero">
-        <img src="/assets/images/main.png" className="hero-img" alt="메인 배너" />
+        <img
+          src="/assets/images/main.png"
+          className="hero-img"
+          alt="메인 배너"
+        />
 
         <div className="hero-content" ref={heroRef}>
           <h1 className="hero-title">
-            보는 순간 설레는<br />여행 메뉴판
+            보는 순간 설레는
+            <br />
+            여행 메뉴판
           </h1>
           <p className="hero-desc">
-            당신의 취향을 맛보고 만드는 여행 코스<br />
+            당신의 취향을 맛보고 만드는 여행 코스
+            <br />
             Trip-Diner와 함께 특별한 여행을 시작하세요
           </p>
         </div>
       </section>
 
       {/* INTRO */}
-      <section className="section-box intro-section"
-        ref={(el) => (sectionsRef.current[0] = el)}>
+      <section
+        className="section-box intro-section"
+        ref={(el) => (sectionsRef.current[0] = el)}
+      >
         <p className="badge">일정 생성 · 관리</p>
-
         <h2 className="intro-title">
-          내가 가고 싶은 여행 테마,<br />
+          내가 가고 싶은 여행 테마,
+          <br />
           T-chef로 간편하게
         </h2>
 
@@ -141,8 +128,10 @@ export default function Home({ user, setUser }) {
       </section>
 
       {/* 추천 여행지 */}
-      <section className="section-box recommend-section"
-        ref={(el) => (sectionsRef.current[1] = el)}>
+      <section
+        className="section-box recommend-section"
+        ref={(el) => (sectionsRef.current[1] = el)}
+      >
         <h2 className="sec-title">추천 여행지</h2>
 
         <div className="recommend-cards">
@@ -173,8 +162,10 @@ export default function Home({ user, setUser }) {
       </section>
 
       {/* 취향 선택 */}
-      <section className="section-box taste-section"
-        ref={(el) => (sectionsRef.current[2] = el)}>
+      <section
+        className="section-box taste-section"
+        ref={(el) => (sectionsRef.current[2] = el)}
+      >
         <h3 className="taste-title">내가 선호하는 여행 스타일은?</h3>
         <p className="small">다중 선택이 가능해요</p>
 
