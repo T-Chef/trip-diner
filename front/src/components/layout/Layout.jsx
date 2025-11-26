@@ -82,7 +82,7 @@ export default function Layout({
           </li>
 
           <li>
-            <Link to="/contact">문의하기</Link>
+            <Link to="/contract">문의하기</Link>
           </li>
         </ul>
       </div>
