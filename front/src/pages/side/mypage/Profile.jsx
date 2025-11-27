@@ -1,126 +1,120 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-// CSS
 import "../../../styles/side/mypage/Profile.css";
 
-// 아이콘
-import {
-  FaUserCircle,
-  FaStar,
-  FaCalendarAlt,
-  FaComments,
-  FaQuestion,
-} from "react-icons/fa";
+import { FaStar, FaCalendarAlt, FaComments, FaQuestion } from "react-icons/fa";
+import CalendarBox from "./Calendar";
 
-// 캘린더 컴포넌트
-import CalendarBox from "./Calendar.jsx";
-
-export default function Profile({ user }) {
+export default function Profile({ user, setUser }) {
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+  const [profileImg, setProfileImg] = useState("");
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    navigate("/login");
+  useEffect(() => {
+    if (!user?.profile_img) return;
+
+    const fullUrl = `http://localhost:4000${user.profile_img}`;
+    console.log("초기 로딩 URL:", fullUrl);
+
+    setProfileImg(fullUrl);
+  }, [user]);
+
+  // 이미지 클릭
+  const handleProfileClick = () => {
+    fileInputRef.current.click();
   };
 
+  // 이미지 업로드
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("profile", file);
+    formData.append("userId", user.user_id);
+
+    const res = await fetch("http://localhost:4000/api/profile/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      alert("업로드 실패");
+      return;
+    }
+
+    // 절대경로로 변경
+    const fullUrl = `http://localhost:4000${data.imageUrl}`;
+    setProfileImg(fullUrl);
+
+    const updatedUser = { ...user, profile_img: data.imageUrl };
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+  };
+
+  if (!user) return <>로그인이 필요합니다.</>;
+
   return (
-    <div className="profile-wrapper">
-      {/* LEFT AREA */}
-      <div className="profile-left">
-        {/* 프로필 아이콘 */}
-        <div
-          className="profile-icon clickable"
-          onClick={() => navigate("/profile/edit")}
-        >
-          <FaUserCircle />
+    <div className="profile-container">
+      <div className="profile-header">
+        <div className="profile-photo-box" onClick={handleProfileClick}>
+          <img
+            src={profileImg || "http://localhost:4000/profile.png"}
+            className="profile-photo"
+            alt="profile"
+          />
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept="image/*"
+            onChange={handleFileChange}
+            style={{ display: "none" }}
+          />
         </div>
 
-        <div className="profile-welcome">반가워요</div>
-        <div className="profile-name">{user?.name || "사용자"}님.</div>
+        <div className="profile-info">
+          <h2>
+            반가워요, <span className="highlight">{user.name}님</span>
+          </h2>
 
-        {/* 닉네임 변경 / 로그아웃 / 회원탈퇴 */}
-        <div className="profile-links">
-          <span onClick={() => navigate("/profile/edit")}>닉네임 변경</span>
-          <span onClick={handleLogout}>로그아웃</span>
-          <span onClick={() => navigate("/withdraw")}>회원 탈퇴</span>
-        </div>
-
-        {/* ICON MENU */}
-        <div className="profile-menu-icons">
-          <div
-            className="icon-box clickable"
-            onClick={() => navigate("/favorites")}
-          >
-            <FaStar />
-            <p>즐겨찾기</p>
-          </div>
-
-          <div
-            className="icon-box clickable"
-            onClick={() => navigate("/schedule")}
-          >
-            <FaCalendarAlt />
-            <p>일정</p>
-          </div>
-
-          <div className="icon-box clickable" onClick={() => navigate("/qna")}>
-            <FaQuestion />
-            <p>Q&A</p>
-          </div>
-
-          <div
-            className="icon-box clickable"
-            onClick={() => navigate("/reviews")}
-          >
-            <FaComments />
-            <p>후기</p>
+          <div className="profile-buttons">
+            <button onClick={() => navigate("/profile/edit")}>
+              닉네임 변경
+            </button>
+            <button onClick={() => navigate("/login")}>로그아웃</button>
+            <button onClick={() => navigate("/withdraw")}>탈퇴</button>
           </div>
         </div>
       </div>
 
-      {/* RIGHT AREA */}
-      <div className="profile-right">
-        <div className="profile-calendar-section">
-          <div className="calendar-header">
-            <h2>2025년 11월</h2>
-            <FaCalendarAlt className="calendar-icon" />
-          </div>
+      <div className="profile-calendar-section">
+        <div className="calendar-header">
+          <h3>2025년 11월</h3>
+          <FaCalendarAlt size={28} />
+        </div>
+        <div className="calendar-box">
+          <CalendarBox />
+        </div>
+      </div>
 
-          <div className="calendar-box">
-            <CalendarBox />
-          </div>
+      <div className="profile-grid">
+        <div className="grid-item" onClick={() => navigate("/recent")}>
+          <FaCalendarAlt /> 최근 본 여행지
         </div>
 
-        {/* GRID MENU */}
-        <div className="profile-grid">
-          <div
-            className="grid-item clickable"
-            onClick={() => navigate("/recent")}
-          >
-            ➡ 최근 본 여행지
-          </div>
+        <div className="grid-item" onClick={() => navigate("/city")}>
+          <FaStar /> 도시 정보
+        </div>
 
-          <div
-            className="grid-item clickable"
-            onClick={() => navigate("/city")}
-          >
-            ➡ 도시 별 여행정보
-          </div>
+        <div className="grid-item" onClick={() => navigate("/board")}>
+          <FaComments /> 게시판
+        </div>
 
-          <div
-            className="grid-item clickable"
-            onClick={() => navigate("/board")}
-          >
-            ➡ 게시판
-          </div>
-
-          <div
-            className="grid-item clickable"
-            onClick={() => navigate("/wishlist")}
-          >
-            ➡ 찜한 여행지
-          </div>
+        <div className="grid-item" onClick={() => navigate("/wishlist")}>
+          <FaQuestion /> 찜한 여행지
         </div>
       </div>
     </div>

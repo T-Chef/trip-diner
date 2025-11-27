@@ -1,74 +1,69 @@
-.profile-wrapper {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  height: 100vh;
+/* 전체 컨테이너 */
+.profile-container {
+  width: 100%;
+  padding: 40px 60px;
+  box-sizing: border-box;
+  background: #f7f9fc;
 }
 
-/* LEFT AREA */
-.profile-left {
-  background: #2878ff;
-  padding: 40px 20px;
-  color: white;
+/* 프로필 헤더 */
+.profile-header {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: space-between;
+  background: white;
+  padding: 35px 40px;
+  border-radius: 20px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  margin-bottom: 50px;
 }
 
-.profile-icon {
-  font-size: 90px;
-  margin-bottom: 20px;
+.profile-photo-box {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
 }
 
-.profile-welcome {
-  font-size: 22px;
-  margin-top: 10px;
+.profile-photo {
+  width: 95px;
+  height: 95px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #eee;
 }
 
-.profile-name {
+.profile-info h2 {
   font-size: 26px;
-  font-weight: bold;
+  margin-left: 20px;
 }
 
-.profile-links {
-  margin-top: 20px;
-  font-size: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  text-align: center;
+.highlight {
+  color: #2878ff;
 }
 
-.profile-menu-icons {
-  margin-top: 40px;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 25px;
+/* 버튼 */
+.profile-buttons button {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 8px 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-left: 12px;
+  transition: 0.25s;
 }
 
-.icon-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: white;
+.profile-buttons button:hover {
+  background: #f3f6ff;
+  border-color: #2878ff;
 }
 
-.icon-box svg {
-  font-size: 40px;
-  margin-bottom: 6px;
-}
-
-/* RIGHT AREA */
-.profile-right {
-  padding: 40px;
-  background: #f2f2f2;
-  overflow-y: auto;
-}
-
+/* 달력 */
 .profile-calendar-section {
   background: white;
-  padding: 25px;
-  border-radius: 12px;
-  margin-bottom: 30px;
+  padding: 35px 40px;
+  border-radius: 20px;
+  margin-bottom: 50px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
 
 .calendar-header {
@@ -77,27 +72,36 @@
   align-items: center;
 }
 
-.calendar-icon {
-  font-size: 35px;
-}
-
 .calendar-box {
-  height: 300px;
-  margin-top: 20px;
+  margin-top: 35px;
 }
 
+/* 그리드 메뉴 */
 .profile-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
+  gap: 25px;
 }
 
 .grid-item {
   background: white;
-  padding: 25px;
-  border-radius: 10px;
+  padding: 26px 28px;
+  border-radius: 18px;
   font-size: 18px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  transition: transform 0.15s ease, box-shadow 0.25s ease;
+}
+
+.grid-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.grid-item svg {
+  font-size: 26px;
+  color: #2878ff;
 }
