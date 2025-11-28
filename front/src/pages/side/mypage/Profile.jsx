@@ -2,7 +2,17 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../../styles/side/mypage/Profile.css";
 
-import { FaStar, FaCalendarAlt, FaComments, FaQuestion } from "react-icons/fa";
+import {
+  FaStar,
+  FaCalendarAlt,
+  FaComments,
+  FaQuestion,
+  FaRegHeart,
+  FaRegCalendarCheck,
+  FaRegQuestionCircle,
+  FaRegCommentDots,
+} from "react-icons/fa";
+
 import CalendarBox from "./Calendar";
 
 export default function Profile({ user, setUser }) {
@@ -19,12 +29,12 @@ export default function Profile({ user, setUser }) {
     setProfileImg(fullUrl);
   }, [user]);
 
-  // 이미지 클릭
+  // 프로필 클릭
   const handleProfileClick = () => {
     fileInputRef.current.click();
   };
 
-  // 이미지 업로드
+  // 프로필 업로드
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -45,7 +55,6 @@ export default function Profile({ user, setUser }) {
       return;
     }
 
-    // 절대경로로 변경
     const fullUrl = `http://localhost:4000${data.imageUrl}`;
     setProfileImg(fullUrl);
 
@@ -59,6 +68,7 @@ export default function Profile({ user, setUser }) {
   return (
     <div className="profile-container">
       <div className="profile-header">
+        {/* 프로필 */}
         <div className="profile-photo-box" onClick={handleProfileClick}>
           <img
             src={profileImg || "http://localhost:4000/profile.png"}
@@ -75,6 +85,7 @@ export default function Profile({ user, setUser }) {
           />
         </div>
 
+        {/* 인사말 + 버튼 */}
         <div className="profile-info">
           <h2>
             반가워요, <span className="highlight">{user.name}님</span>
@@ -85,11 +96,35 @@ export default function Profile({ user, setUser }) {
               닉네임 변경
             </button>
             <button onClick={() => navigate("/login")}>로그아웃</button>
-            <button onClick={() => navigate("/withdraw")}>탈퇴</button>
+            <button onClick={() => navigate("/withdraw")}>회원탈퇴</button>
+          </div>
+        </div>
+
+        {/* 4가지 항목(수정 예정) */}
+        <div className="profile-right-menu">
+          <div className="menu-box" onClick={() => navigate("/wishlist")}>
+            <FaRegHeart className="menu-icon" />
+            <span>즐겨찾기</span>
+          </div>
+
+          <div className="menu-box" onClick={() => navigate("/schedule")}>
+            <FaRegCalendarCheck className="menu-icon" />
+            <span>일정</span>
+          </div>
+
+          <div className="menu-box" onClick={() => navigate("/qna")}>
+            <FaRegQuestionCircle className="menu-icon" />
+            <span>Q&A</span>
+          </div>
+
+          <div className="menu-box" onClick={() => navigate("/review")}>
+            <FaRegCommentDots className="menu-icon" />
+            <span>후기</span>
           </div>
         </div>
       </div>
 
+      {/* 달력 */}
       <div className="profile-calendar-section">
         <div className="calendar-header">
           <h3>2025년 11월</h3>
@@ -100,6 +135,7 @@ export default function Profile({ user, setUser }) {
         </div>
       </div>
 
+      {/* 최근 본 여행지, 도시 정보, 게시판, 찜한 여행지 */}
       <div className="profile-grid">
         <div className="grid-item" onClick={() => navigate("/recent")}>
           <FaCalendarAlt /> 최근 본 여행지
