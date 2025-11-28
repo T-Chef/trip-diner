@@ -1,0 +1,59 @@
+.hero {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-img {
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+}
+
+.hero-content {
+  position: absolute;
+  top: 45%;
+  left: 60px;
+  color: white;
+
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  will-change: opacity, transform;
+  
+}
+
+.hero-content.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hero-title {
+  font-size: 64px;
+  font-weight: 900;
+
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1s ease-out 0.2s, transform 1s ease-out 0.2s;
+}
+
+.hero-content.show .hero-title {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hero-desc {
+  font-size: 20px;
+  margin-top: 20px;
+  line-height: 1.5;
+
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1.2s ease-out 0.45s, transform 1.2s ease-out 0.45s;
+}
+
+.hero-content.show .hero-desc {
+  opacity: 1;
+  transform: translateY(0);
+}

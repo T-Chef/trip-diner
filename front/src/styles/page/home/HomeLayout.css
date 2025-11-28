@@ -1,0 +1,151 @@
+/* GLOBAL */
+html, body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background: #200f07;
+}
+
+.home-wrapper {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: "Pretendard", sans-serif;
+}
+
+/* SIDE MENU */
+.side-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 100vh;
+  padding: 40px 20px;
+  background: white;
+  box-shadow: -4px 0 12px rgba(0,0,0,0.15);
+
+  transform: translateX(100%);
+  opacity: 0;
+
+  transition: transform 0.4s ease, opacity 0.35s ease;
+  z-index: 60;
+}
+
+.side-menu.open {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.side-menu ul {
+  list-style: none;
+  margin-top: 40px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.logout-btn {
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0,0,0,0.4);
+
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  z-index: 40;
+}
+
+.overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 공통 SECTION BOX */
+.section-box {
+  width: 100%;
+  max-width: 1180px;
+  margin: -50px auto 0 auto;
+  padding: 80px 60px;
+  position: relative;
+
+  background-size: cover;
+  background-position: center;
+
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 40px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+
+  /* fade-up 애니메이션 */
+  opacity: 0;
+  transform: translateY(80px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+  will-change: opacity, transform;
+}
+
+.section-box.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 은은한 종이 조명 */
+.section-box::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 32%,
+    rgba(255,255,255,0.22),
+    rgba(0,0,0,0.06)
+  );
+  pointer-events: none;
+}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 900px) {
+  .intro-section {
+    flex-direction: column;
+  }
+
+  .intro-right {
+    min-height: 300px;
+  }
+
+  .hero-title {
+    font-size: 48px;
+  }
+}
+
+@media (max-width: 600px) {
+  .section-box {
+    padding: 60px 24px;
+    border-radius: 28px;
+  }
+
+  .hero-title{
+    font-size: 38px;
+  }
+
+  .hero-content {
+    left: 24px;
+    top: 40%;
+  }
+}

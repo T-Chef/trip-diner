@@ -1,0 +1,184 @@
+.recommend-grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 60px;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* LEFT SIDE */
+.left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.left-col h1.big-title {
+  margin-top: 12px;
+  margin-bottom: 18px;
+  font-size: 42px;
+  line-height: 1.3;
+}
+
+.left-col .sub-desc {
+  margin-bottom: 26px;
+}
+
+
+.recommend-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* WHITE CARD */
+.item-card {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 18px;
+  height: 84px;
+}
+
+.item-card img.item-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.item-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+}
+
+/* RIGHT SIDE IMAGES */
+.right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* 큰 이미지 */
+.big-photo {
+  width: 100%;
+  height: 340px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12)
+}
+
+.big-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 작은 사진 2개 */
+.small-photo-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.small-photo {
+  height: 170px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.small-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.big-photo, .small-photo {
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+}
+
+/* 페이드업 애니메이션 */
+.recommend-section .left-col,
+.recommend-section .right-col,
+.recommend-section .big-title {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity .8s ease, transform .8s ease;
+}
+
+.recommend-section.show .left-col,
+.recommend-section.show .right-col,
+.recommend-section.show .big-title {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================================
+   FADE-UP + BLUR ANIMATION (Section3 공통)
+============================================================ */
+/* 초기값 */
+.recommend-grid > * {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  will-change: opacity, transform;
+}
+
+/* show */
+.recommend-section.show .recommend-grid > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 개별 딜레이 */
+.left-col { transition-delay: 0.1s; }
+.right-col { transition-delay: 0.18s; }
+
+/* 이미지 내부 stagger */
+.big-photo {
+  opacity: 0; 
+  transform: translateY(28px);
+  transition: 0.8s ease-out;
+  will-change: opacity, transform;
+}
+
+.small-photo {
+  opacity: 0; 
+  transform: translateY(28px);
+  transition: 0.8s ease-out;
+  will-change: opacity, transform;
+}
+
+.recommend-section.show .big-photo { 
+  opacity: 1; 
+  transform: translateY(0); 
+  transition-delay: 0.22s;
+}
+
+.recommend-section.show .small-photo:nth-child(1) { 
+  opacity: 1; transform: translateY(0); 
+  transition-delay: 0.28s;
+}
+
+.recommend-section.show .small-photo:nth-child(2) { 
+  opacity: 1; 
+  transform: translateY(0); 
+  transition-delay: 0.34s;
+}
+
+.fade-item {
+  opacity: 0;
+  transform: translateY(50px);
+  filter: blur(4px);
+  transition: opacity 0.8s ease, transform 0.8s ease, filter 0.8s ease;
+}
+
+.fade-item.show {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}

@@ -9,8 +9,6 @@ import Home from "./pages/page/Home.jsx";
 import Login from "./pages/page/Login.jsx";
 import Signup from "./pages/page/Signup.jsx";
 import Dashboard from "./pages/page/Dashboard.jsx";
-import RecommendPage from "./pages/page/RecommendPage.jsx";
-import StyleSelect from "./pages/page/StyleSelect.jsx";
 import Profile from "./pages/side/Profile.jsx";
 import Schedule from "./pages/side/Schedule.jsx";
 import City from "./pages/side/City.jsx";
@@ -125,30 +123,6 @@ export default function App() {
           path="/contract"
           element={
             <Contract user={user} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
-          }
-        />
-
-        {/* 추천 페이지 */}
-        <Route
-          path="/recommend"
-          element={
-            <RecommendPage
-              user={user}
-              menuOpen={menuOpen}
-              setMenuOpen={setMenuOpen}
-            />
-          }
-        />
-
-        {/* 스타일 선택 */}
-        <Route
-          path="/style"
-          element={
-            <StyleSelect
-              user={user}
-              menuOpen={menuOpen}
-              setMenuOpen={setMenuOpen}
-            />
           }
         />
 
