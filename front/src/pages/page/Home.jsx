@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/page/home/HomeLayout.css";
 
 // 섹션별 컴포넌트 import
-import { Header, Footer, Hero, Section1, Section2, Section3 } from "../../components/home";
+import { Header, SideMenu, Footer, Hero, Section1, Section2, Section3 } from "../../components/home";
 
 export default function Home({ user, setUser }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -77,6 +77,13 @@ export default function Home({ user, setUser }) {
         user={user}
         handleLogout={handleLogout}
       />
+
+      <SideMenu 
+      user={user}
+      setUser={setUser}
+      menuOpen={menuOpen}
+      setMenuOpen={setMenuOpen}
+    />
 
       {/* HERO */}
       <Hero heroRef={heroRef} />

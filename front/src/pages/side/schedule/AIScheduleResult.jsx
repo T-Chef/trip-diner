@@ -1,23 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import MapWithPlan from "../../components/trip/MapWithPlan";
+import AIScheduleMap from "./AIScheduleMap.jsx";
 
-function TripResult() {
+export default function ScheduleResult() {
   const location = useLocation();
   const aiPlan = location.state?.aiPlan;
 
   const [highlight, setHighlight] = useState({ day: null, index: null });
   const [selectedPlace, setSelectedPlace] = useState(null);
 
-  // 일정표 클릭 시 자동 스크롤
+  // 일정 항목 클릭 → 자동 스크롤
   useEffect(() => {
     if (highlight.day === null) return;
-    const el = document.getElementById(`place-${highlight.day}-${highlight.index}`);
+    const el = document.getElementById(
+      `place-${highlight.day}-${highlight.index}`
+    );
     if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [highlight]);
 
   if (!aiPlan) {
-    return <div>일정 데이터가 없습니다. 다시 시도해주세요.</div>;
+    return (
+      <div style={{ padding: "20px" }}>
+        일정 데이터를 불러올 수 없습니다. 다시 시도해주세요.
+      </div>
+    );
   }
 
   return (
@@ -25,10 +31,9 @@ function TripResult() {
       <h2>AI 여행 일정 결과</h2>
 
       <div style={{ display: "flex", marginTop: "20px", gap: "20px" }}>
-        
-        {/* 지도 */}
+        {/* 왼쪽 지도 영역 */}
         <div style={{ flex: 2 }}>
-          <MapWithPlan
+          <AIScheduleMap
             aiPlan={aiPlan.days}
             onSelectPlace={(dayIdx, placeIdx) => {
               setHighlight({ day: dayIdx, index: placeIdx });
@@ -37,7 +42,7 @@ function TripResult() {
           />
         </div>
 
-        {/* 오른쪽 일정표 + 상세정보 */}
+        {/* 오른쪽 일정표 & 상세 정보 */}
         <div
           style={{
             flex: 1,
@@ -48,9 +53,15 @@ function TripResult() {
             overflowY: "auto",
           }}
         >
-          {/* 상세 카드 */}
+          {/* 선택한 장소 상세 카드 */}
           {selectedPlace && (
-            <div style={{ marginBottom: "18px", borderBottom: "1px solid #ccc", paddingBottom: "12px" }}>
+            <div
+              style={{
+                marginBottom: "18px",
+                borderBottom: "1px solid #ccc",
+                paddingBottom: "12px",
+              }}
+            >
               {selectedPlace.image && (
                 <img
                   src={selectedPlace.image}
@@ -67,9 +78,8 @@ function TripResult() {
               <h2 style={{ marginBottom: "6px" }}>{selectedPlace.name}</h2>
               {selectedPlace.address && <p>📍 {selectedPlace.address}</p>}
               {selectedPlace.time && <p>🕒 방문 예정: {selectedPlace.time}</p>}
-              {selectedPlace.memo && <p>📝 메모: {selectedPlace.memo}</p>}
 
-              <div style={{ marginTop: "8px", display: "flex", gap: "8px" }}>
+              <div style={{ marginTop: "8px" }}>
                 <a
                   href={`https://map.naver.com/v5/search/${selectedPlace.name}`}
                   target="_blank"
@@ -79,9 +89,11 @@ function TripResult() {
                     background: "#03C75A",
                     color: "white",
                     borderRadius: "6px",
+                    display: "inline-block",
+                    marginTop: "5px",
                   }}
                 >
-                  네이버 지도
+                  네이버 지도 열기
                 </a>
               </div>
             </div>
@@ -89,6 +101,7 @@ function TripResult() {
 
           {/* 일정표 */}
           <h3>{aiPlan.title}</h3>
+
           {aiPlan.days.map((day, dayIdx) => (
             <div key={dayIdx} style={{ marginBottom: "16px" }}>
               <h4>{day.day}일차</h4>
@@ -107,7 +120,7 @@ function TripResult() {
                       borderRadius: "6px",
                       background:
                         highlight.day === dayIdx && highlight.index === placeIdx
-                          ? "yellow"
+                          ? "#fff4b8"
                           : "transparent",
                       fontWeight:
                         highlight.day === dayIdx && highlight.index === placeIdx
@@ -116,7 +129,8 @@ function TripResult() {
                       cursor: "pointer",
                     }}
                   >
-                    ⏱ {p.time} — 📍 {p.name} {p.address && ` (${p.address})`}
+                    ⏱ {p.time} — 📍 {p.name}
+                    {p.address && ` (${p.address})`}
                   </li>
                 ))}
               </ul>
@@ -127,5 +141,3 @@ function TripResult() {
     </div>
   );
 }
-
-export default TripResult;
