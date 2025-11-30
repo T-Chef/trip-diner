@@ -23,7 +23,7 @@ export default function Home({ user, setUser }) {
     navigate("/");
   };
 
-  /* === Section 페이드업 Observer === */
+  /* === Section Observer === */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -45,7 +45,7 @@ export default function Home({ user, setUser }) {
     return () => observer.disconnect();
   }, []);
 
-  /* === Hero 페이드업 Observer === */
+  /* === Hero Observer === */
   useEffect(() => {
     const heroObserver = new IntersectionObserver(
       (entries) => {
@@ -67,23 +67,23 @@ export default function Home({ user, setUser }) {
     return () => heroObserver.disconnect();
   }, []);
 
-  
-
   return (
     <div className="home-wrapper">
+
+      {/* HEADER */}
       <Header 
-        menuOpen={menuOpen}
         setMenuOpen={setMenuOpen}
         user={user}
-        handleLogout={handleLogout}
       />
 
+      {/* SIDE MENU */}
       <SideMenu 
       user={user}
       setUser={setUser}
       menuOpen={menuOpen}
       setMenuOpen={setMenuOpen}
-    />
+      handleLogout={handleLogout}
+      />
 
       {/* HERO */}
       <Hero heroRef={heroRef} />
