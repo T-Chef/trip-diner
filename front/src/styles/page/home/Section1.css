@@ -1,0 +1,174 @@
+.intro-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 60px;
+}
+
+/* LEFT */
+.intro-left {
+  flex: 1.1;
+}
+
+.intro-badge {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3E5BFF;
+  margin-bottom: 14px;
+}
+
+.intro-title {
+  font-size: 52px;
+  font-weight: 900;
+  color: #1E2A55;
+  line-height: 1.18;
+}
+
+.intro-subtitle {
+  margin-top: 24px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1E2A55;
+}
+
+.intro-desc {
+  margin-top: 12px;
+  font-size: 17px;
+  color: #4A4A4A;
+  line-height: 1.6;
+}
+
+.intro-list {
+  margin-top: 30px;
+  line-height: 2;
+  font-size: 17px;
+  color: #222;
+  list-style: none;
+  padding-left: 0;
+}
+
+.intro-cta-btn {
+  margin-top: 35px;
+  padding: 16px 28px;
+  background-color: #3E5BFF;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.intro-cta-btn:hover {
+  background-color: #2F47CC;
+}
+
+/* RIGHT (카드 전체) */
+.intro-right {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 50px 40px ; 
+  margin-left: 40px;
+}
+
+/* 카드 공통 */
+.intro-card {
+  width: 100%;
+  max-width: 330px;
+  height: 95px;
+
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 14px 18px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.intro-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 24px rgba(0,0,0,0.18);
+}
+
+/* 계단형 레이어 */
+.card1 { grid-column: 1; margin-top: -10px;}
+.card2 { grid-column: 2; margin-top: 30px; }
+.card3 { grid-column: 1; margin-top: 20px; }
+.card4 { grid-column: 2; margin-top: 70px; }
+
+/* 텍스트 */
+.intro-card h4 {
+  font-size: 16px;
+  margin: 0;
+  font-weight: 700;
+}
+
+.intro-card p {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: #555;
+}
+
+/* 리스트 점 제거 */
+.intro-list li {
+  list-style: none;
+  padding-left: 0;
+}
+
+.intro-card:nth-child(1) { animation-delay: 0.1s; }
+.intro-card:nth-child(2) { animation-delay: 0.2s; }
+.intro-card:nth-child(3) { animation-delay: 0.3s; }
+.intro-card:nth-child(4) { animation-delay: 0.4s; }
+
+
+/* 카드 내부 이미지 */
+.card-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.card-num {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #4A63FF;
+  color: white;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+/* ============================================================
+   INTRO CARD ANIMATION
+============================================================ */
+.intro-card {
+  opacity: 0;
+  transform: translateY(24px);
+  filter: blur(2px);
+  transition: opacity 0.7s ease-out,
+  transform 0.7s ease-out,
+  filter 0.7s ease-out;
+  will-change: transform, opacity, filter;
+}
+
+.intro-card.show {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+/* 카드별 약간의 딜레이 */
+.card1.show { transition-delay: 0.10s; }
+.card2.show { transition-delay: 0.20s; }
+.card3.show { transition-delay: 0.30s; }
+.card4.show { transition-delay: 0.40s; }

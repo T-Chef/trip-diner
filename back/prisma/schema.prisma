@@ -1,0 +1,288 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model admin {
+  admin_id   BigInt       @id @default(autoincrement())
+  email      String       @db.VarChar(255)
+  password   String       @db.VarChar(255)
+  role       admin_role?  @default(MANAGER)
+  qna_answer qna_answer[]
+}
+
+model city {
+  city_id     BigInt    @id @default(autoincrement())
+  name        String    @db.VarChar(100)
+  country     String?   @db.VarChar(100)
+  description String?   @db.Text
+  image_url   String?   @db.VarChar(500)
+  event       event[]
+  place       place[]
+  plan        plan[]
+  weather     weather[]
+}
+
+model event {
+  event_id    BigInt    @id @default(autoincrement())
+  city_id     BigInt
+  title       String?   @db.VarChar(255)
+  description String?   @db.Text
+  start_date  DateTime? @db.Date
+  end_date    DateTime? @db.Date
+  city        city      @relation(fields: [city_id], references: [city_id], onDelete: NoAction, onUpdate: NoAction, map: "event_ibfk_1")
+
+  @@index([city_id], map: "city_id")
+}
+
+model place {
+  place_id     BigInt         @id @default(autoincrement())
+  city_id      BigInt
+  name         String?        @db.VarChar(255)
+  category     String?        @db.VarChar(100)
+  address      String?        @db.VarChar(255)
+  lat          Float?
+  lng          Float?
+  description  String?        @db.Text
+  image_url    String?        @db.VarChar(500)
+  bookmark     bookmark[]
+  city         city           @relation(fields: [city_id], references: [city_id], onDelete: NoAction, onUpdate: NoAction, map: "place_ibfk_1")
+  plan_item    plan_item[]
+  recent       recent[]
+  review_place review_place[]
+  content_id String? @unique @db.VarChar(50)
+
+
+  @@index([city_id], map: "city_id")
+}
+
+model ai_history {
+  ai_id      BigInt      @id @default(autoincrement())
+  user_id    BigInt?
+  keyword_id BigInt?
+  plan_id    BigInt?
+  created_at DateTime?   @default(now()) @db.DateTime(0)
+  user       user?       @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "ai_history_ibfk_1")
+  ai_keyword ai_keyword? @relation(fields: [keyword_id], references: [keyword_id], onDelete: NoAction, onUpdate: NoAction, map: "ai_history_ibfk_2")
+  plan       plan?       @relation(fields: [plan_id], references: [plan_id], onDelete: NoAction, onUpdate: NoAction, map: "ai_history_ibfk_3")
+
+  @@index([keyword_id], map: "keyword_id")
+  @@index([plan_id], map: "plan_id")
+  @@index([user_id], map: "user_id")
+}
+
+model ai_keyword {
+  keyword_id  BigInt       @id @default(autoincrement())
+  keyword     String?      @db.VarChar(100)
+  description String?      @db.VarChar(255)
+  ai_history  ai_history[]
+}
+
+model bookmark {
+  user_id  BigInt
+  place_id BigInt
+  user     user   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "bookmark_ibfk_1")
+  place    place  @relation(fields: [place_id], references: [place_id], onDelete: NoAction, onUpdate: NoAction, map: "bookmark_ibfk_2")
+
+  @@id([user_id, place_id])
+  @@index([place_id], map: "place_id")
+}
+
+model comment {
+  comment_id    BigInt    @id @default(autoincrement())
+  post_id       BigInt
+  user_id       BigInt
+  parent_id     BigInt?
+  content       String?   @db.Text
+  created_at    DateTime? @default(now()) @db.DateTime(0)
+  post          post      @relation(fields: [post_id], references: [post_id], onDelete: NoAction, onUpdate: NoAction, map: "comment_ibfk_1")
+  user          user      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "comment_ibfk_2")
+  comment       comment?  @relation("commentTocomment", fields: [parent_id], references: [comment_id], onDelete: NoAction, onUpdate: NoAction, map: "comment_ibfk_3")
+  other_comment comment[] @relation("commentTocomment")
+
+  @@index([parent_id], map: "parent_id")
+  @@index([post_id], map: "post_id")
+  @@index([user_id], map: "user_id")
+}
+
+model plan {
+  plan_id    BigInt       @id @default(autoincrement())
+  user_id    BigInt
+  city_id    BigInt?
+  title      String?      @db.VarChar(255)
+  start_date DateTime?    @db.Date
+  end_date   DateTime?    @db.Date
+  memo       String?      @db.Text
+  created_at DateTime?    @default(now()) @db.DateTime(0)
+  shared_url String?      @db.VarChar(500)
+  ai_history ai_history[]
+  user       user         @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "plan_ibfk_1")
+  city       city?        @relation(fields: [city_id], references: [city_id], onDelete: NoAction, onUpdate: NoAction, map: "plan_ibfk_2")
+  plan_day   plan_day[]
+
+  @@index([city_id], map: "city_id")
+  @@index([user_id], map: "user_id")
+}
+
+model plan_day {
+  plan_day_id BigInt      @id @default(autoincrement())
+  plan_id     BigInt
+  day_index   Int
+  date        DateTime?   @db.Date
+  plan        plan        @relation(fields: [plan_id], references: [plan_id], onDelete: Cascade, onUpdate: NoAction, map: "plan_day_ibfk_1")
+  plan_item   plan_item[]
+
+  @@index([plan_id], map: "plan_id")
+}
+
+model plan_item {
+  plan_item_id BigInt   @id @default(autoincrement())
+  plan_day_id  BigInt
+  place_id     BigInt?
+  order_index  Int?
+  memo         String?  @db.VarChar(255)
+  time         String?  @db.VarChar(100)
+  plan_day     plan_day @relation(fields: [plan_day_id], references: [plan_day_id], onDelete: Cascade, onUpdate: NoAction, map: "plan_item_ibfk_1")
+  place        place?   @relation(fields: [place_id], references: [place_id], onDelete: NoAction, onUpdate: NoAction, map: "plan_item_ibfk_2")
+
+  @@index([place_id], map: "place_id")
+  @@index([plan_day_id], map: "plan_day_id")
+}
+
+model post {
+  post_id    BigInt    @id @default(autoincrement())
+  user_id    BigInt
+  title      String?   @db.VarChar(255)
+  content    String?   @db.Text
+  image_url  String?   @db.VarChar(500)
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  updated_at DateTime? @default(now()) @db.DateTime(0)
+  comment    comment[]
+  user       user      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "post_ibfk_1")
+  report     report[]
+
+  @@index([user_id], map: "user_id")
+}
+
+model qna {
+  qna_id     BigInt       @id @default(autoincrement())
+  user_id    BigInt
+  title      String?      @db.VarChar(255)
+  content    String?      @db.Text
+  created_at DateTime?    @default(now()) @db.DateTime(0)
+  status     qna_status?  @default(WAITING)
+  user       user         @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "qna_ibfk_1")
+  qna_answer qna_answer[]
+
+  @@index([user_id], map: "user_id")
+}
+
+model qna_answer {
+  answer_id  BigInt    @id @default(autoincrement())
+  qna_id     BigInt
+  admin_id   BigInt
+  content    String?   @db.Text
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  qna        qna       @relation(fields: [qna_id], references: [qna_id], onDelete: NoAction, onUpdate: NoAction, map: "qna_answer_ibfk_1")
+  admin      admin     @relation(fields: [admin_id], references: [admin_id], onDelete: NoAction, onUpdate: NoAction, map: "qna_answer_ibfk_2")
+
+  @@index([admin_id], map: "admin_id")
+  @@index([qna_id], map: "qna_id")
+}
+
+model recent {
+  user_id   BigInt
+  place_id  BigInt
+  viewed_at DateTime? @default(now()) @db.DateTime(0)
+  user      user      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "recent_ibfk_1")
+  place     place     @relation(fields: [place_id], references: [place_id], onDelete: NoAction, onUpdate: NoAction, map: "recent_ibfk_2")
+
+  @@id([user_id, place_id])
+  @@index([place_id], map: "place_id")
+}
+
+model report {
+  report_id  BigInt    @id @default(autoincrement())
+  post_id    BigInt
+  user_id    BigInt
+  content    String?   @db.VarChar(500)
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  post       post      @relation(fields: [post_id], references: [post_id], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_1")
+  user       user      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_2")
+
+  @@index([post_id], map: "post_id")
+  @@index([user_id], map: "user_id")
+}
+
+model review_place {
+  review_id  BigInt    @id @default(autoincrement())
+  place_id   BigInt
+  user_id    BigInt
+  rating     Int?
+  content    String?   @db.Text
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  place      place     @relation(fields: [place_id], references: [place_id], onDelete: NoAction, onUpdate: NoAction, map: "review_place_ibfk_1")
+  user       user      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "review_place_ibfk_2")
+
+  @@index([place_id], map: "place_id")
+  @@index([user_id], map: "user_id")
+}
+
+model user {
+  user_id      BigInt         @id @default(autoincrement())
+  email        String         @unique(map: "email") @db.VarChar(255)
+  password     String         @db.VarChar(255)
+  name         String?        @db.VarChar(100)
+  profile_img  String?        @db.VarChar(500)
+  provider     user_provider? @default(LOCAL)
+  created_at   DateTime?      @default(now()) @db.DateTime(0)
+  deleted      Int?           @default(0) @db.TinyInt
+  ai_history   ai_history[]
+  bookmark     bookmark[]
+  comment      comment[]
+  plan         plan[]
+  post         post[]
+  qna          qna[]
+  recent       recent[]
+  report       report[]
+  review_place review_place[]
+}
+
+model weather {
+  weather_id  BigInt    @id @default(autoincrement())
+  city_id     BigInt
+  date        DateTime? @db.Date
+  temperature Float?
+  status      String?   @db.VarChar(100)
+  humidity    Int?
+  city        city      @relation(fields: [city_id], references: [city_id], onDelete: NoAction, onUpdate: NoAction, map: "weather_ibfk_1")
+
+  @@index([city_id], map: "city_id")
+}
+
+enum admin_role {
+  SUPER
+  MANAGER
+}
+
+enum qna_status {
+  WAITING @map("대기")
+  DONE    @map("완료")
+}
+
+enum user_provider {
+  GOOGLE
+  KAKAO
+  NAVER
+  LOCAL
+}
+
+model PasswordResetToken {
+  token  String  @id
+  email  String
+  expires DateTime
+}

@@ -1,0 +1,124 @@
+/* 전체 화면 */
+.login-container {
+  width: 100%;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f5f6fa;
+  padding: 40px 0;
+}
+
+/* 로그인 박스 */
+.login-box {
+  width: 420px;
+  background: #ffffff;
+  padding: 48px 50px;
+  border-radius: 18px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* 제목 */
+.login-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+/* 입력 그룹 */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 14px 15px;
+  border: 1px solid #d6d6d6;
+  border-radius: 10px;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.input-group input:focus {
+  border-color: #497bff;
+  box-shadow: 0 0 0 3px rgba(73, 123, 255, 0.25);
+  outline: none;
+}
+
+/* 로그인 버튼 */
+.login-btn {
+  width: 100%;
+  padding: 14px 0;
+  background-color: #497bff;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.25s ease;
+}
+
+.login-btn:hover {
+  background-color: #3a68db;
+}
+
+/* 회원가입 링크 */
+.login-footer {
+  font-size: 14px;
+  text-align: center;
+  color: #000; /* 🔥 검정색으로 변경됨 */
+}
+
+.login-footer .link {
+  color: #497bff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-footer .link:hover {
+  text-decoration: underline;
+}
+
+/* 비밀번호 찾기 영역 */
+.forgot-area {
+  width: 100%;
+  text-align: right;
+  margin-top: -5px;
+  margin-bottom: 5px;
+}
+
+/* 링크 스타일 */
+.forgot-link {
+  font-size: 14px;
+  color: #6b7280;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+
+/* 반응형 */
+@media (max-width: 480px) {
+  .login-box {
+    width: 88%;
+    padding: 40px 28px;
+  }
+}
