@@ -1,0 +1,88 @@
+/* GLOBAL */
+html, body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background: #f7f9fc;
+}
+
+.home-wrapper {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: "Pretendard", sans-serif;
+}
+
+/* 공통 SECTION BOX */
+.section-box {
+  width: 100%;
+  max-width: 1180px;
+  margin: -50px auto 0 auto;
+  padding: 80px 60px;
+  position: relative;
+
+  background-size: cover;
+  background-position: center;
+
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 40px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+
+  /* fade-up 애니메이션 */
+  opacity: 0;
+  transform: translateY(80px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+  will-change: opacity, transform;
+}
+
+.section-box.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 은은한 종이 조명 */
+.section-box::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 32%,
+    rgba(255,255,255,0.22),
+    rgba(0,0,0,0.06)
+  );
+  pointer-events: none;
+}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 900px) {
+  .intro-section {
+    flex-direction: column;
+  }
+
+  .intro-right {
+    min-height: 300px;
+  }
+
+  .hero-title {
+    font-size: 48px;
+  }
+}
+
+@media (max-width: 600px) {
+  .section-box {
+    padding: 60px 24px;
+    border-radius: 28px;
+  }
+
+  .hero-title{
+    font-size: 38px;
+  }
+
+  .hero-content {
+    left: 24px;
+    top: 40%;
+  }
+}

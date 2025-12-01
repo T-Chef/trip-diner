@@ -280,3 +280,9 @@ enum user_provider {
   NAVER
   LOCAL
 }
+
+model PasswordResetToken {
+  token  String  @id
+  email  String
+  expires DateTime
+}
