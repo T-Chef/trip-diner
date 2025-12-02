@@ -1,17 +1,14 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../../styles/page/home/SideMenu.css";
-
 export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
   const navigate = useNavigate();
-
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
     setMenuOpen(false);
     navigate("/");
   };
-
   return (
     <div className="layout-wrapper">
       {/* SIDE MENU */}
@@ -19,7 +16,6 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
         <button className="close-btn" onClick={() => setMenuOpen(false)}>
           X
         </button>
-
         <ul>
           {user ? (
             <>
@@ -32,7 +28,6 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
                   {user.name || user.username} 님 환영합니다!
                 </Link>
               </li>
-
               <li className="menu-item">
                 <button
                   type="button"
@@ -54,7 +49,6 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
               </Link>
             </li>
           )}
-
           <li className="menu-item">
             <Link
               to="/schedule"
@@ -64,7 +58,6 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
               AI 일정표
             </Link>
           </li>
-
           <li className="menu-item">
             <Link
               to="/city"
@@ -74,7 +67,6 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
               도시별 여행 정보
             </Link>
           </li>
-
           <li className="menu-item">
             <Link
               to="/board"
@@ -84,7 +76,6 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
               게시판
             </Link>
           </li>
-
           <li className="menu-item">
             <Link
               to="/contract"
@@ -96,7 +87,6 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
           </li>
         </ul>
       </div>
-
       {/* OVERLAY — 메뉴 열릴 때 쇼 클래스 추가 */}
       <div
         className={`overlay ${menuOpen ? "show" : ""}`}
