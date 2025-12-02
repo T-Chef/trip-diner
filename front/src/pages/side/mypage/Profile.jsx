@@ -7,8 +7,7 @@ import {
   FaCalendarCheck,
   FaHeadset,
   FaThumbsUp,
-  FaHeart,
-  FaComments,
+  FaHeart
 } from "react-icons/fa";
 
 import CalendarBox from "./Calendar";

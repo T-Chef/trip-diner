@@ -11,7 +11,20 @@
 .left-col {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 20px;
+}
+
+.big-title {
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1.28;
+  margin-bottom: 12px;
+}
+
+.sub-desc {
+  margin-bottom: 18px;
+  font-size: 16px;
+  opacity: 0.8;
 }
 
 .left-col h1.big-title {
@@ -53,52 +66,68 @@
   box-shadow: 0 8px 18px rgba(0,0,0,0.15);
 }
 
-/* RIGHT SIDE IMAGES */
-.right-col {
+/* 오른쪽 카드 리스트 */
+.right-list {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 22px;
 }
 
-/* 큰 이미지 */
-.big-photo {
+/* 개별 카드 */
+.product-card {
   width: 100%;
-  height: 340px;
+  background: #fff;
+  border-radius: 22px;
+  padding: 16px 18px 22px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  transition: 0.3s ease;
+  cursor: pointer;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.18);
+}
+
+/* 이미지 */
+.product-thumb {
+  width: 100%;
+  height: 220px;
   border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12)
-}
-
-.big-photo-img {
-  width: 100%;
-  height: 100%;
   object-fit: cover;
+  margin-bottom: 14px;
 }
 
-/* 작은 사진 2개 */
-.small-photo-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+/* 제목 */
+.product-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 6px;
 }
 
-.small-photo {
-  height: 170px;
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+/* 서브 텍스트 */
+.product-sub {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-bottom: 10px;
 }
 
-.small-photo-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+/* 메타 */
+.product-meta {
+  font-size: 13px;
+  opacity: 0.55;
+  margin-bottom: 10px;
 }
 
-.big-photo, .small-photo {
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+/* 태그 */
+.tag {
+  display: inline-block;
+  padding: 6px 12px;
+  background: #e9f2ff;
+  color: #3a73f3;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 10px;
 }
 
 /* 페이드업 애니메이션 */
