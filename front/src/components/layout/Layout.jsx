@@ -7,10 +7,13 @@ import "../../styles/page/home/Header.css";
 export default function Layout({ children, user, setUser }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
+
   useEffect(() => {
     setMenuOpen(false);
   }, [location.pathname]);
+
   const isProfile = location.pathname.startsWith("/profile");
+
   return (
     <>
       {/* 프로필 페이지일 때 Header 완전히 숨기기 */}
