@@ -18,16 +18,16 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
       {/* SIDE MENU */}
       <div className={`side-menu ${menuOpen ? "open" : ""}`}>
         <button className="close-btn" onClick={() => setMenuOpen(false)}>
-          ×
+          X
         </button>
 
         <ul>
           {user ? (
             <>
               <li className="menu-item">
-                <span className="menu-link">
-                  <Link to="/profile">{user.name || user.username}</Link> 님 환영합니다!
-                </span>
+                <Link to="/profile" className="menu-link full-click">
+                  {user.name || user.username} 님 환영합니다!
+                </Link>
               </li>
 
               <li className="menu-item">
@@ -67,7 +67,7 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
           </li>
 
           <li className="menu-item">
-            <Link to="/contact" className="menu-link">
+            <Link to="/contract" className="menu-link">
               문의하기
             </Link>
           </li>

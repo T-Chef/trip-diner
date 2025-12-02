@@ -14,8 +14,9 @@
   transform: translateX(100%);
   opacity: 0;
 
-  transition: transform 0.4s ease, opacity 0.35s ease;
-  z-index: 60;
+  transition: transform 0.45s cubic-bezier(0.25, 0.1, 0.25, 1.0),
+    opacity 0.35s ease;
+  z-index: 99999 !important;
 }
 
 /* 열렸을 때 */
@@ -89,6 +90,8 @@
   margin: 0;
 }
 
+
+
 /* ============================================================
    오버레이 (메뉴 열릴 때 배경)
 ============================================================ */
@@ -104,8 +107,8 @@
   opacity: 0;
   pointer-events: none;
 
-  transition: opacity 0.35s ease;
-  z-index: 40;
+  transition: opacity 0.45s ease;
+  z-index: 9999 !important;
 }
 
 .overlay.show {

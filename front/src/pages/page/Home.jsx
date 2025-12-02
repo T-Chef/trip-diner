@@ -1,27 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-
-// CSS 공통
+import React, { useEffect, useRef } from "react";
 import "../../styles/page/home/HomeLayout.css";
+import { Footer, Hero, Section1, Section2, Section3 } from "../../components/home";
 
-// 섹션별 컴포넌트 import
-import { Header, SideMenu, Footer, Hero, Section1, Section2, Section3 } from "../../components/home";
-
-export default function Home({ user, setUser }) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const navigate = useNavigate();
+export default function Home() {
 
   const sectionsRef = useRef([]);
   const heroRef = useRef(null);
 
-  /* === 로그아웃 === */
-
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    setUser(null);
-    setMenuOpen(false);
-    navigate("/");
-  };
 
   /* === Section Observer === */
   useEffect(() => {
@@ -69,21 +54,6 @@ export default function Home({ user, setUser }) {
 
   return (
     <div className="home-wrapper">
-
-      {/* HEADER */}
-      <Header 
-        setMenuOpen={setMenuOpen}
-        user={user}
-      />
-
-      {/* SIDE MENU */}
-      <SideMenu 
-      user={user}
-      setUser={setUser}
-      menuOpen={menuOpen}
-      setMenuOpen={setMenuOpen}
-      handleLogout={handleLogout}
-      />
 
       {/* HERO */}
       <Hero heroRef={heroRef} />

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-const MapWithPlan = ({ aiPlan, onSelectPlace }) => {
+const AIScheduleMap = ({ aiPlan, onSelectPlace }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const markersRef = useRef([]);
@@ -166,4 +166,4 @@ const MapWithPlan = ({ aiPlan, onSelectPlace }) => {
   );
 };
 
-export default MapWithPlan;
+export default AIScheduleMap;

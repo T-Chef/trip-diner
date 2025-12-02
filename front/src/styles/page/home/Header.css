@@ -5,8 +5,16 @@
   height: 70px;
   display: flex;
   align-items: center;
-  z-index: 50;
-  background: transparent;
+  z-index: 9999 !important;
+
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border: none !important;
+}
+
+.header .logo,
+.header .ham-btn {
+  color: white !important;
 }
 
 .header-inner {
@@ -22,7 +30,6 @@
 .logo {
   font-size: 24px;
   font-weight: 800;
-  color: white;
   text-decoration: none;
 }
 
@@ -31,5 +38,5 @@
   border: none;
   font-size: 28px;
   cursor: pointer;
-  color: white;
 }
+

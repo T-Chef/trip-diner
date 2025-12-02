@@ -1,0 +1,84 @@
+/* ================================
+   리스트 아이템 전체 박스
+================================ */
+.city-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  width: 100%;
+  padding: 18px 12px;
+  
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+}
+
+.city-list-item:hover {
+  background: #fafafa;
+}
+
+/* ================================
+   왼쪽 번호
+================================ */
+
+.city-index {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2b74f7;
+
+  width: 32px;
+  text-align: center;
+}
+
+/* ================================
+   중앙 정보 영역
+================================ */
+.city-info {
+  flex: 1;
+  margin-left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.city-info h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #222;
+  margin: 0;
+}
+
+.city-info .desc {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.rating {
+  font-size: 14px;
+  color: #444;
+}
+
+.category {
+  font-size: 13px;
+  color: #888;
+}
+
+/* ================================
+   오른쪽 썸네일
+================================ */
+
+.city-thumb {
+  width: 90px;
+  height: 90px;
+  border-radius: 10px;
+
+  background: #eaeaea;
+  background-size: cover;
+  background-position: center;
+
+  flex-shrink: 0;
+}

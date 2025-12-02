@@ -1,0 +1,17 @@
+/* 리스트 컨테이너 */
+.city-list-container {
+  width: 100%;
+  margin-top: 10px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 데이터 없음 상태 */
+.city-list-empty {
+  text-align: center;
+  color: #888;
+  padding: 40px 0;
+  font-size: 15px;
+}
