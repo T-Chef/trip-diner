@@ -94,10 +94,38 @@
   text-decoration: underline;
 }
 
+<<<<<<< HEAD
+=======
+/* 비밀번호 찾기 영역 */
+.forgot-area {
+  width: 100%;
+  text-align: right;
+  margin-top: -5px;
+  margin-bottom: 5px;
+}
+
+/* 링크 스타일 */
+.forgot-link {
+  font-size: 14px;
+  color: #6b7280;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+
+>>>>>>> 51433a7a6d158167b8bda0af0392b3f3f5095b9e
 /* 반응형 */
 @media (max-width: 480px) {
   .login-box {
     width: 88%;
     padding: 40px 28px;
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 51433a7a6d158167b8bda0af0392b3f3f5095b9e

@@ -1,0 +1,10 @@
+.calendar-wrapper {
+  margin-top: 20px;
+}
+
+.react-calendar {
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  padding: 12px;
+}

@@ -15,7 +15,14 @@
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
     "helmet": "^7.2.0",
+<<<<<<< HEAD
     "node-fetch": "^3.3.2",
+=======
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
+    "node-fetch": "^3.3.2",
+    "nodemailer": "^7.0.11",
+>>>>>>> 51433a7a6d158167b8bda0af0392b3f3f5095b9e
     "openai": "^6.9.1"
   },
   "devDependencies": {

@@ -1,0 +1,25 @@
+.email-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+
+.email-input {
+  flex: 1;
+  height: 45px;
+  padding: 0 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.email-check-btn {
+  padding: 0 15px;
+  height: 70px;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+}
