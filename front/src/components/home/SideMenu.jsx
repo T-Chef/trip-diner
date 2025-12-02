@@ -25,7 +25,7 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
           {user ? (
             <>
               <li className="menu-item">
-                <Link to="/profile" className="menu-link full-click">
+                <Link to="/profile" className="menu-link full-click" onClick={() => setMenuOpen(false)}>
                   {user.name || user.username} 님 환영합니다!
                 </Link>
               </li>
@@ -42,32 +42,32 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
             </>
           ) : (
             <li className="menu-item">
-              <Link to="/login" className="menu-link">
+              <Link to="/login" className="menu-link" onClick={() => setMenuOpen(false)}>
                 로그인 / 회원가입
               </Link>
             </li>
           )}
 
           <li className="menu-item">
-            <Link to="/schedule" className="menu-link">
+            <Link to="/schedule" className="menu-link" onClick={() => setMenuOpen(false)}>
               AI 일정표
             </Link>
           </li>
 
           <li className="menu-item">
-            <Link to="/city" className="menu-link">
+            <Link to="/city" className="menu-link" onClick={() => setMenuOpen(false)}>
               도시별 여행 정보
             </Link>
           </li>
 
           <li className="menu-item">
-            <Link to="/board" className="menu-link">
+            <Link to="/board" className="menu-link" onClick={() => setMenuOpen(false)}>
               게시판
             </Link>
           </li>
 
           <li className="menu-item">
-            <Link to="/contract" className="menu-link">
+            <Link to="/contract" className="menu-link" onClick={() => setMenuOpen(false)}>
               문의하기
             </Link>
           </li>

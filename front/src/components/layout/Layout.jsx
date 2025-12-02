@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation  } from "react-router-dom";
 import Header from "../home/Header";
 import SideMenu from "../home/SideMenu";
@@ -9,6 +9,10 @@ import "../../styles/page/home/Header.css";
 export default function Layout({ children, user, setUser }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
 
   const isProfile = location.pathname.startsWith("/profile")
 
