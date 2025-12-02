@@ -5,7 +5,6 @@ import { Toaster } from "react-hot-toast";
 // Layout
 import Layout from "./components/layout/Layout.jsx";
 
-
 // 기본 페이지
 import Home from "./pages/page/Home.jsx";
 import Login from "./pages/page/login/Login.jsx";
@@ -16,7 +15,8 @@ import Dashboard from "./pages/page/login/Dashboard.jsx";
 // 마이페이지
 import Profile from "./pages/side/mypage/Profile.jsx";
 import ProfileEdit from "./pages/side/mypage/ProfileEdit.jsx";
-import Favorites from "./pages/side/mypage/Favorites.jsx";
+import FavoritesPage from "./pages/side/mypage/FavoritesPage.jsx";
+import FavoritesCity from "./pages/side/mypage/FavoritesCity.jsx";
 import Unsubscribe from "./pages/side/mypage/Unsubscribe.jsx";
 import Calendar from "./pages/side/mypage/Calendar.jsx";
 
@@ -72,7 +72,9 @@ export default function App() {
           {/* 마이페이지 */}
           <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
           <Route path="/profile/edit" element={<ProfileEdit user={user} setUser={setUser} />} />
-          <Route path="/favorites" element={<Favorites user={user} />} />
+          <Route path="/favorites/page" element={<FavoritesPage user={user} />} />
+          <Route path="/favorites/city" element={<FavoritesCity user={user} />} />
+          
           <Route path="/withdraw" element={<Unsubscribe user={user} />} />
 
           {/* 캘린더 */}

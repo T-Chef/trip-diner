@@ -1,5 +1,5 @@
 import React from "react";
-import "../../../styles/side/mypage/Favorites.css";
+import "../../../styles/side/mypage/FavoritesPage.css";
 
 export default function Favorites() {
   const sampleFavorites = [

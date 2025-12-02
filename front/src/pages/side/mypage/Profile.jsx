@@ -3,14 +3,12 @@ import { useNavigate } from "react-router-dom";
 import "../../../styles/side/mypage/Profile.css";
 
 import {
-  FaStar,
-  FaCalendarAlt,
+  FaHome,
+  FaCalendarCheck,
+  FaHeadset,
+  FaThumbsUp,
+  FaHeart,
   FaComments,
-  FaQuestion,
-  FaRegHeart,
-  FaRegCalendarCheck,
-  FaRegQuestionCircle,
-  FaRegCommentDots,
 } from "react-icons/fa";
 
 import CalendarBox from "./Calendar";
@@ -24,8 +22,6 @@ export default function Profile({ user, setUser }) {
     if (!user?.profile_img) return;
 
     const fullUrl = `http://localhost:4000${user.profile_img}`;
-    console.log("초기 로딩 URL:", fullUrl);
-
     setProfileImg(fullUrl);
   }, [user]);
 
@@ -100,26 +96,24 @@ export default function Profile({ user, setUser }) {
           </div>
         </div>
 
-        {/* 4가지 항목(수정 예정) */}
+        {/* 오른쪽 메뉴 */}
         <div className="profile-right-menu">
-          <div className="menu-box" onClick={() => navigate("/wishlist")}>
-            <FaRegHeart className="menu-icon" />
-            <span>즐겨찾기</span>
+          {/* 홈으로 */}
+          <div className="menu-box" onClick={() => navigate("/")}>
+            <FaHome className="menu-icon" />
+            <span>홈으로</span>
           </div>
 
+          {/* 내 일정 */}
           <div className="menu-box" onClick={() => navigate("/schedule")}>
-            <FaRegCalendarCheck className="menu-icon" />
-            <span>일정</span>
+            <FaCalendarCheck className="menu-icon" />
+            <span>내 일정</span>
           </div>
 
-          <div className="menu-box" onClick={() => navigate("/qna")}>
-            <FaRegQuestionCircle className="menu-icon" />
-            <span>Q&A</span>
-          </div>
-
-          <div className="menu-box" onClick={() => navigate("/review")}>
-            <FaRegCommentDots className="menu-icon" />
-            <span>후기</span>
+          {/* 문의하기 */}
+          <div className="menu-box" onClick={() => navigate("/contract")}>
+            <FaHeadset className="menu-icon" />
+            <span>문의하기</span>
           </div>
         </div>
       </div>
@@ -128,29 +122,23 @@ export default function Profile({ user, setUser }) {
       <div className="profile-calendar-section">
         <div className="calendar-header">
           <h3>2025년 11월</h3>
-          <FaCalendarAlt size={28} />
+          <FaCalendarCheck size={28} />
         </div>
         <div className="calendar-box">
           <CalendarBox />
         </div>
       </div>
 
-      {/* 최근 본 여행지, 도시 정보, 게시판, 찜한 여행지 */}
+      {/* 그리드 메뉴 */}
       <div className="profile-grid">
-        <div className="grid-item" onClick={() => navigate("/recent")}>
-          <FaCalendarAlt /> 최근 본 여행지
+        {/* 좋아요 한 게시글 */}
+        <div className="grid-item" onClick={() => navigate("/Favorites/Page")}>
+          <FaThumbsUp /> 좋아요 한 게시글
         </div>
 
-        <div className="grid-item" onClick={() => navigate("/city")}>
-          <FaStar /> 도시 정보
-        </div>
-
-        <div className="grid-item" onClick={() => navigate("/board")}>
-          <FaComments /> 게시판
-        </div>
-
-        <div className="grid-item" onClick={() => navigate("/wishlist")}>
-          <FaQuestion /> 찜한 여행지
+        {/* 좋아요 한 여행지 */}
+        <div className="grid-item" onClick={() => navigate("/Favorites/City")}>
+          <FaHeart /> 좋아요 한 여행지
         </div>
       </div>
     </div>
