@@ -2,8 +2,16 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import prisma from "../prisma/prismaClient.js";
+<<<<<<< HEAD
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
+=======
+<<<<<<< HEAD
+=======
+import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
+>>>>>>> 51433a7a6d158167b8bda0af0392b3f3f5095b9e
+>>>>>>> 14b263672d987f40ed0bbf071335dd8a6db9f247
 
 const router = express.Router();
 
@@ -79,6 +87,11 @@ router.post("/login", async (req, res) => {
         message: "비밀번호가 일치하지 않습니다.",
       });
     }
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 14b263672d987f40ed0bbf071335dd8a6db9f247
     const accessToken = jwt.sign(
       { user_id: user.user_id.toString(), email: user.email },
       process.env.ACCESS_TOKEN_SECRET,
@@ -97,6 +110,10 @@ router.post("/login", async (req, res) => {
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
     });
+<<<<<<< HEAD
+=======
+>>>>>>> 51433a7a6d158167b8bda0af0392b3f3f5095b9e
+>>>>>>> 14b263672d987f40ed0bbf071335dd8a6db9f247
 
     // BigInt 쓰지 않고 순수 JSON으로 재구성
     const safeUser = {
@@ -110,7 +127,14 @@ router.post("/login", async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "로그인 성공",
+<<<<<<< HEAD
       accessToken, // 프론트는 이걸 AUthorization에 저장후 사용
+=======
+<<<<<<< HEAD
+=======
+      accessToken, // 프론트는 이걸 AUthorization에 저장후 사용
+>>>>>>> 51433a7a6d158167b8bda0af0392b3f3f5095b9e
+>>>>>>> 14b263672d987f40ed0bbf071335dd8a6db9f247
       user: safeUser,
     });
   } catch (err) {
@@ -122,6 +146,11 @@ router.post("/login", async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 14b263672d987f40ed0bbf071335dd8a6db9f247
 /* ------------------------------------
       nodemailer 설정
 -------------------------------------*/
@@ -216,4 +245,8 @@ router.post("/reset-password", async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
+=======
+>>>>>>> 51433a7a6d158167b8bda0af0392b3f3f5095b9e
+>>>>>>> 14b263672d987f40ed0bbf071335dd8a6db9f247
 export default router;
