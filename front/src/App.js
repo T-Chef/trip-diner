@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
+// Layout
+import Layout from "./components/layout/Layout.jsx";
+
 
 // 기본 페이지
 import Home from "./pages/page/Home.jsx";
@@ -57,58 +60,50 @@ export default function App() {
     <Router>
       <Toaster position="top-center" reverseOrder={false} />
 
-      <Routes>
-        {/* 홈 */}
-        <Route
-          path="/"
-          element={
-            <Home
-              user={user}
-              setUser={setUser}
-              menuOpen={menuOpen}
-              setMenuOpen={setMenuOpen}
-            />
-          }
-        />
+      <Layout user={user} setUser={setUser}>
+         <Routes>
+          {/* 홈 */}
+          <Route path="/" element={<Home user={user} setUser={setUser} />} /> 
 
-        {/* 로그인/회원가입 */}
-        <Route path="/login" element={<Login setUser={setUser} />} />
-        <Route path="/signup" element={<Signup />} />
+          {/* 로그인/회원가입 */}
+          <Route path="/login" element={<Login setUser={setUser} />} />
+          <Route path="/signup" element={<Signup />} />
 
-        {/* 마이페이지 */}
-        <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
-        <Route path="/profile/edit" element={<ProfileEdit user={user} setUser={setUser} />} />
-        <Route path="/favorites" element={<Favorites user={user} />} />
-        <Route path="/withdraw" element={<Unsubscribe user={user} />} />
+          {/* 마이페이지 */}
+          <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
+          <Route path="/profile/edit" element={<ProfileEdit user={user} setUser={setUser} />} />
+          <Route path="/favorites" element={<Favorites user={user} />} />
+          <Route path="/withdraw" element={<Unsubscribe user={user} />} />
 
-        {/* 캘린더 */}
-        <Route path="/calendar" element={<Calendar user={user} />} />
+          {/* 캘린더 */}
+          <Route path="/calendar" element={<Calendar user={user} />} />
 
-        {/* AI 일정 */}
-        <Route
-          path="/schedule"
-          element={<Schedule user={user} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />}
-        />
-        <Route
-          path="/schedule/result"
-          element={<ScheduleResult user={user} />}
-        />
+          {/* AI 일정 */}
+          <Route
+            path="/schedule"
+            element={<Schedule user={user} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />}
+          />
+          <Route
+            path="/schedule/result"
+            element={<ScheduleResult user={user} />}
+          />
 
-        {/* 나머지 메뉴 */}
-        <Route path="/city" element={<City user={user} />} />
-        <Route path="/board" element={<Board user={user} />} />
-        <Route path="/contract" element={<Contract user={user} />} />
+          {/* 나머지 메뉴 */}
+          <Route path="/city" element={<City user={user} setUser={setUser} />} />
+          <Route path="/board" element={<Board user={user} />} />
+          <Route path="/contract" element={<Contract user={user} />} />
 
-        {/* 대시보드 */}
-        <Route path="/dashboard" element={<Dashboard user={user} />} />
+          {/* 대시보드 */}
+          <Route path="/dashboard" element={<Dashboard user={user} />} />
 
-        {/*비밀번호 재설정 페이지*/}
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+          {/*비밀번호 재설정 페이지*/}
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* 404 */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          {/* 404 */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Layout>
     </Router>
   );
 }
