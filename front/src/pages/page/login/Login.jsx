@@ -65,6 +65,16 @@ function Login({ setUser }) {
             />
           </div>
 
+<<<<<<< HEAD
+=======
+          <div className="forgot-area">
+            <a href="/forgot-password" className="forgot-link">
+              비밀번호를 잊어버리셨나요?
+            </a>
+          </div>
+
+
+>>>>>>> 14b263672d987f40ed0bbf071335dd8a6db9f247
           <button type="submit" className="login-btn">
             로그인
           </button>
@@ -86,4 +96,8 @@ function Login({ setUser }) {
   );
 }
 
+<<<<<<< HEAD
 export default Login;
+=======
+export default Login;
+>>>>>>> 14b263672d987f40ed0bbf071335dd8a6db9f247
