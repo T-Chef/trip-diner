@@ -65,6 +65,13 @@ function Login({ setUser }) {
             />
           </div>
 
+          <div className="forgot-area">
+            <a href="/forgot-password" className="forgot-link">
+              비밀번호를 잊어버리셨나요?
+            </a>
+          </div>
+
+
           <button type="submit" className="login-btn">
             로그인
           </button>
