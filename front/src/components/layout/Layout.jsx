@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useLocation  } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Header from "../home/Header";
 import SideMenu from "../home/SideMenu";
 
@@ -10,17 +10,17 @@ export default function Layout({ children, user, setUser }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
 
-  const isProfile = location.pathname.startsWith("/profile")
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
+
+  const isProfile = location.pathname.startsWith("/profile");
 
   return (
     <>
       {/* 프로필 페이지일 때 Header 완전히 숨기기 */}
       {!isProfile && (
-        <Header 
-          menuOpen={menuOpen}
-          setMenuOpen={setMenuOpen}
-          user={user}
-        />
+        <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} user={user} />
       )}
 
       {/* 공통 Side Menu (프로필에서도 필요하므로 항상 렌더) */}
