@@ -7,7 +7,7 @@ import { Navigate } from "react-router-dom";
 import Layout from "./components/layout/Layout.jsx";
 
 // 기본 페이지
-import Home from "./pages/page/Home.jsx";
+import Home from "./components/home/Home.jsx";
 import Login from "./pages/page/login/Login.jsx";
 import Signup from "./pages/page/login/Signup.jsx";
 import Dashboard from "./pages/page/login/Dashboard.jsx";

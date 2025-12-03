@@ -1,180 +1,87 @@
-.style-content-area {
+/* ============= 공통 오픈북 스타일 ============= */
+.openbook-section.section2 {
   width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
+  max-width: 1180px;
+  margin: 140px auto;
+  padding: 160px 80px;
+
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 60px;
-  align-items: start;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 60px;
+
+  position: relative;
+
+  background-size: cover;
+  background-position: center;
+
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 2px;
+
+  box-shadow:
+    0 10px 24px rgba(0,0,0,0.12),
+    0 0 0 6px rgba(255,255,245,0.9);
+
+  opacity: 0;
+  transform: translateY(70px);
+  transition: 0.9s ease;
 }
 
-/* 왼쪽 텍스트 */
-.left-main .main-title {
-  font-size: 42px;
-  font-weight: 900;
-  color: #1E2A55;
-  line-height: 1.25;
+.openbook-section.section2.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.left-main .sub-desc {
-  margin-top: 14px;
-  font-size: 18px;
-  line-height: 1.6;
-  color: #555;
+/* 중앙 접힌 선 */
+.openbook-section.section2::after {
+  content: "";
+  position: absolute;
+  top: 50px;
+  bottom: 50px;
+  left: 50%;
+  width: 1px;
+  background: rgba(0,0,0,0.15);
+  opacity: 0.4;
 }
 
-.blue-btn {
-  margin-top: 30px;
-  padding: 16px 28px;
-  border-radius: 12px;
-  background: #3E5BFF;
-  color: white;
-  font-size: 18px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: 0.25s ease;
-}
-
-.blue-btn:hover {
-  background: #2d47e6;
-}
-
-/* 오른쪽 공간 */
-.right-style {
-  width: 100%;
+/* LEFT PAGE */
+.open-left {
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  text-align: center;
-  height: 100%;
 }
 
-.right-style .camera-icon {
-  font-size: 36px;
-  margin-bottom: 14px;
-  opacity: 0.65;
-}
-
-.right-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #333;
-  margin-top: 4px;
-}
-
-.small {
-  margin-top: 6px;
-  font-size: 14px;
+.sec-badge {
+  font-size: 15px;
   color: #777;
+  margin-bottom: 10px;
 }
 
-/* 선택칩 */
-.style-chips {
-  justify-content: center;
-  margin-top: 14px;
+/* RIGHT PAGE */
+.open-right {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  flex-direction: column;
+  gap: 22px;
 }
 
-.style-chips button {
-  padding: 10px 18px;
-  background: #efefef;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-.style-chips .selected {
-  background: #4A79FF;
-  color: white;
-}
-
-/* 예시 카드 */
-.example-card {
-  margin-top: 24px;
-  display: flex;
-  gap: 16px;
-  padding: 18px;
+.recommend-card {
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-}
-
-.example-thumb {
-  width: 110px;
-  height: 80px;
-  object-fit: cover;
+  padding: 18px 22px;
   border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  border: 1px solid rgba(0,0,0,0.1);
+  transition: 0.3s ease;
 }
 
-.example-card .card-text h4 {
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 6px;
+.recommend-card:hover {
+  transform: translateY(-4px);
 }
 
-/* ================================================================
-   FADE-UP ANIMATION (Section2 공통)
-================================================================ */
-/* 공통 초기값 */
-.style-content-area > * {
-  opacity: 0;
-  transform: translateY(32px);
-  transition: opacity 0.75s ease-out, transform 0.75s ease-out;
-  will-change: transform, opacity, filter;
-}
-
-/* show */
-.style-select-section.show .style-content-area > * {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* 개별 딜레이 */
-.left-main { transition-delay: 0.1s; }
-.right-style { transition-delay: 0.25s; }
-
-/* chips 개별 애니메이션 */
-.style-chips button {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-  will-change: opacity, transform;
-}
-
-.style-select-section.show .style-chips button {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* chips 순서 딜레이 */
-.style-chips button:nth-child(1) { transition-delay: 0.35s; }
-.style-chips button:nth-child(2) { transition-delay: 0.45s; }
-.style-chips button:nth-child(3) { transition-delay: 0.55s; }
-.style-chips button:nth-child(4) { transition-delay: 0.65s; }
-.style-chips button:nth-child(5) { transition-delay: 0.75s; }
-
-/* 예시 카드 */
-.example-card {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity .7s ease-out, transform .7s ease-out;
-}
-
-.style-select-section.show .example-card {
-  opacity: 1;
-  transform: translateY(0);
-  transition-delay: .35s;
-}
+/* Fade Items */
 .fade-item {
   opacity: 0;
   transform: translateY(40px);
-  filter: blur(3px);
-  transition: opacity 0.7s ease-out, transform 0.7s ease-out, filter 0.7s ease-out;
+  filter: blur(4px);
+  transition: 0.8s ease;
 }
 
 .fade-item.show {
