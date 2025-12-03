@@ -168,3 +168,15 @@
   background: #3E5BFF;
   color: white;
 }
+
+.card-info h4 {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.card-info p {
+  font-size: 14px;
+  color: #666;
+}
+
