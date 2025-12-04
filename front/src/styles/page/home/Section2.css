@@ -1,91 +1,180 @@
-/* ============= 공통 오픈북 스타일 ============= */
-.openbook-section.section2 {
-  width: 100%;
-  max-width: 1180px;
-  margin: 140px auto;
-  padding: 160px 80px;
-
+/* ============================
+   SECTION 기본 박스
+============================ */
+.section2-wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  column-gap: 60px;
+  column-gap: 40px;
 
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 160px 80px;
   position: relative;
 
-  background-size: cover;
-  background-position: center;
-
-  border: 1px solid rgba(0,0,0,0.12);
   border-radius: 2px;
+  border: 1px solid rgba(0,0,0,0.12);
 
   box-shadow:
     0 10px 24px rgba(0,0,0,0.12),
     0 0 0 6px rgba(255,255,245,0.9);
 
   opacity: 0;
-  transform: translateY(70px);
-  transition: 0.9s ease;
+  transform: translateY(80px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
 }
 
-.openbook-section.section2.show {
+.section2-wrapper.show {
   opacity: 1;
   transform: translateY(0);
 }
 
-/* 중앙 접힌 선 */
-.openbook-section.section2::after {
-  content: "";
-  position: absolute;
-  top: 50px;
-  bottom: 50px;
-  left: 50%;
-  width: 1px;
-  background: rgba(0,0,0,0.15);
-  opacity: 0.4;
-}
+/* ============================
+   LEFT
+============================ */
+.section2-left {
+  padding-right: 40px;
 
-/* LEFT PAGE */
-.open-left {
+  /* Section1과 동일하게 중앙 정렬 적용 */
   display: flex;
   flex-direction: column;
   justify-content: center;
+  text-align: center;
 }
 
-.sec-badge {
-  font-size: 15px;
+.label {
+  font-size: 17px;
   color: #777;
-  margin-bottom: 10px;
 }
 
-/* RIGHT PAGE */
-.open-right {
+.title {
+  font-size: 48px;
+  font-weight: 900;
+  color: #1E2A55;
+  margin-top: 18px;
+}
+
+.desc {
+  font-size: 17px;
+  line-height: 1.7;
+  margin-top: 20px;
+  color: #555;
+}
+
+.bullet-list {
+  margin-top: 26px;
+  line-height: 2;
+  padding: 0;
+  list-style: none;
+}
+
+.cta-btn {
+  margin-top: 34px;
+  padding: 16px 28px;
+  font-size: 17px;
+  background: #3E5BFF;
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.cta-btn:hover {
+  background: #2E45CC;
+}
+
+/* ============================
+   RIGHT TIMELINE
+============================ */
+.section2-right {
+  padding-left: 40px;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 48px;
+  position: relative;
 }
 
-.recommend-card {
-  background: white;
-  padding: 18px 22px;
-  border-radius: 12px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-  border: 1px solid rgba(0,0,0,0.1);
-  transition: 0.3s ease;
+/* 점선 라인 */
+.section2-right::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+
+  background: repeating-linear-gradient(
+    to bottom,
+    #9EB3FF,
+    #9EB3FF 10px,
+    transparent 10px,
+    transparent 20px
+  );
+  opacity: 0.6;
 }
 
-.recommend-card:hover {
-  transform: translateY(-4px);
-}
+/* 한 줄 */
+.timeline-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 
-/* Fade Items */
-.fade-item {
   opacity: 0;
-  transform: translateY(40px);
-  filter: blur(4px);
-  transition: 0.8s ease;
+  transform: translateY(24px);
+  filter: blur(3px);
+  transition: 0.9s ease;
 }
 
-.fade-item.show {
+.timeline-row.show {
   opacity: 1;
   transform: translateY(0);
   filter: blur(0);
+}
+
+/* 번호 */
+.dot {
+  width: 36px;
+  height: 36px;
+  background: #3E5BFF;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+}
+
+/* 카드 */
+.timeline-card {
+  flex: 1;
+  background: #fff;
+  padding: 22px 28px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+
+/* 카드 텍스트 */
+.card-text h4 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.card-text p {
+  margin: 6px 0 0;
+  color: #666;
+  font-size: 14px;
+}
+
+/* 썸네일 */
+.card-thumb {
+  width: 110px;
+  height: 110px;
+  border-radius: 12px;
+  object-fit: cover;
 }

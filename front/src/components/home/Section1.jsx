@@ -3,7 +3,6 @@ import "../../styles/page/home/Section1.css";
 
 export default function Section1({ sectionRef }) {
   const paperBg = process.env.PUBLIC_URL + "/assets/images/cream-paper.jpg";
-
   const cardRefs = useRef([]);
 
   useEffect(() => {
@@ -58,48 +57,116 @@ export default function Section1({ sectionRef }) {
 
       {/* RIGHT */}
       <div className="menu-right">
+        {/* 1. 서울 */}
         <div className="intro-card" ref={(el) => (cardRefs.current[0] = el)}>
           <span className="card-num">1</span>
+
           <div className="card-info">
             <h4>서울</h4>
             <p>전통과 현대의 조화</p>
           </div>
-          <img src="/assets/images/seoul.jpg" className="card-img" alt="서울" />
+
+          <div className="card-images">
+            <img
+              src="/assets/images/seoul/seoul1.jpg"
+              className="card-img"
+              alt="서울1"
+            />
+            <img
+              src="/assets/images/seoul/seoul2.jpg"
+              className="card-img"
+              alt="서울2"
+            />
+            <img
+              src="/assets/images/seoul/seoul3.jpg"
+              className="card-img"
+              alt="서울3"
+            />
+          </div>
         </div>
 
+        {/* 2. 부산 */}
         <div className="intro-card" ref={(el) => (cardRefs.current[1] = el)}>
           <span className="card-num">2</span>
+
           <div className="card-info">
             <h4>부산</h4>
             <p>바다와 미식의 도시</p>
           </div>
-          <img src="/assets/images/busan.jpg" className="card-img" alt="부산" />
+
+          <div className="card-images">
+            <img
+              src="/assets/images/busan/busan1.jpg"
+              className="card-img"
+              alt="부산1"
+            />
+            <img
+              src="/assets/images/busan/busan2.jpg"
+              className="card-img"
+              alt="부산2"
+            />
+            <img
+              src="/assets/images/busan/busan3.jpg"
+              className="card-img"
+              alt="부산3"
+            />
+          </div>
         </div>
 
+        {/* 3. 전주 */}
         <div className="intro-card" ref={(el) => (cardRefs.current[2] = el)}>
           <span className="card-num">3</span>
+
           <div className="card-info">
             <h4>전주</h4>
             <p>한옥 감성 여행지</p>
           </div>
-          <img
-            src="/assets/images/jeonju.jpg"
-            className="card-img"
-            alt="전주"
-          />
+
+          <div className="card-images">
+            <img
+              src="/assets/images/jeonju/jeonju1.jpg"
+              className="card-img"
+              alt="전주1"
+            />
+            <img
+              src="/assets/images/jeonju/jeonju2.jpg"
+              className="card-img"
+              alt="전주2"
+            />
+            <img
+              src="/assets/images/jeonju/jeonju3.jpg"
+              className="card-img"
+              alt="전주3"
+            />
+          </div>
         </div>
 
+        {/* 4. 강릉 */}
         <div className="intro-card" ref={(el) => (cardRefs.current[3] = el)}>
           <span className="card-num">4</span>
+
           <div className="card-info">
             <h4>강릉</h4>
             <p>바다와 자연의 휴식</p>
           </div>
-          <img
-            src="/assets/images/gangneung.jpg"
-            className="card-img"
-            alt="강릉"
-          />
+
+          <div className="card-images">
+            <img
+              src="/assets/images/gangneung/gangneung1.jpg"
+              className="card-img"
+              alt="강릉1"
+            />
+            <img
+              src="/assets/images/gangneung/gangneung2.jpg"
+              className="card-img"
+              alt="강릉2"
+            />
+            <img
+              src="/assets/images/gangneung/gangneung3.jpg"
+              className="card-img"
+              alt="강릉3"
+            />
+          </div>
         </div>
       </div>
     </section>
