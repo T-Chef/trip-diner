@@ -1,0 +1,65 @@
+.likes-wrapper {
+  width: 100%;
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 10px 20px;
+  font-family: "Pretendard", sans-serif;
+}
+
+.likes-title {
+  font-size: 26px;
+  margin-bottom: 25px;
+  color: #222;
+}
+
+/* 그리드 */
+.like-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 22px;
+}
+
+.empty-msg {
+  color: #777;
+  font-size: 15px;
+}
+
+/* 카드 */
+.like-card {
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.like-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+/* 이미지 */
+.like-img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+/* 내용 */
+.like-info {
+  padding: 15px 18px;
+}
+
+.like-info h4 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #222;
+}
+
+.like-info p {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.45;
+}

@@ -15,8 +15,8 @@ import Dashboard from "./pages/page/login/Dashboard.jsx";
 // 마이페이지
 import Profile from "./pages/side/mypage/Profile.jsx";
 import ProfileEdit from "./pages/side/mypage/ProfileEdit.jsx";
-import FavoritesPage from "./pages/side/mypage/FavoritesPage.jsx";
-import FavoritesCity from "./pages/side/mypage/FavoritesCity.jsx";
+import Likeposts from "./pages/side/mypage/Likeposts.jsx";
+import Likeplaces from "./pages/side/mypage/Likeplaces.jsx";
 import Unsubscribe from "./pages/side/mypage/Unsubscribe.jsx";
 import Calendar from "./pages/side/mypage/Calendar.jsx";
 
@@ -75,8 +75,8 @@ export default function App() {
         {/* 마이페이지 */}
           <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
           <Route path="/profile/edit" element={<ProfileEdit user={user} setUser={setUser} />} />
-          <Route path="/favorites/page" element={<FavoritesPage user={user} />} />
-          <Route path="/favorites/city" element={<FavoritesCity user={user} />} />
+          <Route path="/Like/posts" element={<Likeposts user={user} />} />
+          <Route path="/Like/places" element={<Likeplaces user={user} />} />
           <Route path="/withdraw" element={<Unsubscribe user={user} />} />
 
          {/* 캘린더 */}
@@ -103,7 +103,7 @@ export default function App() {
           {/*비밀번호 재설정 페이지*/}
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-{/* 404 */}
+          {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>

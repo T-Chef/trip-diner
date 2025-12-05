@@ -7,7 +7,7 @@ import {
   FaCalendarCheck,
   FaHeadset,
   FaThumbsUp,
-  FaHeart
+  FaHeart,
 } from "react-icons/fa";
 
 import CalendarBox from "./Calendar";
@@ -131,12 +131,12 @@ export default function Profile({ user, setUser }) {
       {/* 그리드 메뉴 */}
       <div className="profile-grid">
         {/* 좋아요 한 게시글 */}
-        <div className="grid-item" onClick={() => navigate("/Favorites/Page")}>
+        <div className="grid-item" onClick={() => navigate("/Like/Posts")}>
           <FaThumbsUp /> 좋아요 한 게시글
         </div>
 
         {/* 좋아요 한 여행지 */}
-        <div className="grid-item" onClick={() => navigate("/Favorites/City")}>
+        <div className="grid-item" onClick={() => navigate("/Like/Places")}>
           <FaHeart /> 좋아요 한 여행지
         </div>
       </div>
