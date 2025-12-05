@@ -1,0 +1,257 @@
+/* ========================================
+   전체 레이아웃
+======================================== */
+.board-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 배너 */
+.board-banner {
+  width: 100%;
+  height: 180px;
+  background: #82b7ff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 40px;
+}
+
+/* 메인 콘텐츠 */
+.board-layout {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  min-height: calc(100vh - 220px);
+}
+
+
+/* ========================================
+   왼쪽 패널 (프로필 + 카테고리)
+======================================== */
+.left-panel {
+  width: 260px;
+  background: #fff;
+  border: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 프로필 박스 */
+.profile-box {
+  padding: 40px 20px;
+  text-align: center;
+  border-bottom: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.profile-img {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #8bb6ff;
+  margin-bottom: 10px;
+  transition: 0.2s;
+}
+
+.profile-img:hover {
+  transform: scale(1.05);
+}
+
+.profile-name {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.welcome-text {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #555;
+}
+
+
+/* 카테고리 메뉴 */
+.category-list {
+  list-style: none;
+  padding: 0;
+}
+
+.category-list li {
+  padding: 25px 20px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.category-list li:hover {
+  background: #f0f6ff;
+}
+
+
+/* ========================================
+   오른쪽 게시판
+======================================== */
+.right-panel {
+  flex: 1;
+  margin-left: 20px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  background: white;
+}
+
+/* 공지 */
+.notice-section {
+  margin-bottom: 20px;
+}
+
+.notice-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-weight: bold;
+}
+
+.divider {
+  border-bottom: 1px solid #ddd;
+  margin: 15px 0;
+}
+
+
+/* ========================================
+   게시글 목록 헤더 (표 상단)
+======================================== */
+.table-header {
+  display: grid;
+  grid-template-columns: 80px 1fr 120px 140px 80px;
+  padding: 10px 0;
+  border-bottom: 2px solid #ccc;
+  font-weight: bold;
+  color: #444;
+  font-size: 14px;
+}
+
+.h-category,
+.h-title,
+.h-writer,
+.h-date,
+.h-views {
+  padding-left: 5px;
+}
+
+.h-writer,
+.h-date,
+.h-views {
+  text-align: right;
+  padding-right: 10px;
+}
+
+
+/* ========================================
+   게시글 리스트
+======================================== */
+.post-item {
+  display: grid;
+  grid-template-columns: 80px 1fr 120px 140px 80px;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  align-items: center;
+}
+
+.post-item > div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.post-category {
+  font-weight: bold;
+  color: #1e90ff;
+}
+
+.post-title {
+  padding-left: 5px;
+}
+
+.post-writer,
+.post-date,
+.post-views {
+  text-align: right;
+  padding-right: 10px;
+}
+
+
+/* ========================================
+   페이지네이션
+======================================== */
+.pagination {
+  text-align: center;
+  margin-top: 25px;
+}
+
+.pagination span {
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.active-page {
+  font-weight: bold;
+  color: #1e90ff;
+  border-bottom: 2px solid #1e90ff;
+}
+
+
+/* ========================================
+   글쓰기 버튼
+======================================== */
+.write-btn {
+  float: right;
+  margin-top: 20px;
+  padding: 8px 16px;
+  background: #1e90ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/*----------------------------
+   게시판 헤더(표 제목)
+-----------------------------*/
+.post-header {
+  display: flex;
+  padding: 12px 0;
+  border-bottom: 2px solid #999;
+  font-weight: bold;
+}
+
+/*----------------------------
+   게시판 데이터(한 줄)
+-----------------------------*/
+.post-row {
+  display: flex;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+.post-row:hover {
+  background: #f8faff;
+}
+
+/*----------------------------
+   각 칼럼 너비 지정
+-----------------------------*/
+.col-category { width: 10%; color: #1e90ff; font-weight: bold; }
+.col-title    { width: 50%; }
+.col-writer   { width: 12%; text-align: center; }
+.col-date     { width: 18%; text-align: center; }
+.col-views    { width: 10%; text-align: center; }
+.post-header .col-category {
+  color: #000 !important;
+  font-weight: bold;
+}

@@ -1,14 +1,27 @@
 import React, { useState } from "react";
-import Header from "../../../components/home/Header";
-import SideMenu from "../../../components/home/SideMenu";
-import { SearchBar, AIFilter, WeatherBox } from "../../../components/city";
-import CityList from "../../../components/city/CityList";
-import ReviewCard from "../../../components/city/ReviewCard";
-import EventCard from "../../../components/city/EventCard";
-import "../../../styles/page/city/CityMain.css";
+import Header from "../home/Header";
+import SideMenu from "../home/SideMenu";
+
+import { SearchBar, AIFilter, WeatherBox } from ".";
+
+import CityList from "./CityList";
+import ReviewCard from "./ReviewCard";
+import EventCard from "./EventCard";
+
+import "../../styles/page/city/CityMain.css";
 
 export default function CityMain({ user, setUser }) {
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const [filter, setFilter] = useState({
+    areaCode: null,
+    sigunguCode: null,
+    keyword: ""
+  });
+
+  const handleKeywordChange = (value) => {
+    setFilter(prev => ({ ...prev, keyword: value }));
+  };
 
   const reviews = [
     { title: "제주 가족여행", summary: "2박 3일 일정으로 다녀온 여행 후기", userName: "홍길동" },
@@ -18,21 +31,16 @@ export default function CityMain({ user, setUser }) {
   const events = [
     {
       title: "겨울 국내여행 할인 이벤트",
-      desc: "양떼목장 · 스키장 · 온천 여행 최대 30% 할인!",
-      thumb: "/images/event01.jpg"
+      desc: "양떼목장 · 스키장 · 온천 여행 최대 30% 할인!"
     },
+
     {
       title: "제주도 렌터카 프로모션",
-      desc: "선착순 할인 쿠폰 제공 · 하루 19,900원부터",
-      thumb: "/images/event02.jpg"
+      desc: "선착순 할인 쿠폰 제공 · 하루 19,900원부터"
     }
   ];
 
-  const [filter, setFilter] = useState({
-    areaCode: null,
-    sigunguCode: null,
-    keyword: "",
-  });
+  
 
   return (
     <>
@@ -56,21 +64,14 @@ export default function CityMain({ user, setUser }) {
 
         {/* 오른쪽 필터 – 화면에 떠 있는 패널 */}
         <div className="floating-right">
-          <AIFilter onFilterChange={(data) =>
-            setFilter(prev => ({ ...prev, ...data }))
-          }
-          />
+          <AIFilter onFilterChange={setFilter} />
         </div>
 
         {/* 중앙 메인 컨텐츠 */}
         <div className="city-content-box">
 
           {/* 검색바 */}
-          <SearchBar 
-            onKeywordChange={(kw) => 
-              setFilter(prev => ({ ...prev, keyword: kw }))
-            }
-          />
+          <SearchBar onKeywordChange={handleKeywordChange} />
 
           {/* 타이틀 */}
           <div className="city-title-wrap">
@@ -80,7 +81,7 @@ export default function CityMain({ user, setUser }) {
             </p>
           </div>
 
-          {/* 리스트 2열 */}
+          {/* 리스트 */}
           <div className="city-list-grid">
             <CityList filter={filter} />
           </div>

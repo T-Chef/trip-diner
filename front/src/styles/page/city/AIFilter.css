@@ -65,6 +65,11 @@
   width: 260px;
   max-height: 78vh;       /* 화면 높이에 맞게 자동 조절 */
   overflow-y: auto;        /* 내부 스크롤 */
+  scrollbar-width: none;
+}
+
+.floating-right .ai-filter-wrapper::-webkit-scrollbar {
+  display: none;              /* Chrome, Edge, Safari */
 }
 
 /* 지역 태그 크기 줄이기 */

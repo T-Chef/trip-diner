@@ -2,7 +2,6 @@ import React from "react";
 import "../../styles/page/city/WeatherBox.css";
 
 export default function WeatherBox({ weather }) {
-  // 데이터 없을 때는 Placeholder UI
   if (!weather) {
     return (
       <div className="weather-box">
@@ -24,7 +23,7 @@ export default function WeatherBox({ weather }) {
       </div>
 
       <div className="weather-right">
-        <img src={weather.icon} alt="weather icon" />
+        <img src={weather.icon} alt="weather" />
       </div>
     </div>
   );

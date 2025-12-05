@@ -7,7 +7,6 @@ const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 
 export default function CityList({ filter }) {
   const { areaCode, sigunguCode, keyword } = filter;  
-  const contentTypeId = ""; 
 
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -23,12 +22,14 @@ export default function CityList({ filter }) {
       setLoading(true);
       try {
         const res = await axios.get(`${API_BASE}/place/places`, {
-        params: { areaCode, sigunguCode, keyword: keyword || "", contentTypeId },
+        params: { 
+          areaCode, 
+          sigunguCode, 
+          keyword: keyword || ""
+        }
       });
 
-      const list = res.data.slice(0, 10);
-      setPlaces(list);
-
+        setPlaces(res.data.slice(0, 10));
       } catch (e) {
         console.error("관광지 데이터 불러오기 실패", e);
       } finally {
@@ -41,19 +42,16 @@ export default function CityList({ filter }) {
 
   if (loading) return <div>불러오는 중...</div>;
 
-  const leftList = places.slice(0, 5);
-  const rightList = places.slice(5, 10);
-
   return (
     <div className="city-list-grid">
       <div className="city-list-left">
-        {leftList.map((p, idx) => (
+        {places.slice(0, 5).map((p, idx) => (
           <CityListItem key={p.contentId} index={idx + 1} item={p} />
         ))}
       </div>
 
       <div className="city-list-right">
-        {rightList.map((p, idx) => (
+        {places.slice(5, 10).map((p, idx) => (
           <CityListItem key={p.contentId} index={idx + 6} item={p} />
         ))}
       </div>

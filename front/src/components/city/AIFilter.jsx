@@ -29,10 +29,11 @@ export default function AIFilter({ onFilterChange }) {
 
   // 부모로 필터 전달
   useEffect(() => {
-    onFilterChange({
+    onFilterChange(prev => ({
+      ...prev,
       areaCode: selectedCity?.areaCode || null,
-      sigunguCode: selectedDistrict?.sigunguCode || null,
-    });
+      sigunguCode: selectedDistrict?.sigunguCode || null
+    }));
   }, [selectedCity, selectedDistrict, onFilterChange]);
 
   return (
@@ -58,7 +59,7 @@ export default function AIFilter({ onFilterChange }) {
         ))}
       </div>
 
-      {/* 시/군/구 리스트 */}
+      {/* 군/구 리스트 */}
       {selectedCity && (
         <div className="ai-filter-district-grid">
           <div

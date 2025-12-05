@@ -7,27 +7,51 @@ const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 export default function CityListItem({ index, item }) {
   const [liked, setLiked] = useState(false);
 
-  // 🔸 초기 로드 시 localStorage 좋아요 상태 불러오기
+  // 🔸 초기 좋아요
   useEffect(() => {
     const savedLikes = JSON.parse(localStorage.getItem("likedPlaces") || "[]");
     setLiked(savedLikes.includes(item.contentId));
   }, [item.contentId]);
 
+  // 파티클 
+  const createParticles = (target) => {
+    const count = 6;
+    const container = target.parentElement;
+
+    for (let i = 0; i < count; i++) {
+      const particle = document.createElement("span");
+      particle.className = "particle";
+
+      const angle = (Math.PI * 2 * i) / count;
+      particle.style.setProperty("--dx", `${Math.cos(angle) * 22}px`);
+      particle.style.setProperty("--dy", `${Math.sin(angle) * 22}px`);
+
+      container.appendChild(particle);
+
+      setTimeout(() => particle.remove(), 700);
+    }
+  };
+
   // 🔥 좋아요 토글
   const toggleLike = async (e) => {
     e.stopPropagation();
-
     const newLiked = !liked;
+
+    const btn = e.currentTarget;
+    btn.classList.remove("liked", "unliked");
+
+    if (newLiked) {
+      btn.classList.add("liked");
+      createParticles(btn);
+    } else {
+      btn.classList.add("unliked");
+    }
 
     // 1) 프론트 localStorage 업데이트
     const savedLikes = JSON.parse(localStorage.getItem("likedPlaces") || "[]");
-    let updated;
-
-    if (newLiked) {
-      updated = [...savedLikes, item.contentId];
-    } else {
-      updated = savedLikes.filter(id => id !== item.contentId);
-    }
+    const updated = newLiked
+      ? [...savedLikes, item.contentId]
+      : savedLikes.filter((id) => id !== item.contentId)
 
     localStorage.setItem("likedPlaces", JSON.stringify(updated));
     setLiked(newLiked);
@@ -37,7 +61,7 @@ export default function CityListItem({ index, item }) {
       await axios.post(`${API_BASE}/place/like`, {
         contentId: item.contentId,
         liked: newLiked,
-        userId: 1  // TODO: 실제 로그인된 사용자 ID로 변경
+        userId: 1  
       });
     } catch (err) {
       console.error("좋아요 저장 실패", err);
@@ -55,10 +79,14 @@ export default function CityListItem({ index, item }) {
         {/* 제목 + 하트 */}
         <div className="title-row">
           <h3>{item.title}</h3>
-
-          <button className="like-btn" onClick={toggleLike}>
-            {liked ? "❤️" : "🤍"}
-          </button>
+          <div className="like-container">
+            <button 
+              className={`like-btn ${liked ? "liked" : ""}`} 
+              onClick={toggleLike}
+            >
+              {liked ? "❤️" : "🤍"}
+            </button>
+          </div>
         </div>
 
         {/* 설명 */}

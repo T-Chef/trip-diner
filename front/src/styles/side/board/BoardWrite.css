@@ -1,0 +1,301 @@
+/* ================================
+   전체 레이아웃
+================================ */
+.cafe-write-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 25px 20px;
+  font-family: "Noto Sans KR", sans-serif;
+}
+
+.write-title {
+  font-size: 26px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+/* ================================
+   글쓰기 레이아웃
+================================ */
+.write-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 25px;
+}
+
+/* ================================
+   왼쪽 본문 영역
+================================ */
+.write-main {
+  flex: 1;
+}
+
+/* ================================
+   게시판/말머리 선택
+================================ */
+.category-box {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.select-box {
+  width: 50%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 14px;
+}
+
+/* ================================
+   제목 입력
+================================ */
+.title-input {
+  width: 100%;
+  padding: 15px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 15px;
+}
+
+/* ================================
+   상단 툴바 (사진, 파일 등)
+================================ */
+.toolbar {
+  display: flex;
+  gap: 18px;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  align-items: center;
+}
+
+.tool-item {
+  font-size: 15px;
+  cursor: pointer;
+  color: #666;
+}
+
+.tool-item:hover {
+  color: #1e90ff;
+}
+
+/* ================================
+   TIPTAP 에디터 전체 박스
+================================ */
+.tiptap-wrap {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+/* ================================
+   TIPTAP 툴바 (네이버 스타일)
+================================ */
+.tiptap-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  height: 38px;
+  background: #fafafa;
+  border-bottom: 1px solid #ddd;
+}
+
+/* 버튼 공통 */
+.tiptap-toolbar button {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: 0.15s;
+}
+
+.tiptap-toolbar button:hover {
+  background: #f0f0f0;
+}
+
+/* 아이콘 중앙정렬 */
+.tiptap-toolbar button span,
+.tiptap-toolbar button b {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ================================
+   색상 선택 박스
+================================ */
+.color-picker {
+  width: 30px;
+  height: 30px;
+  position: relative;
+  cursor: pointer;
+}
+
+.color-preview {
+  width: 30px;
+  height: 30px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+/* input(color)은 숨김 */
+.color-picker input[type="color"] {
+  opacity: 0;
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+}
+
+/* ================================
+   TIPTAP 본문 입력 영역
+================================ */
+.tiptap-editor {
+  padding: 15px;
+  min-height: 300px;
+  line-height: 1.7;
+  font-size: 15px;
+  outline: none;
+}
+
+.tiptap-editor p {
+  margin-bottom: 12px;
+}
+
+.tiptap-editor img {
+  max-width: 300px;
+  margin: 10px 0;
+  border-radius: 8px;
+}
+
+/* ================================
+   태그 입력
+================================ */
+.tag-box {
+  margin-top: 15px;
+}
+
+.tag-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tag-item {
+  background: #eaf2ff;
+  color: #3b73ff;
+  padding: 5px 10px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.tag-remove {
+  cursor: pointer;
+  color: #ff4b4b;
+}
+
+.tag-input {
+  padding: 10px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  font-size: 13px;
+  width: 100%;
+}
+
+.tag-tip {
+  color: #777;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* ================================
+   오른쪽 사이드바
+================================ */
+.write-sidebar {
+  width: 260px;
+  padding: 20px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.sidebar-section {
+  margin-bottom: 25px;
+}
+
+.sidebar-section strong {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+
+.sidebar-section label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.sidebar-section input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* ================================
+   버튼 영역
+================================ */
+.write-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 30px;
+  gap: 12px;
+}
+
+.temp-btn,
+.submit-btn {
+  padding: 11px 20px;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  border: none;
+}
+
+.temp-btn {
+  background: #ddd;
+}
+
+.submit-btn {
+  background: #1e90ff;
+  color: white;
+}
+
+.submit-btn:hover {
+  background: #1878d3;
+}
