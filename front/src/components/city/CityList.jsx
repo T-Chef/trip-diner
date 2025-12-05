@@ -1,18 +1,62 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import CityListItem from "./CityListItem";
-
+import axios from "axios";
 import "../../styles/page/city/CityList.css";
 
-export default function CityList({ items = [] }) {
-  return (
-    <div className="city-list-container">
-      {items.length === 0 && (
-        <div className="city-list-empty">데이터 준비중입니다…</div>
-      )}
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 
-      {items.map((item, idx) => (
-        <CityListItem key={item.id} index={idx + 1} item={item} />
-      ))}
+export default function CityList({ filter }) {
+  const { areaCode, sigunguCode, keyword } = filter;  
+  const contentTypeId = ""; 
+
+  const [places, setPlaces] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // ⭐ 필터가 변경될 때만 관광지 호출
+  useEffect(() => {
+    if (!areaCode) {
+      setPlaces([]);
+      return;
+    }
+
+    async function fetchPlaces() {
+      setLoading(true);
+      try {
+        const res = await axios.get(`${API_BASE}/place/places`, {
+        params: { areaCode, sigunguCode, keyword: keyword || "", contentTypeId },
+      });
+
+      const list = res.data.slice(0, 10);
+      setPlaces(list);
+
+      } catch (e) {
+        console.error("관광지 데이터 불러오기 실패", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPlaces();
+  }, [areaCode, sigunguCode, keyword]);
+
+  if (loading) return <div>불러오는 중...</div>;
+
+  const leftList = places.slice(0, 5);
+  const rightList = places.slice(5, 10);
+
+  return (
+    <div className="city-list-grid">
+      <div className="city-list-left">
+        {leftList.map((p, idx) => (
+          <CityListItem key={p.contentId} index={idx + 1} item={p} />
+        ))}
+      </div>
+
+      <div className="city-list-right">
+        {rightList.map((p, idx) => (
+          <CityListItem key={p.contentId} index={idx + 6} item={p} />
+        ))}
+      </div>
     </div>
   );
 }

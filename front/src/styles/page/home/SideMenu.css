@@ -90,8 +90,6 @@
   margin: 0;
 }
 
-
-
 /* ============================================================
    오버레이 (메뉴 열릴 때 배경)
 ============================================================ */
@@ -114,4 +112,28 @@
 .overlay.show {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* ============================================================
+   햄버거 / 닫기 버튼 outline 제거 (흰 박스 제거)
+============================================================ */
+.ham-btn,
+.close-btn {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.ham-btn:hover,
+.ham-btn:focus,
+.ham-btn:active,
+.close-btn:hover,
+.close-btn:focus,
+.close-btn:active {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 }

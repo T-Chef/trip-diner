@@ -28,6 +28,12 @@ export default function CityMain({ user, setUser }) {
     }
   ];
 
+  const [filter, setFilter] = useState({
+    areaCode: null,
+    sigunguCode: null,
+    keyword: "",
+  });
+
   return (
     <>
       {/* 헤더 */}
@@ -50,14 +56,21 @@ export default function CityMain({ user, setUser }) {
 
         {/* 오른쪽 필터 – 화면에 떠 있는 패널 */}
         <div className="floating-right">
-          <AIFilter />
+          <AIFilter onFilterChange={(data) =>
+            setFilter(prev => ({ ...prev, ...data }))
+          }
+          />
         </div>
 
         {/* 중앙 메인 컨텐츠 */}
         <div className="city-content-box">
 
           {/* 검색바 */}
-          <SearchBar />
+          <SearchBar 
+            onKeywordChange={(kw) => 
+              setFilter(prev => ({ ...prev, keyword: kw }))
+            }
+          />
 
           {/* 타이틀 */}
           <div className="city-title-wrap">
@@ -69,12 +82,7 @@ export default function CityMain({ user, setUser }) {
 
           {/* 리스트 2열 */}
           <div className="city-list-grid">
-            <div className="city-list-left">
-              <CityList items={[]} />
-            </div>
-            <div className="city-list-right">
-              <CityList items={[]} />
-            </div>
+            <CityList filter={filter} />
           </div>
 
           {/* 후기 섹션 */}

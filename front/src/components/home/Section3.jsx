@@ -67,35 +67,32 @@ export default function Section3({ sectionRef }) {
         </div>
 
         {/* 오른쪽 컬럼 */}
-          <div className="right-list fade-item" ref={el => (fadeRefs.current[4] = el)}>
+        <div className="right-col fade-item" ref={el => (fadeRefs.current[4] = el)}>
 
-            {/* 1번 카드 */}
-            <div className="product-card">
-              <img src="/assets/images/product1.jpg" className="product-thumb" alt="전주 상품 이미지"/>
-              <h3 className="product-title">전주에 왔다면 꼭 가야 하는 곳</h3>
-              <p className="product-sub">가이드 • 전주</p>
-              <div className="tag">#참고할 만한 가이드</div>
-            </div>
-
-            {/* 2번 카드 */}
-            <div className="product-card">
-              <img src="/assets/images/product2.jpg" className="product-thumb" alt="부산 상품 이미지"/>
-              <h3 className="product-title">부산 해운대 </h3>
-              <p className="product-sub">한국인들이 사랑하는 관광지</p>
-              <div className="product-meta">테마파크 • 어트랙션 • 부산</div>
-              <div className="tag">#일정에 담은 상품과 연관된 상품</div>
-            </div>
-
-            {/* 3번 카드 */}
-            <div className="product-card">
-              <img src="/assets/images/product3.jpg" className="product-thumb" alt="여수 상품 이미지" />
-              <h3 className="product-title">여수 밤바다</h3>
-              <p className="product-sub">3성급 • 여수</p>
-              <div className="tag">#여수와 함께 많이 찾는 다리</div>
-            </div>
-
+          <div className="product-card">
+            <img src="/assets/images/product1.jpg" className="product-thumb" alt="전주 상품" />
+            <h3 className="p-title">전주에 왔다면 꼭 가야 하는 곳</h3>
+            <p className="p-sub">가이드 · 전주</p>
+            <div className="p-tag">#참고할 만한 가이드</div>
           </div>
 
+          <div className="product-card">
+            <img src="/assets/images/product2.jpg" className="product-thumb" alt="부산 해운대" />
+            <h3 className="p-title">부산 해운대</h3>
+            <p className="p-sub">한국인들이 사랑하는 관광지</p>
+            <p className="p-meta">테마파크 · 어트랙션 · 부산</p>
+            <div className="p-tag">#일정에 담은 상품과 연관된 상품</div>
+          </div>
+
+          <div className="product-card">
+            <img src="/assets/images/product3.jpg" className="product-thumb" alt="여수 밤바다" />
+            <h3 className="p-title">여수 밤바다</h3>
+            <p className="p-sub">3성급 · 여수</p>
+            <div className="p-tag">#여수와 함께 많이 찾는 다리</div>
+          </div>
+
+        </div>
+        
       </div>
     </section>
   );
