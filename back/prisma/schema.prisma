@@ -49,13 +49,10 @@ model place {
   lng          Float?
   description  String?        @db.Text
   image_url    String?        @db.VarChar(500)
-  bookmark     bookmark[]
   city         city           @relation(fields: [city_id], references: [city_id], onDelete: NoAction, onUpdate: NoAction, map: "place_ibfk_1")
+  place_like   place_like[]
   plan_item    plan_item[]
-  recent       recent[]
   review_place review_place[]
-  content_id String? @unique @db.VarChar(50)
-
 
   @@index([city_id], map: "city_id")
 }
@@ -80,16 +77,6 @@ model ai_keyword {
   keyword     String?      @db.VarChar(100)
   description String?      @db.VarChar(255)
   ai_history  ai_history[]
-}
-
-model bookmark {
-  user_id  BigInt
-  place_id BigInt
-  user     user   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "bookmark_ibfk_1")
-  place    place  @relation(fields: [place_id], references: [place_id], onDelete: NoAction, onUpdate: NoAction, map: "bookmark_ibfk_2")
-
-  @@id([user_id, place_id])
-  @@index([place_id], map: "place_id")
 }
 
 model comment {
@@ -154,15 +141,16 @@ model plan_item {
 }
 
 model post {
-  post_id    BigInt    @id @default(autoincrement())
+  post_id    BigInt      @id @default(autoincrement())
   user_id    BigInt
-  title      String?   @db.VarChar(255)
-  content    String?   @db.Text
-  image_url  String?   @db.VarChar(500)
-  created_at DateTime? @default(now()) @db.DateTime(0)
-  updated_at DateTime? @default(now()) @db.DateTime(0)
+  title      String?     @db.VarChar(255)
+  content    String?     @db.Text
+  image_url  String?     @db.VarChar(500)
+  created_at DateTime?   @default(now()) @db.DateTime(0)
+  updated_at DateTime?   @default(now()) @db.DateTime(0)
   comment    comment[]
-  user       user      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "post_ibfk_1")
+  user       user        @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "post_ibfk_1")
+  post_like  post_like[]
   report     report[]
 
   @@index([user_id], map: "user_id")
@@ -192,17 +180,6 @@ model qna_answer {
 
   @@index([admin_id], map: "admin_id")
   @@index([qna_id], map: "qna_id")
-}
-
-model recent {
-  user_id   BigInt
-  place_id  BigInt
-  viewed_at DateTime? @default(now()) @db.DateTime(0)
-  user      user      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "recent_ibfk_1")
-  place     place     @relation(fields: [place_id], references: [place_id], onDelete: NoAction, onUpdate: NoAction, map: "recent_ibfk_2")
-
-  @@id([user_id, place_id])
-  @@index([place_id], map: "place_id")
 }
 
 model report {
@@ -242,12 +219,12 @@ model user {
   created_at   DateTime?      @default(now()) @db.DateTime(0)
   deleted      Int?           @default(0) @db.TinyInt
   ai_history   ai_history[]
-  bookmark     bookmark[]
   comment      comment[]
+  place_like   place_like[]
   plan         plan[]
   post         post[]
+  post_like    post_like[]
   qna          qna[]
-  recent       recent[]
   report       report[]
   review_place review_place[]
 }
@@ -262,6 +239,30 @@ model weather {
   city        city      @relation(fields: [city_id], references: [city_id], onDelete: NoAction, onUpdate: NoAction, map: "weather_ibfk_1")
 
   @@index([city_id], map: "city_id")
+}
+
+model place_like {
+  like_id    BigInt    @id @default(autoincrement())
+  user_id    BigInt
+  place_id   BigInt
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  place      place     @relation(fields: [place_id], references: [place_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_place_like_place")
+  user       user      @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_place_like_user")
+
+  @@index([place_id], map: "fk_place_like_place")
+  @@index([user_id], map: "fk_place_like_user")
+}
+
+model post_like {
+  like_id    BigInt    @id @default(autoincrement())
+  user_id    BigInt
+  post_id    BigInt
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  post       post      @relation(fields: [post_id], references: [post_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_post_like_post")
+  user       user      @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_post_like_user")
+
+  @@index([post_id], map: "fk_post_like_post")
+  @@index([user_id], map: "fk_post_like_user")
 }
 
 enum admin_role {
@@ -279,10 +280,4 @@ enum user_provider {
   KAKAO
   NAVER
   LOCAL
-}
-
-model PasswordResetToken {
-  token  String  @id
-  email  String
-  expires DateTime
 }

@@ -19,6 +19,8 @@ import usersRouter from './routes/users.js';
 import tourRouter from "./routes/tour.js";
 import aiRouter from "./routes/ai.js";
 import profileRouter from "./routes/mypage/profile.js";
+import likeRouter from "./routes/like.js";
+
 
 const app = express();
 
@@ -83,6 +85,7 @@ app.use('/api/trip', tripRouter);
 app.use("/api/tour", tourRouter);
 app.use("/api/ai", aiRouter);
 app.use("/api/profile", profileRouter);
+app.use("/api/like", likeRouter);
 
 /* -------------------------------------------------------
    포트
