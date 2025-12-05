@@ -79,10 +79,16 @@ app.get('/api/test', (req, res) => {
 app.use('/api/auth', usersRouter);
 app.use('/api/city', cityRouter);
 app.use('/api/category', categoryRouter);
-app.use('/api/tour', placeRouter);
+
+// ✔ tour.js 는 도시 / 시군구 / 상세
+app.use('/api/tour', tourRouter);
+
+// ✔ place.js 는 목록 / 상세
+app.use('/api/place', placeRouter);
+
 app.use('/api/review', reviewRouter);
 app.use('/api/trip', tripRouter);
-app.use("/api/tour", tourRouter);
+
 app.use("/api/ai", aiRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/like", likeRouter);

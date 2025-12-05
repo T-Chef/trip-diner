@@ -59,44 +59,6 @@ router.get("/areas", async (req, res) => {
   }
 });
 
-// 관광지 목록 (areaCode + sigunguCode 기준)
-router.get("/places", async (req, res) => {
-  const { areaCode, sigunguCode } = req.query;
-  if (!areaCode) return res.status(400).json({ error: "areaCode 필요" });
-
-  try {
-    const encodedKey = encodeURIComponent(process.env.TOUR_API_KEY);
-
-    let url =
-      `https://apis.data.go.kr/B551011/KorService2/areaBasedList2?serviceKey=${encodedKey}` +
-      `&MobileOS=ETC&MobileApp=TripDiner&_type=json&numOfRows=200&pageNo=1` +
-      `&areaCode=${areaCode}`;
-
-    if (sigunguCode) url += `&sigunguCode=${sigunguCode}`;
-
-    const response = await fetch(url);
-    const data = await response.json();
-
-    const items = data?.response?.body?.items?.item || [];
-
-    const result = items.map(i => ({
-      contentId: i.contentid,
-      contentTypeId: i.contenttypeid,
-      title: i.title,
-      address: i.addr1,
-      tel: i.tel,
-      mapX: i.mapx,
-      mapY: i.mapy,
-      image: i.firstimage
-    }));
-
-    res.json(result);
-  } catch (err) {
-    console.error("🔥 Tour Places API Error:", err);
-    res.status(500).json({ error: "Tour Places API error", details: err.message });
-  }
-});
-
 // 관광지 상세 정보
 router.get("/place/detail", async (req, res) => {
   const { contentId, contentTypeId } = req.query;

@@ -3,7 +3,6 @@ import "../../styles/page/home/Section3.css";
 
 export default function Section3({ sectionRef }) {
   const paperBg = process.env.PUBLIC_URL + "/assets/images/cream-paper.jpg";
-
   const cardRefs = useRef([]);
 
   useEffect(() => {

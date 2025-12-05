@@ -6,24 +6,27 @@
   padding: 160px 80px;
 
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 60px;
+  grid-template-columns: 0.7fr 1.3fr;
+  gap: 40px;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
 
-  position: relative;
+/* LEFT SIDE */
+.left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 260px;
+}
 
-  background-size: cover;
-  background-position: center;
-
-  border: 1px solid rgba(0,0,0,0.12);
-  border-radius: 2px;
-
-  box-shadow:
-    0 10px 24px rgba(0,0,0,0.12),
-    0 0 0 6px rgba(255,255,245,0.9);
-
-  opacity: 0;
-  transform: translateY(70px);
-  transition: .9s ease;
+.big-title {
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1.28;
+  margin-bottom: 12px;
 }
 
 .openbook-section.section3.show {
@@ -47,7 +50,16 @@
 .open-left {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  gap: 10px;
+}
+
+/* WHITE CARD */
+.item-card {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 18px;
+  height: 84px;
 }
 
 .sec-badge {
@@ -56,23 +68,138 @@
   margin-bottom: 10px;
 }
 
-.open-right {
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
+.item-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.15);
 }
 
-.recommend-card {
-  background: white;
-  padding: 18px 22px;
-  border-radius: 12px;
-  border: 1px solid rgba(0,0,0,0.1);
+/* 오른쪽 카드 리스트 */
+.right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+}
+/* 개별 카드 */
+.product-card {
+  width: 100%;
+  background: #fff;
+  border-radius: 18px;
+  padding: 16px 18px 20px;
   box-shadow: 0 6px 16px rgba(0,0,0,0.12);
   transition: .3s ease;
 }
 
 .recommend-card:hover {
   transform: translateY(-4px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.18);
+}
+
+/* 이미지 (좌측 사각형 비율) */
+.product-thumb {
+  width: 100%;
+  height: 180px;
+  border-radius: 14px;
+  object-fit: cover;
+  margin-bottom: 14px;
+}
+
+.p-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.p-sub {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-bottom: 8px;
+}
+
+.p-meta {
+  font-size: 13px;
+  opacity: 0.55;
+  margin-bottom: 10px;
+}
+
+/* 태그 */
+.p-tag {
+  display: inline-block;
+  padding: 6px 12px;
+  background: #e9f2ff;
+  color: #3a73f3;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 10px;
+}
+
+/* 페이드업 애니메이션 */
+.recommend-section .left-col,
+.recommend-section .right-col,
+.recommend-section .big-title {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity .8s ease, transform .8s ease;
+}
+
+.recommend-section.show .left-col,
+.recommend-section.show .right-col,
+.recommend-section.show .big-title {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================================
+   FADE-UP + BLUR ANIMATION (Section3 공통)
+============================================================ */
+/* 초기값 */
+.recommend-grid > * {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  will-change: opacity, transform;
+}
+
+/* show */
+.recommend-section.show .recommend-grid > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 개별 딜레이 */
+.left-col { transition-delay: 0.1s; }
+.right-col { transition-delay: 0.18s; }
+
+/* 이미지 내부 stagger */
+.big-photo {
+  opacity: 0; 
+  transform: translateY(28px);
+  transition: 0.8s ease-out;
+  will-change: opacity, transform;
+}
+
+.small-photo {
+  opacity: 0; 
+  transform: translateY(28px);
+  transition: 0.8s ease-out;
+  will-change: opacity, transform;
+}
+
+.recommend-section.show .big-photo { 
+  opacity: 1; 
+  transform: translateY(0); 
+  transition-delay: 0.22s;
+}
+
+.recommend-section.show .small-photo:nth-child(1) { 
+  opacity: 1; transform: translateY(0); 
+  transition-delay: 0.28s;
+}
+
+.recommend-section.show .small-photo:nth-child(2) { 
+  opacity: 1; 
+  transform: translateY(0); 
+  transition-delay: 0.34s;
 }
 
 .fade-item {

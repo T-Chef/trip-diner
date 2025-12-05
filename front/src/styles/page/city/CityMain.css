@@ -1,10 +1,10 @@
 /* 공통 변수 */
 :root {
-  --content-width: 740px;
+  --content-width: 820px;
   --panel-width: 240px;
-  --layout-gap: 80px;
-  --side-offset-left: -48px;
-  --side-offset-right: 4px;
+  --layout-gap: 70px;
+  --side-offset-left: -20px;
+  --side-offset-right: -20px;
 }
 
 /* 전체 페이지 */
@@ -22,7 +22,7 @@
   margin: 0 auto;
   background: #ffffff;
   border-radius: 18px;
-  padding: 40px 60px 50px 60px;
+  padding: 45px 60px 55px 60px;
   box-shadow: 0 6px 18px rgba(0,0,0,0.1);
 }
 
@@ -33,7 +33,7 @@
 .floating-left,
 .floating-right {
   position: fixed;
-  top: 150px;              /* 헤더 아래 위치 – 필요하면 조절 */
+  top: 50px;              /* 헤더 아래 위치 – 필요하면 조절 */
   width: var(--panel-width);
   z-index: 5;
 }
@@ -76,9 +76,8 @@
 ========================== */
 .city-list-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px 40px;
-  margin-top: 35px;
+  grid-template-columns: repeat(2, 398px);
+  gap: 20px 24px;
 }
 
 /* ==========================

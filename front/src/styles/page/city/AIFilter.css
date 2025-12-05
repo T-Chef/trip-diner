@@ -1,50 +1,86 @@
 .ai-filter-wrapper {
   width: 100%;
-  padding: 22px 22px;
-  background: #ffffff;
-  border: 1px solid #e5e5e5;
-  border-radius: 16px;
-
+  margin-top: 30px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  gap: 25px;
 }
 
-/* 필터 항목 간 간격 */
-.ai-filter-item {
+/* 상단 지역 태그 */
+.ai-filter-city-tags {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-/* 라벨 스타일 */
-.ai-filter-item label {
-  font-size: 14px;
-  font-weight: 500;
-  color: #555;
-  margin-bottom: 6px;
-}
-
-.ai-filter-item select {
-  height: 46px;
-  padding: 0 12px;
-  border: 1px solid #d0d0d0;
-  border-radius: 12px;
+.city-tag {
+  padding: 6px 14px;
+  border-radius: 18px;
+  background: #f2f2f2;
+  cursor: pointer;
   font-size: 15px;
-  color: #333;
-
-  background: #fafafa;
-  transition: all 0.2s ease;
+  transition: 0.15s;
 }
 
-.ai-filter-item select:hover {
-  border-color: #b5b5b5;
-  background: #f5f5f5;
+.city-tag:hover {
+  background: #ddd;
 }
 
-.ai-filter-item select:focus {
-  border-color: #4285f4;
-  background: #fff;
-  outline: none;
+.city-tag.active {
+  background: #3a76ff;
+  color: white;
 }
+
+/* 구·군 그리드 */
+.ai-filter-district-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  row-gap: 10px;
+  column-gap: 6px;
+}
+
+.district-tag {
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: #f6f6f6;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.district-tag:hover {
+  background: #ececec;
+}
+
+.district-tag.active {
+  background: #3a76ff;
+  color: white;
+}
+
+/* 오른쪽 패널 내부 스타일 */
+.floating-right .ai-filter-wrapper {
+  background: #ffffff;
+  padding: 20px 18px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  width: 260px;
+  max-height: 78vh;       /* 화면 높이에 맞게 자동 조절 */
+  overflow-y: auto;        /* 내부 스크롤 */
+}
+
+/* 지역 태그 크기 줄이기 */
+.floating-right .city-tag {
+  padding: 5px 10px;
+  font-size: 13px;
+}
+
+/* 구/군 태그 사이즈 줄이기 */
+.floating-right .district-tag {
+  padding: 5px 8px;
+  font-size: 13px;
+}
+
+/* 그리드를 좁은 너비에 맞게 2열로 변경 */
+.floating-right .ai-filter-district-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
