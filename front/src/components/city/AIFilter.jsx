@@ -1,3 +1,4 @@
+// src/components/city/AIFilter.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "../../styles/page/city/AIFilter.css";
@@ -11,14 +12,21 @@ export default function AIFilter({ onFilterChange }) {
   const [selectedCity, setSelectedCity] = useState(null);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
 
-  // 도시 가져오기
+  /* -------------------------
+     🔹 도시 목록 가져오기
+  ------------------------- */
   useEffect(() => {
-    axios.get(`${API_BASE}/tour/cities`).then(res => setCities(res.data));
+    axios.get(`${API_BASE}/tour/cities`).then((res) => setCities(res.data));
   }, []);
 
-  // 도시 선택 → 구/군 목록 불러오기
+  /* -------------------------
+     🔹 도시 선택 → 시군구 목록 가져오기
+  ------------------------- */
   useEffect(() => {
-    if (!selectedCity) return;
+    if (!selectedCity) {
+      setDistricts([]);
+      return;
+    }
 
     axios
       .get(`${API_BASE}/tour/areas`, {
@@ -27,21 +35,20 @@ export default function AIFilter({ onFilterChange }) {
       .then((res) => setDistricts(res.data));
   }, [selectedCity]);
 
-  // 부모로 필터 전달
+  /* -------------------------
+     🔹 부모로 필터 전달
+  ------------------------- */
   useEffect(() => {
-    onFilterChange(prev => ({
+    onFilterChange((prev) => ({
       ...prev,
       areaCode: selectedCity?.areaCode || null,
-      sigunguCode: selectedDistrict?.sigunguCode || null
+      sigunguCode: selectedDistrict?.sigunguCode || null,
     }));
   }, [selectedCity, selectedDistrict, onFilterChange]);
 
   return (
     <div className="ai-filter-wrapper">
-
-      {/* ================================
-          상단 지역 선택 (해시태그 UI)
-      ================================= */}
+      {/* 광역시/도 해시태그 */}
       <div className="ai-filter-city-tags">
         {cities.map((city) => (
           <div
@@ -59,7 +66,7 @@ export default function AIFilter({ onFilterChange }) {
         ))}
       </div>
 
-      {/* 군/구 리스트 */}
+      {/* 시군구 */}
       {selectedCity && (
         <div className="ai-filter-district-grid">
           <div

@@ -87,9 +87,7 @@ const AISchedule = ({ userId = 1 }) => {
               {cities.map((city) => (
                 <button
                   key={city.areaCode}
-                  className={
-                    selectedCity?.areaCode === city.areaCode ? "active" : ""
-                  }
+                  className={selectedCity?.areaCode === city.areaCode ? "active" : ""}
                   onClick={() => {
                     setSelectedCity(city);
                     setSelectedDistrict(null);
@@ -110,11 +108,7 @@ const AISchedule = ({ userId = 1 }) => {
               {districts.map((d) => (
                 <button
                   key={d.sigunguCode}
-                  className={
-                    selectedDistrict?.sigunguCode === d.sigunguCode
-                      ? "active"
-                      : ""
-                  }
+                  className={selectedDistrict?.sigunguCode === d.sigunguCode ? "active" : ""}
                   onClick={() => setSelectedDistrict(d)}
                 >
                   {d.name}

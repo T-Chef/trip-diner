@@ -19,7 +19,7 @@ const AIScheduleMap = ({ aiPlan, onSelectPlace, activePlace }) => {
   };
 
   const initMap = useCallback(() => {
-    if (!mapRef.current || !window.naver) return;
+    if (!mapRef.current || !window.naver || !aiPlan?.days) return;
 
     if (!mapInstance.current) {
       mapInstance.current = new window.naver.maps.Map(mapRef.current, {
@@ -35,11 +35,10 @@ const AIScheduleMap = ({ aiPlan, onSelectPlace, activePlace }) => {
     polylinesRef.current.forEach((p) => p.setMap(null));
     polylinesRef.current = [];
 
-    if (!aiPlan || aiPlan.length === 0) return;
-
     const bounds = new window.naver.maps.LatLngBounds();
 
-    aiPlan.forEach((dayPlan, dayIndex) => {
+    (aiPlan.days || []).forEach((dayPlan, dayIndex) => {
+      if (!dayPlan?.places) return;
       if (selectedDay !== "ALL" && selectedDay !== dayIndex + 1) return;
 
       const color = dayColors[dayIndex % dayColors.length];
@@ -47,39 +46,42 @@ const AIScheduleMap = ({ aiPlan, onSelectPlace, activePlace }) => {
       let markerNumber = 1;
 
       dayPlan.places.forEach((place, placeIndex) => {
+        if (!place.lat || !place.lng) return;
+
         const latlng = new window.naver.maps.LatLng(place.lat, place.lng);
         bounds.extend(latlng);
 
         const marker = new window.naver.maps.Marker({
           position: latlng,
           map: mapInstance.current,
+          
           icon: {
             content: `
-              <div style="
-                background:${color};
-                width:28px;
-                height:28px;
-                border-radius:50%;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                color:white;
-                font-size:14px;
-                font-weight:700;
-                border:2px solid white;
-              ">
-                ${markerNumber}
-              </div>`,
+            <div style="
+              background:${color};
+              width:28px;
+              height:28px;
+              border-radius:50%;
+              display:flex;
+              align-items:center;
+              justify-content:center;
+              color:white;
+              font-size:14px;
+              font-weight:700;
+              border:2px solid white;
+            ">
+              ${markerNumber}
+            </div>`,
             anchor: new window.naver.maps.Point(14, 14),
           }
         });
 
-        marker.day = dayIndex;
-        marker.index = placeIndex;
+        marker.customDay = dayIndex;
+        marker.customIndex = placeIndex;
 
-        window.naver.maps.Event.addListener(marker, "click", () =>
-          onSelectPlace?.(dayIndex, placeIndex)
-        );
+         window.naver.maps.Event.addListener(marker, "click", () =>
+        onSelectPlace?.(dayIndex, placeIndex)
+      );
 
         markersRef.current.push(marker);
         markerNumber++;
@@ -97,51 +99,63 @@ const AIScheduleMap = ({ aiPlan, onSelectPlace, activePlace }) => {
         polylinesRef.current.push(polyline);
       }
     });
+    // 지도 크기 먼저 맞춤
+resizeMap();
 
-    mapInstance.current.fitBounds(bounds);
-    resizeMap();
+// activePlace 있을 때는 fitBounds 실행 금지!
+if (!activePlace) {
+   if (bounds.hasLatLng() && !bounds.isEmpty()) {
+     mapInstance.current.fitBounds(bounds);
+   } else {
+     mapInstance.current.setCenter(new window.naver.maps.LatLng(37.5665, 126.9780));
+     mapInstance.current.setZoom(11);
+   }
+ }
   }, [aiPlan, selectedDay, onSelectPlace]);
 
-  const loadMap = useCallback(() => {
-    const scriptId = "naver-map-sdk";
-    if (!document.getElementById(scriptId)) {
+  useEffect(() => {
+console.log("🧪 지도에 전달된 aiPlan:", aiPlan);  // ⭐ 여기에!
+    
+    if (!window.naver) {
       const script = document.createElement("script");
-      script.id = scriptId;
       script.src =
         "https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=1o7cfked5o";
-      script.async = true;
       script.onload = initMap;
       document.head.appendChild(script);
-    } else initMap();
-  }, [initMap]);
-
-  useEffect(() => {
-    loadMap();
-
-  return () => {
-    if (mapInstance.current) {
-      window.removeEventListener("resize", resizeMap);
-      markersRef.current.forEach((m) => m.setMap(null));
-      polylinesRef.current.forEach((p) => p.setMap(null));
-      markersRef.current = [];
-      polylinesRef.current = [];
+    } else {
+      initMap();
     }
-  };
-}, [aiPlan, selectedDay, loadMap]); // ★ 여기 수정
 
-  useEffect(() => {
-    if (!mapInstance.current || !activePlace) return;
-    if (!activePlace || activePlace.day === null) return;
+    return () => {
+      if (mapInstance.current) {
+        window.removeEventListener("resize", resizeMap);
+        markersRef.current.forEach((m) => m.setMap(null));
+        polylinesRef.current.forEach((p) => p.setMap(null));
+        markersRef.current = [];
+        polylinesRef.current = [];
+      }
+    };
+  }, [aiPlan, selectedDay, initMap]);
 
-    const { day, index } = activePlace;
-    const targetMarker = markersRef.current.find(
-      (m) => m.day === day && m.index === index
-    );
-    if (!targetMarker) return;
-    mapInstance.current.panTo(targetMarker.getPosition());
-    mapInstance.current.setZoom(14);
-    window.naver.maps.Event.trigger(targetMarker, "click");
-  }, [activePlace]);
+ useEffect(() => {
+  if (!mapInstance.current || !activePlace) return;
+
+  const targetMarker = markersRef.current.find(
+    (m) =>
+      m.customDay === activePlace.day &&
+    m.customIndex === activePlace.index
+);
+  if (!targetMarker) return;
+
+  mapInstance.current.panTo(targetMarker.getPosition());
+  mapInstance.current.setZoom(14);
+
+  // 점프 애니메이션
+  targetMarker.setAnimation(window.naver.maps.Animation.BOUNCE);
+  setTimeout(() => targetMarker.setAnimation(null), 1200);
+
+}, [activePlace]);
+
 
   return (
     <div

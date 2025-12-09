@@ -83,15 +83,12 @@ export default function App() {
           {/* 캘린더 */}
           <Route path="/calendar" element={<Calendar user={user} />} />
 
-          {/* Trip-Diner */}
-          <Route
-            path="/trip"
-            element={<AISchedule user={user} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />}
-          />
+          {/* Trip-Diner (AI 여행 계획) */}
+          <Route path="/trip" element={<AISchedule user={user} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />} />
           <Route path="/trip/category" element={<TripCategory />} />
           <Route path="/trip/result" element={<AIScheduleResult user={user} />} />
 
-          {/* 스케쥴*/}
+          {/* 기존 schedule url → trip으로 매핑 */}
           <Route path="/schedule" element={<Navigate to="/trip" replace />} />
           <Route path="/schedule/result" element={<Navigate to="/trip/result" replace />} />
 

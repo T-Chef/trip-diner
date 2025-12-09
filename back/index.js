@@ -78,15 +78,19 @@ app.use('/api/auth', usersRouter);
 app.use('/api/city', cityRouter);
 app.use('/api/category', categoryRouter);
 
-// ✔ tour.js 는 도시 / 시군구 / 상세
-app.use('/api/tour', tourRouter);
+app.use('/api/tour', tourRouter);     // 도시/시군구
+app.use('/api/place', placeRouter);   // 관광지 목록/상세 통합
 
-// ✔ place.js 는 목록 / 상세
-app.use('/api/place', placeRouter);
+// 🔥 Google Place TextSearch + Detail
+import googlePlaceRouter from "./routes/googlePlace.js";
+app.use("/api", googlePlaceRouter);
+
+// 🔥 Naver Image Search
+import naverSearchRouter from "./routes/naverSearch.js";
+app.use("/api", naverSearchRouter);
 
 app.use('/api/review', reviewRouter);
 app.use('/api/trip', tripRouter);
-
 app.use("/api/ai", aiRouter);
 app.use("/api/profile", profileRouter);
 

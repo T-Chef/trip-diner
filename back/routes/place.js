@@ -1,31 +1,77 @@
-// back/routes/place.js
-import express from "express";
-//import fetch from "node-fetch";
-import "dotenv/config";
+// 🔥 통합 place.js (관광공사 + AI + Google + Naver 이미지 보강 버전)
 
+import express from "express";
+import "dotenv/config";
+import axios from "axios";
 import { generateDescription } from "../utils/aiDescription.js";
 
 const router = express.Router();
 const TOUR_API_KEY = process.env.TOUR_API_KEY;
+
+/* -------------------------------------------------------
+   텍스트 정리 함수
+------------------------------------------------------- */
 const cleanText = (t) => t?.replace(/\n/g, " ").trim() ?? "";
 
-// HTML 정리 + 기본 설명 처리
+// HTML 제거 + 기본 처리
 const cleanOverview = (text) => {
   if (!text || typeof text !== "string") return "설명 없음";
 
-  // 🔥 HTML 태그 제거
   const cleaned = text.replace(/<[^>]+>/g, "").trim();
-  if (cleaned.length === 0) return "설명 없음";
-
-  return cleaned;      
+  return cleaned.length === 0 ? "설명 없음" : cleaned;
 };
 
-/**
- * 관광지 목록 조회
- * GET /api/tour/places?areaCode=6&sigunguCode=8
- */
+/* -------------------------------------------------------
+   GOOGLE + NAVER 이미지 보강 함수
+------------------------------------------------------- */
+async function enhanceImage(title, lat, lng) {
+  try {
+    /* 1) Google Place Details 기반 보강 */
+    const googleUrl =
+      `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(
+        title
+      )}&location=${lat},${lng}&radius=500&type=point_of_interest&language=ko&key=${
+        process.env.GOOGLE_API_KEY
+      }`;
+
+    const gRes = await axios.get(googleUrl);
+    const gPlace = gRes.data.results?.[0];
+
+    if (gPlace?.photos?.length > 0) {
+      return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photoreference=${
+        gPlace.photos[0].photo_reference
+      }&key=${process.env.GOOGLE_API_KEY}`;
+    }
+
+    /* 2) NAVER 이미지 보강 */
+    const naverRes = await axios.get(
+      `https://openapi.naver.com/v1/search/image?query=${encodeURIComponent(
+        title
+      )}&display=1`,
+      {
+        headers: {
+          "X-Naver-Client-Id": process.env.NAVER_CLIENT_ID,
+          "X-Naver-Client-Secret": process.env.NAVER_CLIENT_SECRET,
+        },
+      }
+    );
+
+    const nItem = naverRes.data.items?.[0];
+    if (nItem) return nItem.thumbnail || nItem.link;
+
+    return null;
+  } catch (err) {
+    console.warn("⚠ 이미지 보강 실패:", err.message);
+    return null;
+  }
+}
+
+/* -------------------------------------------------------
+   관광지 목록 조회 (통합 버전)
+   GET /api/place/places?areaCode=6&sigunguCode=8&keyword=부산
+------------------------------------------------------- */
 router.get("/places", async (req, res) => {
-  const { areaCode, sigunguCode, contentTypeId } = req.query;
+  const { areaCode, sigunguCode, contentTypeId, keyword } = req.query;
   if (!areaCode) return res.status(400).json({ error: "areaCode 필요" });
 
   try {
@@ -43,84 +89,84 @@ router.get("/places", async (req, res) => {
     const data = await response.json();
     const items = data?.response?.body?.items?.item || [];
 
-     // ------------------------------
-    // 🔥 상세 overview 가져오는 함수
-    // ------------------------------
-    const fetchOverview = async (contentId, contentTypeId) => {
+    /* -------------------------
+       상세 개별 overview 조회
+    ------------------------- */
+    const fetchOverview = async (contentId, typeId) => {
       try {
         const detailUrl =
           `https://apis.data.go.kr/B551011/KorService2/detailCommon2?serviceKey=${encodedKey}` +
           `&MobileOS=ETC&MobileApp=TripDiner&_type=json` +
-          `&contentId=${contentId}&contentTypeId=${contentTypeId}` +
+          `&contentId=${contentId}&contentTypeId=${typeId}` +
           `&overviewYN=Y&defaultYN=Y`;
 
         const res = await fetch(detailUrl);
         const json = await res.json();
-
         return json?.response?.body?.items?.item?.[0]?.overview || null;
       } catch {
         return null;
       }
     };
 
-    // ------------------------------
-    // 🔥 목록 + overview 결합
-    // ------------------------------
+    /* -------------------------
+       목록 + overview + 이미지 보강
+    ------------------------- */
     const result = await Promise.all(
       items.map(async (i) => {
-        let overviewRaw = await fetchOverview(i.contentid, i.contenttypeid);
-        let overview = cleanOverview(overviewRaw);
+        const contentId = i.contentid;
+        const typeId = i.contenttypeid;
 
-        // 🔥 관광공사 설명이 "설명 없음"이면 AI로 자동 생성
+        // 1) 관광공사 overview
+        let ovRaw = await fetchOverview(contentId, typeId);
+        let overview = cleanOverview(ovRaw);
+
+        // 2) overview 없을 시 AI 생성
         if (overview === "설명 없음") {
-          const safeAddress = cleanText(i.addr1);
-          overview = await generateDescription(i.title, safeAddress);
+          overview = await generateDescription(i.title, cleanText(i.addr1));
         }
 
+        // 3) 이미지 보강 (Google → Naver → 관광공사)
+        const enhancedImg = await enhanceImage(i.title, i.mapy, i.mapx);
+        const finalImage = enhancedImg || i.firstimage || null;
+
         return {
-          contentId: i.contentid,
-          contentTypeId: i.contenttypeid,
+          contentId,
+          contentTypeId: typeId,
           title: i.title,
           address: i.addr1,
           tel: i.tel,
           latitude: i.mapy,
           longitude: i.mapx,
-          image: i.firstimage,
+          image: finalImage, // 🔥 Google/Naver 보강된 이미지
           overview,
         };
       })
     );
 
-    // 검색어 필터링 넣는 위치
+    /* -------------------------
+       keyword 검색 필터링
+    ------------------------- */
     let filtered = result;
-    if (req.query.keyword) {
-    const kw = req.query.keyword.trim().toLowerCase();
-
-    filtered = result.filter((p) => {
-      const title = p.title ? p.title.toLowerCase() : "";
-      const address = p.address ? p.address.toLowerCase() : "";
-      const overview = p.overview ? p.overview.toLowerCase() : "";
-
-      return (
-        title.includes(kw) ||
-        address.includes(kw) ||
-        overview.includes(kw)
+    if (keyword) {
+      const kw = keyword.trim().toLowerCase();
+      filtered = filtered.filter(
+        (p) =>
+          p.title?.toLowerCase().includes(kw) ||
+          p.address?.toLowerCase().includes(kw) ||
+          p.overview?.toLowerCase().includes(kw)
       );
-    });
-  }
+    }
 
     res.json(filtered);
-
   } catch (err) {
     console.error("🔥 Place API Error:", err);
     res.status(500).json({ error: "Tour API place error", detail: err.message });
   }
 });
 
-/**
- * 관광지 상세 정보
- * GET /api/tour/place/detail?contentId=2755676&contentTypeId=12
- */
+/* -------------------------------------------------------
+   관광지 상세 정보
+------------------------------------------------------- */
 router.get("/place/detail", async (req, res) => {
   const { contentId, contentTypeId } = req.query;
 
@@ -140,36 +186,34 @@ router.get("/place/detail", async (req, res) => {
     const data = await response.json();
     const info = data?.response?.body?.items?.item?.[0];
 
-    // 상세 정보 없음 (공식 API에도 없음)
     if (!info) {
-      return res.json({
-        noDetail: true,
-        contentId,
-        contentTypeId
-      });
+      return res.json({ noDetail: true });
     }
 
-    const result = {
+    const enhancedImg = await enhanceImage(info.title, info.mapy, info.mapx);
+    const finalImage = enhancedImg || info.firstimage || null;
+
+    res.json({
       contentId,
       contentTypeId,
       title: info.title,
       address: info.addr1,
       tel: info.tel,
-      overview: info.overview,
+      overview: cleanOverview(info.overview),
       homepage: info.homepage,
       mapX: info.mapx,
       mapY: info.mapy,
-      image: info.firstimage
-    };
-
-    res.json(result);
+      image: finalImage,
+    });
   } catch (err) {
-    console.error("🔥 Tour Detail API Error:", err);
+    console.error("🔥 Detail API Error:", err);
     res.status(500).json({ error: "Tour Detail API error", details: err.message });
   }
 });
 
-/* 좋아요(DB) 저장 API */
+/* -------------------------------------------------------
+   좋아요 기능
+------------------------------------------------------- */
 router.post("/like", async (req, res) => {
   const { contentId, liked, userId } = req.body;
 
@@ -196,6 +240,5 @@ router.post("/like", async (req, res) => {
     res.status(500).json({ error: "Like 저장 실패" });
   }
 });
-
 
 export default router;

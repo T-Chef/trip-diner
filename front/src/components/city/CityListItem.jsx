@@ -7,13 +7,15 @@ const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 export default function CityListItem({ index, item }) {
   const [liked, setLiked] = useState(false);
 
-  // 🔸 초기 좋아요
+  // 초기 좋아요 로드
   useEffect(() => {
-    const savedLikes = JSON.parse(localStorage.getItem("likedPlaces") || "[]");
-    setLiked(savedLikes.includes(item.contentId));
+    const saved = JSON.parse(localStorage.getItem("likedPlaces") || "[]");
+    setLiked(saved.includes(item.contentId));
   }, [item.contentId]);
 
-  // 파티클 
+  /* -------------------------------------------------------
+     🔸 파티클 생성 함수
+  ------------------------------------------------------- */
   const createParticles = (target) => {
     const count = 6;
     const container = target.parentElement;
@@ -32,36 +34,36 @@ export default function CityListItem({ index, item }) {
     }
   };
 
-  // 🔥 좋아요 토글
+  /* -------------------------------------------------------
+     🔥 좋아요 토글
+  ------------------------------------------------------- */
   const toggleLike = async (e) => {
     e.stopPropagation();
+
     const newLiked = !liked;
-
-    const btn = e.currentTarget;
-    btn.classList.remove("liked", "unliked");
-
-    if (newLiked) {
-      btn.classList.add("liked");
-      createParticles(btn);
-    } else {
-      btn.classList.add("unliked");
-    }
-
-    // 1) 프론트 localStorage 업데이트
-    const savedLikes = JSON.parse(localStorage.getItem("likedPlaces") || "[]");
-    const updated = newLiked
-      ? [...savedLikes, item.contentId]
-      : savedLikes.filter((id) => id !== item.contentId)
-
-    localStorage.setItem("likedPlaces", JSON.stringify(updated));
     setLiked(newLiked);
 
-    // 2) 서버에도 좋아요 상태 전송
+    const btn = e.currentTarget;
+
+    // 파티클은 좋아요가 ON될 때만 실행
+    if (newLiked) {
+      createParticles(btn);
+    }
+
+    // LOCAL 저장
+    const saved = JSON.parse(localStorage.getItem("likedPlaces") || "[]");
+    const updated = newLiked
+      ? [...saved, item.contentId]
+      : saved.filter((id) => id !== item.contentId);
+
+    localStorage.setItem("likedPlaces", JSON.stringify(updated));
+
+    // 서버 저장
     try {
       await axios.post(`${API_BASE}/place/like`, {
         contentId: item.contentId,
         liked: newLiked,
-        userId: 1  
+        userId: 1, // TODO: 실제 로그인 아이디로 변경
       });
     } catch (err) {
       console.error("좋아요 저장 실패", err);
@@ -70,18 +72,15 @@ export default function CityListItem({ index, item }) {
 
   return (
     <div className="city-list-item">
-
-      {/* 번호 */}
       <div className="city-index">{index}</div>
 
-      {/*텍스트 정보 */}
       <div className="city-info">
-        {/* 제목 + 하트 */}
         <div className="title-row">
           <h3>{item.title}</h3>
+
           <div className="like-container">
-            <button 
-              className={`like-btn ${liked ? "liked" : ""}`} 
+            <button
+              className={`like-btn ${liked ? "liked" : ""}`}
               onClick={toggleLike}
             >
               {liked ? "❤️" : "🤍"}
@@ -89,18 +88,11 @@ export default function CityListItem({ index, item }) {
           </div>
         </div>
 
-        {/* 설명 */}
-        <p className="desc">
-          {item.overview || "설명 없음"}
-        </p>
+        <p className="desc">{item.overview || "설명 없음"}</p>
 
-        {/* 주소 */}
-        <p className="address">
-          📍 {item.address || "주소 정보 없음"}
-        </p>
+        <p className="address">📍 {item.address || "주소 정보 없음"}</p>
       </div>
 
-      {/* 썸네일 */}
       <div className="city-thumb">
         {item.image ? (
           <img src={item.image} alt={item.title} />
