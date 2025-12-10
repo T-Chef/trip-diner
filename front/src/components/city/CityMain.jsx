@@ -86,7 +86,8 @@ export default function CityMain({ user, setUser }) {
           </div>
 
           <div className="city-list-grid">
-            <CityList filter={filter} />
+            {/* ⭐ user와 setUser 전달 */}
+            <CityList filter={filter} user={user} setUser={setUser} />
           </div>
 
           <section className="city-review-section">

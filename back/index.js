@@ -19,7 +19,7 @@ import usersRouter from './routes/users.js';
 import tourRouter from "./routes/tour.js";
 import aiRouter from "./routes/ai.js";
 import profileRouter from "./routes/mypage/profile.js";
-import likeRouter from "./routes/like.js";
+// import likeRouter from "./routes/like.js";  // 🔥 삭제 또는 주석처리!
 
 
 const app = express();
@@ -29,7 +29,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /* -------------------------------------------------------
-   프로필 이미지 차단 되는거 방지
+   프로필 이미지 차단 방지
 ------------------------------------------------------- */
 app.use(
   helmet({
@@ -41,7 +41,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 /* -------------------------------------------------------
-   프론트 3000 허용 시켜주는 거
+   CORS
 ------------------------------------------------------- */
 app.use(
   cors({
@@ -52,7 +52,7 @@ app.use(
 );
 
 /* -------------------------------------------------------
-   Chrome & Edge 이미지 차단 문제 해결
+   Static 이미지 (몇개 짤리는거 수정 해야함)
 ------------------------------------------------------- */
 app.use(
   "/uploads",
@@ -63,8 +63,6 @@ app.use(
   },
   express.static(path.join(__dirname, "uploads"))
 );
-
-console.log("STATIC PATH:", path.join(__dirname, "uploads"));
 
 /* -------------------------------------------------------
    테스트
@@ -83,7 +81,7 @@ app.use('/api/category', categoryRouter);
 // ✔ tour.js 는 도시 / 시군구 / 상세
 app.use('/api/tour', tourRouter);
 
-// ✔ place.js 는 목록 / 상세
+// ✔ place.js 는 목록 / 상세 / 좋아요(통합)
 app.use('/api/place', placeRouter);
 
 app.use('/api/review', reviewRouter);
@@ -91,12 +89,14 @@ app.use('/api/trip', tripRouter);
 
 app.use("/api/ai", aiRouter);
 app.use("/api/profile", profileRouter);
-app.use("/api/like", likeRouter);
+
 
 /* -------------------------------------------------------
-   포트
+   포트번호 (5000 -> 4000 으로 수정완료)
 ------------------------------------------------------- */
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+console.log("placeRouter loaded:", placeRouter);

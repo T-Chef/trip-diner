@@ -13,7 +13,7 @@ export default function AIFilter({ onFilterChange }) {
 
   // 도시 가져오기
   useEffect(() => {
-    axios.get(`${API_BASE}/tour/cities`).then(res => setCities(res.data));
+    axios.get(`${API_BASE}/tour/cities`).then((res) => setCities(res.data));
   }, []);
 
   // 도시 선택 → 구/군 목록 불러오기
@@ -27,20 +27,15 @@ export default function AIFilter({ onFilterChange }) {
       .then((res) => setDistricts(res.data));
   }, [selectedCity]);
 
-  // 부모로 필터 전달
   useEffect(() => {
     onFilterChange({
       areaCode: selectedCity?.areaCode || null,
       sigunguCode: selectedDistrict?.sigunguCode || null,
     });
-  }, [selectedCity, selectedDistrict, onFilterChange]);
+  }, [selectedCity, selectedDistrict]);
 
   return (
     <div className="ai-filter-wrapper">
-
-      {/* ================================
-          상단 지역 선택 (해시태그 UI)
-      ================================= */}
       <div className="ai-filter-city-tags">
         {cities.map((city) => (
           <div
@@ -58,7 +53,6 @@ export default function AIFilter({ onFilterChange }) {
         ))}
       </div>
 
-      {/* 시/군/구 리스트 */}
       {selectedCity && (
         <div className="ai-filter-district-grid">
           <div

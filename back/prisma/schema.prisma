@@ -40,22 +40,25 @@ model event {
 }
 
 model place {
-  place_id     BigInt         @id @default(autoincrement())
-  city_id      BigInt
-  name         String?        @db.VarChar(255)
-  category     String?        @db.VarChar(100)
-  address      String?        @db.VarChar(255)
+  place_id     BigInt     @id @default(autoincrement())
+  external_id  BigInt?    @unique        
+  city_id      BigInt?
+  name         String?    @db.VarChar(255)
+  category     String?    @db.VarChar(100)
+  address      String?    @db.VarChar(255)
   lat          Float?
   lng          Float?
-  description  String?        @db.Text
-  image_url    String?        @db.VarChar(500)
-  city         city           @relation(fields: [city_id], references: [city_id], onDelete: NoAction, onUpdate: NoAction, map: "place_ibfk_1")
+  description  String?    @db.Text
+  image_url    String?    @db.VarChar(500)
+
+  city         city?      @relation(fields: [city_id], references: [city_id])
   place_like   place_like[]
   plan_item    plan_item[]
   review_place review_place[]
 
   @@index([city_id], map: "city_id")
 }
+
 
 model ai_history {
   ai_id      BigInt      @id @default(autoincrement())
