@@ -26,6 +26,7 @@ import TripCategory from "./pages/side/schedule/category/TripCategory.jsx";
 
 // City (진호)
 import CityMain from "./components/city/CityMain.jsx";
+import PlaceDetail from "./components/city/PlaceDetail.jsx";
 
 // 게시판 (서희)
 import Board from "./pages/side/board/Board.jsx";
@@ -94,6 +95,8 @@ export default function App() {
 
           {/* City 페이지 */}
           <Route path="/city" element={<CityMain user={user} setUser={setUser} />} />
+
+          <Route path="/place/:id" element={<PlaceDetail user={user} setUser={setUser} />} />
 
           {/* 나머지 메뉴 */}
           <Route path="/board" element={<Board user={user} />} />

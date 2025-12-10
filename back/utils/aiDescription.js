@@ -40,6 +40,6 @@ export async function generateDescription(title, address) {
 
   } catch (err) {
     console.error("AI 설명 생성 오류:", err);
-    return ""; // fallback 금지
+    return "";
   }
 }

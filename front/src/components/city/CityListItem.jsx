@@ -1,10 +1,13 @@
+// front/src/components/city/CityListItem.jsx
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../../styles/page/city/CityListItem.css";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 
 export default function CityListItem({ index, item }) {
+  const navigate = useNavigate();
   const [liked, setLiked] = useState(false);
 
   // 초기 좋아요 로드
@@ -29,7 +32,6 @@ export default function CityListItem({ index, item }) {
       particle.style.setProperty("--dy", `${Math.sin(angle) * 22}px`);
 
       container.appendChild(particle);
-
       setTimeout(() => particle.remove(), 700);
     }
   };
@@ -43,11 +45,9 @@ export default function CityListItem({ index, item }) {
     const newLiked = !liked;
     setLiked(newLiked);
 
-    const btn = e.currentTarget;
-
     // 파티클은 좋아요가 ON될 때만 실행
     if (newLiked) {
-      createParticles(btn);
+      createParticles(e.currentTarget);
     }
 
     // LOCAL 저장
@@ -71,7 +71,14 @@ export default function CityListItem({ index, item }) {
   };
 
   return (
-    <div className="city-list-item">
+    <div
+      className="city-list-item"
+      onClick={() =>
+        navigate(`/place/${item.contentId}?type=${item.contentTypeId}`, {
+          state: { basePlace: item }, // ⭐ 목록 카드 정보 같이 전달
+        })
+      }
+    >
       <div className="city-index">{index}</div>
 
       <div className="city-info">

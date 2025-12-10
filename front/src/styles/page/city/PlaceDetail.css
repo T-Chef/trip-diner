@@ -1,0 +1,298 @@
+/* 페이지 전체 */
+.place-detail-page {
+  max-width: 1100px;
+  margin: 90px auto 80px;
+  padding: 0 20px;
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* 로딩/에러 */
+.place-detail-loading {
+  width: 100%;
+  text-align: center;
+  padding: 120px 0;
+  font-size: 18px;
+  color: #555;
+}
+
+/* 상단 이미지 영역 */
+.pd-hero {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.pd-back-btn {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  cursor: pointer;
+  color: #555;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.pd-back-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #222;
+}
+
+.pd-hero-image-wrap {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.pd-hero-image {
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  display: block;
+}
+
+/* 이미지 위 정보 오버레이 */
+.pd-hero-overlay {
+  position: absolute;
+  left: 24px;
+  bottom: 22px;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.pd-title {
+  font-size: 30px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.pd-meta-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 15px;
+}
+
+.pd-location::before {
+  content: "📍 ";
+}
+
+.pd-likes {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 본문 */
+.pd-content {
+  margin-top: 24px;
+}
+
+/* 액션 버튼들 */
+.pd-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.pd-btn {
+  flex: 0 0 auto;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.pd-btn:hover {
+  background: #f6f6f6;
+}
+
+.pd-btn.primary {
+  background: #222;
+  color: #fff;
+  border-color: #222;
+}
+
+.pd-btn.primary:hover {
+  background: #111;
+  border-color: #111;
+}
+
+.pd-btn.primary.active {
+  background: #ff5a5f;
+  border-color: #ff5a5f;
+}
+
+/* 메인 레이아웃 */
+.pd-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.5fr);
+  gap: 32px;
+}
+
+/* 좌/우 영역 래퍼 (여백용) */
+.pd-left,
+.pd-right {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .pd-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pd-hero-image {
+    max-height: 320px;
+  }
+
+  .pd-hero-overlay {
+    left: 18px;
+    bottom: 18px;
+  }
+}
+
+/* 공통 섹션 */
+.pd-section {
+  margin-bottom: 28px;
+}
+
+.pd-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+/* 소개글(전체 설명이 필요하면 사용) */
+.pd-overview {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #444;
+  white-space: pre-line;
+}
+
+/* 기본 정보 리스트 */
+.pd-info-list {
+  list-style: none;
+  padding: 14px 16px;
+  margin: 0;
+  border-radius: 14px;
+  background: #fafafa;
+}
+
+.pd-info-list li {
+  display: flex;
+  gap: 12px;
+  padding: 5px 0;
+  font-size: 14px;
+}
+
+.pd-info-label {
+  width: 70px;
+  color: #777;
+  flex-shrink: 0;
+}
+
+.pd-info-value {
+  flex: 1;
+  color: #333;
+}
+
+.pd-info-link {
+  color: #007aff;
+  text-decoration: none;
+}
+
+.pd-info-link:hover {
+  text-decoration: underline;
+}
+
+/* 지도 */
+.pd-map {
+  width: 100%;
+  height: 260px;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.pd-map-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #999;
+}
+
+/* ===== 기본 정보 확장 블록 ===== */
+.pd-one-line {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.pd-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.pd-tag {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f5f5f7;
+  font-size: 12px;
+  color: #555;
+}
+
+/* 편의시설 뱃지 */
+.pd-facility-block {
+  margin-top: 18px;
+}
+
+.pd-sub-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.pd-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pd-badge {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid #eee;
+  background: #f9fafb;
+  color: #999;
+}
+
+.pd-badge.on {
+  background: #fff7e6;
+  border-color: #ffd08a;
+  color: #d97706;
+  font-weight: 600;
+}
+
+/* 편의시설 정보 없을 때 */
+.pd-facility-empty {
+  font-size: 12px;
+  color: #999;
+}
