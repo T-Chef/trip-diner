@@ -105,6 +105,7 @@ router.post("/login", async (req, res) => {
       name: user.name || "사용자",   // name이 NULL이면 기본값
       provider: user.provider,
       created_at: user.created_at,
+      profile_img: user.profile_img,
     };
 
     return res.status(200).json({
@@ -144,10 +145,6 @@ router.get("/check-email", async (req, res) => {
 
   res.json({ exists: false });
 });
-
-/* -------------------------------------
-       비밀번호 재설정 메일 요청
---------------------------------------*/
 
 /* -------------------------------------
    비밀번호 재설정 메일 요청

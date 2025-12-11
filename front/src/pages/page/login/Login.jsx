@@ -20,12 +20,21 @@ function Login({ setUser }) {
 
       const user = res.data.user;
 
-      toast.success(`환영합니다, ${user.name}님!`);
+      // 🔹 profile_img를 절대경로로 정리 (백엔드에서 /uploads/xxx.jpg 보내준다고 가정)
+      const normalizedUser = {
+        ...user,
+        profile_img: user?.profile_img
+          ? `http://localhost:4000${user.profile_img}`
+          : null,
+      };
 
-      setUser(user);
-      localStorage.setItem("user", JSON.stringify(user));
+      toast.success(`환영합니다, ${normalizedUser.name}님!`);
 
-      if (user.email === "admin@gmail.com") {
+      // 🔹 전역 상태 + 로컬스토리지에 같은 형태로 저장
+      setUser(normalizedUser);
+      localStorage.setItem("user", JSON.stringify(normalizedUser));
+
+      if (normalizedUser.email === "admin@gmail.com") {
         navigate("/admin", { state: { justLoggedIn: true } });
       } else {
         navigate("/", { state: { justLoggedIn: true } });
@@ -71,13 +80,11 @@ function Login({ setUser }) {
             </a>
           </div>
 
-
           <button type="submit" className="login-btn">
             로그인
           </button>
         </form>
 
-        {/* 🔥 클릭 영역 분리 */}
         <div className="login-footer">
           아직 계정이 없으신가요?
           <span

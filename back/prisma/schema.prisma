@@ -266,6 +266,7 @@ model post_like {
 
   @@index([post_id], map: "fk_post_like_post")
   @@index([user_id], map: "fk_post_like_user")
+
 }
 
 enum admin_role {

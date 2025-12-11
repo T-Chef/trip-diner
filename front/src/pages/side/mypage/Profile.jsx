@@ -17,11 +17,18 @@ export default function Profile({ user, setUser }) {
   const fileInputRef = useRef(null);
   const [profileImg, setProfileImg] = useState("");
 
+  /* -----------------------------------------
+     프로필 이미지 세팅 (로그인 후 / 새로고침)
+     절대경로인지, 상대경로인지 자동판별해서 처리
+  ------------------------------------------*/
   useEffect(() => {
     if (!user?.profile_img) return;
 
-    const fullUrl = `http://localhost:4000${user.profile_img}`;
-    setProfileImg(fullUrl);
+    const finalUrl = user.profile_img.startsWith("http")
+      ? user.profile_img
+      : `http://localhost:4000${user.profile_img}`;
+
+    setProfileImg(finalUrl);
   }, [user]);
 
   // 프로필 클릭
@@ -50,10 +57,18 @@ export default function Profile({ user, setUser }) {
       return;
     }
 
+    // 서버가 주는 값: /uploads/파일명
     const fullUrl = `http://localhost:4000${data.imageUrl}`;
+
+    // 프론트 표시 이미지 교체
     setProfileImg(fullUrl);
 
-    const updatedUser = { ...user, profile_img: data.imageUrl };
+    // user 객체에 절대경로 형태로 저장하여 Refresh 후에도 유지되도록
+    const updatedUser = {
+      ...user,
+      profile_img: fullUrl,
+    };
+
     setUser(updatedUser);
     localStorage.setItem("user", JSON.stringify(updatedUser));
   };
@@ -97,19 +112,16 @@ export default function Profile({ user, setUser }) {
 
         {/* 오른쪽 메뉴 */}
         <div className="profile-right-menu">
-          {/* 홈으로 */}
           <div className="menu-box" onClick={() => navigate("/")}>
             <FaHome className="menu-icon" />
             <span>홈으로</span>
           </div>
 
-          {/* 내 일정 */}
           <div className="menu-box" onClick={() => navigate("/schedule")}>
             <FaCalendarCheck className="menu-icon" />
             <span>내 일정</span>
           </div>
 
-          {/* 문의하기 */}
           <div className="menu-box" onClick={() => navigate("/contract")}>
             <FaHeadset className="menu-icon" />
             <span>문의하기</span>
@@ -130,12 +142,10 @@ export default function Profile({ user, setUser }) {
 
       {/* 그리드 메뉴 */}
       <div className="profile-grid">
-        {/* 좋아요 한 게시글 */}
         <div className="grid-item" onClick={() => navigate("/Like/Posts")}>
           <FaThumbsUp /> 좋아요 한 게시글
         </div>
 
-        {/* 좋아요 한 여행지 */}
         <div className="grid-item" onClick={() => navigate("/Like/Places")}>
           <FaHeart /> 좋아요 한 여행지
         </div>
