@@ -13,6 +13,7 @@ import { fileURLToPath } from "url";
 import cityRouter from './routes/city.js';
 import categoryRouter from './routes/category.js';
 import placeRouter from './routes/place.js';
+import eventRouter from './routes/event.js';
 import reviewRouter from './routes/review.js';
 import tripRouter from './routes/trip.js';
 import usersRouter from './routes/users.js';
@@ -80,6 +81,7 @@ app.use('/api/category', categoryRouter);
 
 app.use('/api/tour', tourRouter);     // 도시/시군구
 app.use('/api/place', placeRouter);   // 관광지 목록/상세 통합
+app.use('/api/event', eventRouter); // 축제/이벤트 목록/상세 통합
 
 // 🔥 Google Place TextSearch + Detail
 import googlePlaceRouter from "./routes/googlePlace.js";

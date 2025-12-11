@@ -1,0 +1,217 @@
+/* ===========================
+   EventDetail 공통 레이아웃
+=========================== */
+
+.event-detail-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #e7eccb;      /* 도시 메인과 같은 톤 */
+  padding: 90px 0 80px;     /* 헤더 높이만큼 위 여백 */
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui,
+    sans-serif;
+  box-sizing: border-box;
+}
+
+/* ===========================
+   상단 히어로 영역 (카드 느낌)
+=========================== */
+
+.event-hero {
+  position: relative;
+  width: 100%;
+  max-width: 840px;         /* 너무 넓지 않게 카드 폭 제어 */
+  margin: 0 auto;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+/* ← 목록으로 버튼 */
+.event-back-btn {
+  position: absolute;
+  top: -34px;
+  left: 36px;
+  z-index: 5;
+
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #333;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #e0e3ec;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+.event-back-btn:hover {
+  background: #ffffff;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+/* 히어로 이미지 래퍼 */
+.event-hero-image-wrap {
+  position: relative;
+  width: 100%;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 10px 26px rgba(9, 30, 66, 0.18);
+  background: #dfe4ea;
+}
+
+/* 실제 이미지 */
+.event-hero-image-wrap img {
+  width: 100%;
+  height: 260px;            /* 살짝 낮게 (320 → 260) */
+  object-fit: cover;
+  display: block;
+}
+
+/* 이미지 위 오버레이 */
+.event-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.65) 0%,
+    rgba(0, 0, 0, 0.25) 45%,
+    transparent 100%
+  );
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 22px 24px;
+  box-sizing: border-box;
+}
+
+/* 이벤트 제목 */
+.event-title {
+  font-size: clamp(20px, 2.4vw, 26px);
+  font-weight: 800;
+  margin: 0 0 6px;
+  line-height: 1.35;
+}
+
+/* 주소 */
+.event-address {
+  font-size: 13px;
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* ===========================
+   본문 영역
+=========================== */
+
+.event-content {
+  max-width: 840px;
+  margin: 24px auto 0;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+/* 에러/알림 */
+.event-alert {
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fff4e5;
+  border: 1px solid #ffd8a8;
+  color: #b55b00;
+  font-size: 14px;
+}
+
+/* 섹션 제목 */
+.event-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 12px;
+  color: #222;
+}
+
+/* 소개 텍스트 카드 */
+.event-overview {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #444;
+  white-space: pre-line;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 20px 18px;
+  box-shadow: 0 4px 14px rgba(15, 35, 52, 0.08);
+  margin: 0 0 18px;
+}
+
+/* 공식 페이지 링크 */
+.event-homepage-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2563eb;
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #e8f1ff;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+.event-homepage-link:hover {
+  background: #dbe8ff;
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.25);
+  transform: translateY(-1px);
+}
+
+/* ===========================
+   로딩 / 에러 전용 스타일
+=========================== */
+
+.event-detail-loading {
+  width: 100%;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  color: #555;
+}
+
+/* ===========================
+   반응형
+=========================== */
+
+@media (max-width: 768px) {
+  .event-detail-page {
+    padding-top: 80px;
+  }
+
+  .event-hero {
+    padding: 0 16px;
+  }
+
+  .event-back-btn {
+    left: 22px;
+    top: -30px;
+  }
+
+  .event-hero-image-wrap img {
+    height: 220px;
+  }
+
+  .event-hero-overlay {
+    padding: 16px 18px;
+  }
+
+  .event-content {
+    padding: 0 16px;
+  }
+
+  .event-overview {
+    padding: 16px 14px;
+    border-radius: 14px;
+  }
+}

@@ -40,7 +40,15 @@ export default function CityList({ filter }) {
   }, [areaCode, sigunguCode, keyword]);
 
   if (loading) return <div className="loading">불러오는 중...</div>;
-  if (places.length === 0) return <div className="no-result">검색 결과가 없습니다.</div>;
+  
+  if (places.length === 0) {
+    return (
+      <div className="no-result">
+        이 지역에 아직 보여줄 여행지가 없어요.  
+        다른 도시를 선택해볼까요?
+      </div>
+    );
+  }
 
   return (
     <div className="city-list-grid">

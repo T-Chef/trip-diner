@@ -6,9 +6,11 @@ import SideMenu from "../home/SideMenu";
 import { SearchBar, AIFilter, WeatherBox } from ".";
 import CityList from "./CityList";
 import ReviewCard from "./ReviewCard";
-import EventCard from "./EventCard";
+import EventList from "./EventList";
 
 import "../../styles/page/city/CityMain.css";
+
+const DEFAULT_AREA_CODE = 6;
 
 const AREA_CODE_TO_CITY = {
   1: "Seoul",
@@ -30,11 +32,32 @@ const AREA_CODE_TO_CITY = {
   39: "Jeju",
 };
 
+// 🔹 화면에 보여줄 한글 이름
+const AREA_CODE_LABEL = {
+  1: "서울",
+  2: "인천",
+  3: "대전",
+  4: "대구",
+  5: "광주",
+  6: "부산",
+  7: "울산",
+  8: "세종",
+  31: "경기",
+  32: "강원",
+  33: "충북",
+  34: "충남",
+  35: "경북",
+  36: "경남",
+  37: "전북",
+  38: "전남",
+  39: "제주",
+};
+
 export default function CityMain({ user, setUser }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const [filter, setFilter] = useState({
-    areaCode: null,
+    areaCode: DEFAULT_AREA_CODE,
     sigunguCode: null,
     keyword: "",
   });
@@ -44,6 +67,21 @@ export default function CityMain({ user, setUser }) {
   const [useLocation] = useState(false); // 현재는 기본적으로 위치 기능 OFF
 
   const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
+
+  // ============================
+  // 🔥 선택된 지역에 따른 타이틀
+  // ============================
+  const selectedAreaLabel = filter.areaCode
+    ? AREA_CODE_LABEL[filter.areaCode] || null
+    : null;
+
+  const mainTitle = selectedAreaLabel
+    ? `${selectedAreaLabel} 지금 인기 많은 여행지 TOP 10`
+    : "요즘 인기 많은 여행지 TOP 10";
+
+  const subTitle = selectedAreaLabel
+    ? `${selectedAreaLabel}에서 최근 일주일 간 많이 저장된 여행지·맛집이에요`
+    : "최근 일주일 간 많이 저장된 여행지·맛집을 모았어요";
 
   /* ===========================================================
       🔥 도시 선택 -> 날씨 갱신
@@ -159,7 +197,9 @@ export default function CityMain({ user, setUser }) {
 
         {/* 우측 필터 패널 */}
         <div className="floating-right">
-          <AIFilter onFilterChange={setFilter} />
+          <AIFilter 
+            onFilterChange={setFilter}
+            defaultAreaCode={DEFAULT_AREA_CODE} />
         </div>
 
         {/* 중앙 컨텐츠 */}
@@ -167,8 +207,8 @@ export default function CityMain({ user, setUser }) {
           <SearchBar onKeywordChange={handleKeywordChange} />
 
           <div className="city-title-wrap">
-            <h2 className="city-title">지금 가장 HOT🔥한 방문지 TOP 10</h2>
-            <p className="city-subtitle">지난 일주일 간 평소보다 더 많이 저장된 관광지・맛집</p>
+            <h2 className="city-title">{mainTitle}</h2>
+            <p className="city-subtitle">{subTitle}</p>
           </div>
 
           <div className="city-list-grid">
@@ -191,14 +231,19 @@ export default function CityMain({ user, setUser }) {
           {/* 이벤트 */}
           <section className="city-event-section">
             <div className="section-title">
-              <h2>지금 진행 중인 이벤트 🎉</h2>
-              <p>여행을 더 즐겁게 만드는 특별 혜택을 확인해보세요</p>
+              <h2>
+                {filter.areaCode
+                  ? "지금 이 지역에서 진행 중인 축제 · 이벤트 🎉"
+                  : "지금 진행 중인 축제 · 이벤트 🎉"}
+              </h2>
+              <p>
+                {filter.areaCode
+                  ? "선택한 지역 기준으로 진행 중인 축제와 이벤트를 모았어요."
+                  : "지역을 선택하면 해당 지역의 축제와 이벤트를 볼 수 있어요."}
+              </p>
             </div>
 
-            <div className="event-list">
-              <EventCard item={{ title: "겨울 여행 할인!", desc: "스키장, 온천 여행 최대 30% 할인" }} />
-              <EventCard item={{ title: "제주 렌터카 프로모션", desc: "선착순 할인 쿠폰 제공" }} />
-            </div>
+            <EventList filter={filter} />
           </section>
         </div>
       </div>

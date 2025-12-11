@@ -9,16 +9,40 @@ const router = express.Router();
 const TOUR_API_KEY = process.env.TOUR_API_KEY;
 
 /* -------------------------------------------------------
+   아주 간단한 메모리 캐시 (프로세스 단위)
+   - key: string
+   - value: any
+   - ttlMs: 만료 시간(ms)
+------------------------------------------------------- */
+const _cache = new Map();
+
+function setCache(key, value, ttlMs) {
+  const expires = Date.now() + ttlMs;
+  _cache.set(key, { value, expires });
+}
+
+function getCache(key) {
+  const entry = _cache.get(key);
+  if (!entry) return null;
+
+  if (Date.now() > entry.expires) {
+    _cache.delete(key); // 만료된 건 치우기
+    return null;
+  }
+  return entry.value;
+}
+
+/* -------------------------------------------------------
    텍스트 정리 함수
 ------------------------------------------------------- */
 const cleanText = (t) => t?.replace(/\n/g, " ").trim() ?? "";
 
 // HTML 제거 + 기본 처리
 const cleanOverview = (text) => {
-  if (!text || typeof text !== "string") return "설명 없음";
+  if (!text || typeof text !== "string") return "";
 
   const cleaned = text.replace(/<[^>]+>/g, "").trim();
-  return cleaned.length === 0 ? "설명 없음" : cleaned;
+  return cleaned.length === 0 ? "" : cleaned;
 };
 
 /* -------------------------------------------------------
@@ -91,7 +115,12 @@ async function enhanceWithNaverLocal(title, address) {
     const item = res.data.items?.[0];
     if (!item) return {};
 
-    console.log("✅ Naver Local hit:", query, "→", item.telephone);
+    console.log("✅ Naver Local hit:", {
+      title: item.title,
+      telephone: item.telephone,
+      category: item.category,
+      roadAddress: item.roadAddress,
+    });
 
     return {
       tel: item.telephone || "",
@@ -148,6 +177,24 @@ router.get("/places", async (req, res) => {
   if (!areaCode) return res.status(400).json({ error: "areaCode 필요" });
 
   try {
+
+    // ✅ 1) 캐시 키 만들기
+    const cacheKey = [
+      "places",
+      areaCode,
+      sigunguCode || "",
+      contentTypeId || "",
+      (keyword || "").trim()
+    ].join("|");
+
+    // ✅ 2) 캐시 히트면 바로 리턴
+    const cached = getCache(cacheKey);
+
+    if (cached) {
+      // console.log("[CACHE HIT] /places", cacheKey);
+      return res.json(cached);
+    }
+
     const encodedKey = encodeURIComponent(TOUR_API_KEY);
 
     let url =
@@ -190,18 +237,28 @@ router.get("/places", async (req, res) => {
         const typeId = i.contenttypeid;
 
         // 1) 관광공사 overview
-        let overviewRaw = await fetchOverview(i.contentid)
+        let overviewRaw = await fetchOverview(i.contentid, typeId)
         let overview = cleanOverview(overviewRaw);
 
-        // 2) overview 없을 시 AI 생성
-        if (overview === "설명 없음" && idx < 20) {
+        // 2) overview 없을 시 AI 생성 (상위 20개만)
+        if (!overview && idx < 20) {
           const safeAddress = cleanText(i.addr1);
-          overview = await generateDescription(i.title, safeAddress);
+          const aiText = await generateDescription(i.title, safeAddress);
+
+          if (aiText && aiText.trim().length > 0) {
+            overview = aiText.trim();
+          }
         }
 
-        // 3) 이미지 보강 (Google → Naver → 관광공사)
-        const enhancedImg = await enhanceImage(i.title, i.mapy, i.mapx);
-        const finalImage = enhancedImg || i.firstimage || null;
+        // ✅ 3) 이미지 보강 로직 수정
+        //    - 먼저 관광공사 firstimage 사용
+        //    - 없을 때만 외부 API를 제한적으로 사용
+        let finalImage = i.firstimage || null;
+
+        if (!finalImage && idx < 20) {
+          const enhancedImg = await enhanceImage(i.title, i.mapy, i.mapx);
+          if (enhancedImg) finalImage = enhancedImg;
+        }
 
         return {
           contentId,
@@ -231,10 +288,32 @@ router.get("/places", async (req, res) => {
       });
     }
 
+    setCache(cacheKey, filtered, 5 * 60 * 1000);
     res.json(filtered);
+
   } catch (err) {
     console.error("🔥 Place API Error:", err);
-    res.status(500).json({ error: "Tour API place error", detail: err.message });
+
+    // ✅ 외부 API 터졌지만, 예전 캐시라도 있으면 그거 보여주기
+    if (cached) {
+      console.warn("⚠ 외부 API 에러 발생, 캐시 데이터로 대체:", cacheKey);
+     // ✨ 프론트가 알 수 있게 감싸서 내려주기
+      return res.json({
+        ok: true,
+        fromCache: true,
+        message: "실시간 데이터 호출이 실패하여, 저장된 목록을 대신 보여드려요.",
+        data: cached,
+      });
+    }
+
+    // ✨ 완전 실패일 때는 사용자용 메시지 + 코드
+    return res.status(502).json({
+      ok: false,
+      error: "TOUR_API_FAILED",
+      code: err.cause?.code || err.code || null,
+      message:
+        "관광공사 서버 응답이 지연되어 여행지 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
+    });
   }
 });
 
@@ -254,6 +333,16 @@ router.get("/detail", async (req, res) => {
   if (!contentTypeId) return res.status(400).json({ error: "contentTypeId 필요" });
 
   try {
+    
+    const cacheKey = ["detail", contentId, contentTypeId].join("|");
+
+    const cached = getCache(cacheKey);
+
+    if (cached) {
+      // console.log("[CACHE HIT] /detail", cacheKey);
+      return res.json(cached);
+    }
+
     const encodedKey = encodeURIComponent(TOUR_API_KEY);
 
     /* 1) detailCommon2 : 기본 주소/개요/좌표/이미지 */
@@ -285,67 +374,79 @@ router.get("/detail", async (req, res) => {
         tags = buildTagsFromCategory(extra.category || "", contentTypeId);
       }
 
-      return res.json({
+      const fallbackResponse = {
         contentId,
         contentTypeId,
-        title: "상세 정보를 불러오지 못했습니다.",
-        address: "",
+        title: fallbackTitle || "상세 정보를 불러오지 못했습니다.", // 또는 "상세 정보 없음"
+        address: fallbackAddress || "",
         tel,
         overview: "",
         homepage: "",
         mapX: null,
         mapY: null,
         image: null,
-        hasParking: false,
-        petFriendly: false,
-        takeout: false,
-        hasWifi: false,
         tags,
         noDetail: true,
-      });
+        error: "DETAIL_PARSE_ERROR",
+        message: "상세 정보를 불러오는 중 오류가 발생하여 기본 정보만 표시합니다.",
+      };
+
+      // ✅ 에러 응답도 짧게 캐싱 (1분)
+      setCache(cacheKey, fallbackResponse, 60 * 1000);
+
+      return res.json(fallbackResponse);
     }
 
     const info = commonJson?.response?.body?.items?.item?.[0];
 
-    // 아예 상세 없을 때
-    if (!info) {
-      let tel = fallbackTel || "";
-      let tags = [];
+    /* 🔹 2-A) 아예 상세가 없을 때 (info undefined) */
+if (!info) {
+  let tel = fallbackTel || "";
+  let tags = [];
 
-      if (fallbackTitle || fallbackAddress) {
-        const extra = await enhanceWithNaverLocal(
-          fallbackTitle || "",
-          fallbackAddress || ""
-        );
-        tel = extra.tel || tel;
-        tags = buildTagsFromCategory(extra.category || "", contentTypeId);
+  try {
+    if (fallbackTitle || fallbackAddress) {
+      const extra = await enhanceWithNaverLocal(
+        fallbackTitle || "",
+        fallbackAddress || ""
+      );
+      if (extra.tel) {
+        tel = extra.tel;
       }
-
-      return res.json({
-        contentId,
-        contentTypeId,
-        title: "상세 정보 없음",
-        address: "",
-        tel,
-        overview: "",
-        homepage: "",
-        mapX: null,
-        mapY: null,
-        image: null,
-        hasParking: false,
-        petFriendly: false,
-        takeout: false,
-        hasWifi: false,
-        noDetail: true,
-      });
+      if (extra.category) {
+        tags = buildTagsFromCategory(extra.category, contentTypeId);
+      }
     }
+  } catch (e) {
+    console.warn("⚠ Naver Local fallback 실패:", e.message);
+  }
+
+  const fallbackResponse = {
+    contentId,
+    contentTypeId,
+    title: fallbackTitle || "상세 정보를 불러오지 못했습니다.", // 또는 "상세 정보 없음"
+    address: fallbackAddress || "",
+    tel,
+    overview: "",
+    homepage: "",
+    mapX: null,
+    mapY: null,
+    image: null,
+    tags,
+    noDetail: true,
+    error: "DETAIL_EMPTY",
+    message: "등록된 상세 정보가 없어 목록의 기본 정보만 표시합니다.",
+  };
+
+  // ❗ 여기도 캐시해두면 같은 에러 계속 안 나게됨
+  const cacheKey = ["detail", contentId, contentTypeId].join("|");
+  setCache(cacheKey, fallbackResponse, 60 * 1000);
+
+  return res.json(fallbackResponse);
+}
 
     /* 2) 기본 전화번호 " detailCOmmon + 목록 fallback" */
-    let tel = info.tel || fallbackTel || "";
-    let hasParking = false;
-    let petFriendly = false;
-    let takeout = false;
-    let hasWifi = false;
+    let tel = (info.tel || fallbackTel || "").trim();
     let tags = [];
 
     // 4) detailIntro2로 편의시설 + 안내전화 보강
@@ -368,52 +469,24 @@ router.get("/detail", async (req, res) => {
       const intro = introJson?.response?.body?.items?.item?.[0];
 
       if (intro) {
-        // 🔸 안내전화 : 타입별로 필드가 다름 → 우선순위로 가져오기
+        console.log("[DETAIL_INTRO_RAW]", contentId, {
+          infocenterfood: intro.infocenterfood,
+          infocentertour: intro.infocentertour,
+        });
+
+        // 🔸 안내전화
         tel =
-          intro.infocenterfood ||   // 음식점
-          intro.infocentertour ||   // 관광지
-          intro.infocenterleports ||// 레포츠
-          intro.infocenter ||       // 기타
+          intro.infocenterfood ||     // 음식점
+          intro.infocentertour ||     // 관광지
+          intro.infocenterleports ||  // 레포츠
+          intro.infocenter ||         // 기타
           tel;
-
-        // 🔸 주차 여부 (타입별 필드 이름 다름)
-        const parkingText =
-          intro.parkingfood ||
-          intro.parkingculture ||
-          intro.parkingleports ||
-          intro.parkingfestival ||
-          intro.parkinglodging ||
-          intro.parking ||
-          "";
-
-        if (parkingText && !/없음|불가/.test(String(parkingText))) {
-          hasParking = true;
-        }
-
-        // 🔸 포장 여부 (음식점에서 주로 나옴)
-        const packingText = intro.packing || "";
-        if (packingText && !/없음|불가/.test(String(packingText))) {
-          takeout = true;
-        }
-
-        // 🔸 반려동물 동반 (타입별 chkpet* 계열)
-        const petText =
-          intro.chkpet ||
-          intro.chkpetculture ||
-          intro.chkpetleports ||
-          intro.chkpetfestival ||
-          intro.chkpetshopping ||
-          intro.chkpetetc ||
-          "";
-        if (petText && !/불가|금지/.test(String(petText))) {
-          petFriendly = true;
-        }
       }
     } catch (e) {
       console.warn("⚠ detailIntro 불러오기 실패:", e.message);
     }
 
-  /* 5) 네이버 Local 로 전화번호 한 번 더 보강 */
+  /* 5) 네이버 Local 로 전화번호 + 태그 보강 */
    try {
       const extra = await enhanceWithNaverLocal(
         info.title || fallbackTitle || "",
@@ -427,12 +500,16 @@ router.get("/detail", async (req, res) => {
       if (extra.category) {
         tags = buildTagsFromCategory(extra.category, contentTypeId);
       }
+      if (!tel || tel === "-" || tel === "없음") {
+        tel = "";
+      }
     } catch (e) {
       console.warn("⚠ Naver Local 태그 보강 실패:", e.message);
     }
 
     /* 6) 이미지 보강 (Google / Naver) */
     let finalImage = info.firstimage || null;
+
     try {
       const enhancedImg = await enhanceImage(info.title, info.mapy, info.mapx);
       if (enhancedImg) finalImage = enhancedImg;
@@ -440,25 +517,34 @@ router.get("/detail", async (req, res) => {
       console.warn("⚠ 이미지 보강 실패(detail):", e.message);
     }
 
-    /* 5) 최종 응답 – 영업시간은 제거, 전화번호/편의시설만 */
-    return res.json({
+    console.log("[DETAIL_RESULT]", contentId, {
+      tel,
+      tags,
+    });
+
+    /* 7) 최종 응답 만들기 */
+    const responseBody = {
       contentId,
       contentTypeId,
       title: info.title,
       address: info.addr1,
-      tel,                                   
+      tel,
       overview: cleanOverview(info.overview),
       homepage: info.homepage,
       mapX: info.mapx,
       mapY: info.mapy,
       image: finalImage,
-      hasParking,
-      petFriendly,
-      takeout,
-      hasWifi,
       tags,
       noDetail: false,
-    });
+      error: null,
+      message: null,
+    };
+
+    // ✅ 정상 응답은 조금 길게 캐싱 (예: 10분)
+    setCache(cacheKey, responseBody, 10 * 60 * 1000);
+  
+    return res.json(responseBody);
+
   } catch (err) {
     console.error("🔥 Detail API Error:", err);
 
@@ -483,24 +569,29 @@ router.get("/detail", async (req, res) => {
     console.warn("⚠ fallback Naver Local 도 실패:", e.message);
   }
 
-  return res.json({
-    contentId,
-    contentTypeId,
-    title: fallbackTitle || "상세 정보를 불러오지 못했습니다.",
-    address: fallbackAddress || "",
-    tel,
-    overview: "",
-    homepage: "",
-    mapX: null,
-    mapY: null,
-    image: null,
-    hasParking: false,
-    petFriendly: false,
-    takeout: false,
-    hasWifi: false,
-    tags,
-    noDetail: true,  // 👉 프론트에서 “상세 API 없음” 배지용
-  });
+  const fallbackResponse = {
+      contentId,
+      contentTypeId,
+      title: fallbackTitle || "상세 정보를 불러오지 못했습니다.", // 또는 "상세 정보 없음"
+      address: fallbackAddress || "",
+      tel,
+      overview: "",
+      homepage: "",
+      mapX: null,
+      mapY: null,
+      image: null,
+      tags,
+      noDetail: true,
+      error: "DETAIL_API_FAILED",
+      message:
+      "상세 API 호출 중 오류가 발생하여, 기본 정보만 표시합니다. 전화번호 등 일부 정보가 없을 수 있어요.",
+    };
+
+    // ✅ 에러 응답도 1분 정도 캐싱
+    const cacheKey = ["detail", contentId, contentTypeId].join("|");
+    setCache(cacheKey, fallbackResponse, 60 * 1000);
+
+    return res.json(fallbackResponse);
   }
 });
 

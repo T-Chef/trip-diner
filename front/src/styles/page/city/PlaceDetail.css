@@ -149,21 +149,6 @@
   min-width: 0;
 }
 
-@media (max-width: 900px) {
-  .pd-main-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .pd-hero-image {
-    max-height: 320px;
-  }
-
-  .pd-hero-overlay {
-    left: 18px;
-    bottom: 18px;
-  }
-}
-
 /* 공통 섹션 */
 .pd-section {
   margin-bottom: 28px;
@@ -237,10 +222,25 @@
 }
 
 /* ===== 기본 정보 확장 블록 ===== */
+
+.pd-alert {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff4e5;
+  color: #b26a00;
+  font-size: 14px;
+}
+
 .pd-one-line {
   font-size: 14px;
   color: #555;
   margin-bottom: 10px;
+}
+
+.pd-one-line-dim {
+  color: #888;
+  font-style: italic;
 }
 
 .pd-tags {
@@ -258,41 +258,23 @@
   color: #555;
 }
 
-/* 편의시설 뱃지 */
-.pd-facility-block {
-  margin-top: 18px;
-}
-
 .pd-sub-title {
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 8px;
 }
 
-.pd-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
+@media (max-width: 900px) {
+  .pd-main-grid {
+    grid-template-columns: 1fr;
+  }
 
-.pd-badge {
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  border: 1px solid #eee;
-  background: #f9fafb;
-  color: #999;
-}
+  .pd-hero-image {
+    max-height: 320px;
+  }
 
-.pd-badge.on {
-  background: #fff7e6;
-  border-color: #ffd08a;
-  color: #d97706;
-  font-weight: 600;
-}
-
-/* 편의시설 정보 없을 때 */
-.pd-facility-empty {
-  font-size: 12px;
-  color: #999;
+  .pd-hero-overlay {
+    left: 18px;
+    bottom: 18px;
+  }
 }

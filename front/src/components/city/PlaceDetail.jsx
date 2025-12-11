@@ -28,18 +28,24 @@ export default function PlaceDetail({ user, setUser }) {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   // ✅ overview 문자열 (목록/상세 중 있는 쪽 사용)
-  const rawOverview =
+  let rawOverview =
     (place && place.overview) ||
     (basePlace && basePlace.overview) ||
     "";
 
+  // 🔹 백엔드 기본 문구가 문자열로 들어온 경우 제거
+  if (rawOverview === "설명 없음") {
+    rawOverview = "";
+  }
+
   // ✅ 한 줄 소개: 기본 정보 박스 위에만 보여줌
   const oneLine =
-    rawOverview.length > 0
-      ? rawOverview.split(/[\n.]/)[0] // 첫 문장만 사용
-      : "";
+  rawOverview.length > 0
+    ? rawOverview.split(/[\n.]/)[0].trim() // 첫 문장만 사용 + trim
+    : "";
 
   // 🔹 상세정보 불러오기
   useEffect(() => {
@@ -48,11 +54,12 @@ export default function PlaceDetail({ user, setUser }) {
     const fetchDetail = async () => {
       try {
         setLoading(true);
+        setErrorMsg(null);
+
         const res = await axios.get(`${API_BASE}/place/detail`, {
           params: { 
             contentId: id, 
             contentTypeId,
-            // 👉 목록에서 넘어온 기본 정보도 같이 보냄 (fallback 용)
             title: basePlace?.title,
             address: basePlace?.address,
             tel: basePlace?.tel,
@@ -60,7 +67,12 @@ export default function PlaceDetail({ user, setUser }) {
     });
 
         const data = res.data;
-        
+
+        // ✨ 서버에서 내려준 사용자 메시지 있으면 상태에 저장
+        if (data.message) {
+          setErrorMsg(data.message);
+        }
+
         // noDetail: 공공데이터에 상세가 없을 때
         if (data.noDetail) {
           setPlace((prev) => {
@@ -101,6 +113,12 @@ export default function PlaceDetail({ user, setUser }) {
         if (data.likesCount != null) setLikeCount(data.likesCount);
       } catch (err) {
         console.error("🔴 Place detail load error:", err);
+
+        const serverMsg =
+          err.response?.data?.message ||
+          "장소 상세 정보를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+
+      setErrorMsg(serverMsg);
       } finally {
         setLoading(false);
       }
@@ -150,16 +168,6 @@ export default function PlaceDetail({ user, setUser }) {
     );
   }
 
-  // ✅ 편의시설(뼈대용) 정의 – 아직 데이터는 없으니 false일 수 있음
-  const facilities = [
-    { key: "hasParking", label: "주차", icon: "🚗" },
-    { key: "hasWifi", label: "와이파이", icon: "📶" },
-    { key: "petFriendly", label: "반려동물 동반", icon: "🐶" },
-    { key: "takeout", label: "포장", icon: "🥡" },
-  ];
-
-  const activeFacilities = facilities.filter(f => place[f.key]);
-
   // 태그 뼈대 – 나중에 place.tags 넣으면 됨
   const tags = 
     Array.isArray(place.tags) && place.tags.length > 0
@@ -167,6 +175,7 @@ export default function PlaceDetail({ user, setUser }) {
     : ["여행지"];
 
   const finalTel = place.tel || basePlace?.tel || "";
+
   return (
     <>
       <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} user={user} />
@@ -235,9 +244,19 @@ export default function PlaceDetail({ user, setUser }) {
               <section className="pd-section">
                 <h2 className="pd-section-title">기본 정보</h2>
 
+                {errorMsg && (
+                  <div className="pd-alert">
+                    ⚠ {errorMsg}
+                  </div>
+                )}
+
                 {/* 한 줄 소개 – 있으면만 노출 */}
-                {oneLine && (
+                {oneLine ? (
                   <p className="pd-one-line">{oneLine}</p>
+                ) : (
+                  <p className="pd-one-line pd-one-line-dim">
+                    상세 설명이 아직 준비되지 않은 장소예요.
+                  </p>
                 )}
 
                 {/* 태그 뱃지 */}
@@ -276,24 +295,6 @@ export default function PlaceDetail({ user, setUser }) {
                     </li>
                   )}
                 </ul>
-
-                {/* 편의시설 뼈대 */}
-                <div className="pd-facility-block">
-                  <h3 className="pd-sub-title">편의시설</h3>
-                  <div className="pd-badges">
-                    {activeFacilities.length > 0 ? (
-                      activeFacilities.map((f) => (
-                        <span key={f.key} className="pd-badge on">
-                          {f.icon} {f.label}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="pd-facility-empty">
-                        등록된 편의시설 정보가 없어요
-                      </span>
-                    )}
-                  </div>
-                </div>
               </section>
             </div>
 

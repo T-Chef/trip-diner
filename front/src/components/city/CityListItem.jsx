@@ -5,10 +5,13 @@ import axios from "axios";
 import "../../styles/page/city/CityListItem.css";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
+const DEFAULT_THUMB = process.env.PUBLIC_URL + "/assets/images/default-thumb.jpg";
 
 export default function CityListItem({ index, item }) {
   const navigate = useNavigate();
   const [liked, setLiked] = useState(false);
+
+  const thumbSrc = item.image || DEFAULT_THUMB;
 
   // 초기 좋아요 로드
   useEffect(() => {
@@ -102,7 +105,15 @@ export default function CityListItem({ index, item }) {
 
       <div className="city-thumb">
         {item.image ? (
-          <img src={item.image} alt={item.title} />
+          <img 
+          src={thumbSrc} 
+          alt={item.title}
+          onError={(e) => {
+             // 기본 이미지가 없어서 무한 루프 도는 것 방지
+            if (!e.target.src.endsWith("/assets/images/default-thumb.jpg")) {
+              e.target.src = DEFAULT_THUMB;
+            }
+          }} />
         ) : (
           <div className="no-img">No Image</div>
         )}
