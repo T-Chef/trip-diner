@@ -1,159 +1,155 @@
-import React, { useState } from "react";
-import Swal from "sweetalert2";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import TiptapEditor from "./TiptapEditor";
+import axios from "axios";
+import Swal from "sweetalert2";
 import "../../../styles/side/board/BoardWrite.css";
 
 export default function BoardWrite() {
-  const [imagePreview, setImagePreview] = useState(null);
-  const [imageFile, setImageFile] = useState(null);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const storedUser = JSON.parse(localStorage.getItem("user"));
 
   const [title, setTitle] = useState("");
+  const [category, setCategory] = useState("자유");
   const [content, setContent] = useState("");
 
-  // 태그
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState("");
 
+  const isEdit = Boolean(id);
+
   const handleTagKeyDown = (e) => {
-    if (e.key === "Enter" || e.key === "," || e.key === " ") {
+    if (["Enter", ",", " "].includes(e.key)) {
       e.preventDefault();
       addTag();
     }
   };
 
   const addTag = () => {
-    const value = tagInput.trim();
-    if (!value) return;
+    const text = tagInput.trim();
+    if (!text) return;
 
-    if (tags.includes(value)) {
-      Swal.fire({
+    if (tags.includes(text)) {
+      return Swal.fire({
         icon: "warning",
-        title: "중복된 태그",
-        text: "이미 추가된 태그입니다.",
+        title: "중복 태그",
+        text: "이미 존재하는 태그입니다.",
       });
-      return;
     }
 
     if (tags.length >= 10) {
-      Swal.fire({
+      return Swal.fire({
         icon: "error",
         title: "태그 제한",
-        text: "태그는 최대 10개까지 가능합니다!",
+        text: "태그는 최대 10개까지 입력할 수 있습니다.",
       });
-      return;
     }
 
-    setTags([...tags, value]);
+    setTags([...tags, text]);
     setTagInput("");
   };
 
   const removeTag = (tag) => setTags(tags.filter((t) => t !== tag));
 
-  // 이미지 업로드
-  const handleImageUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  useEffect(() => {
+    if (!isEdit) return;
 
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
-  };
+    axios
+      .get(`http://localhost:4000/api/posts/${id}`)
+      .then((res) => {
+        const p = res.data;
+        setTitle(p.title);
+        setCategory(p.category);
+        setContent(p.content);
+        setTags(p.tags || []);
+      })
+      .catch(() =>
+        Swal.fire({
+          icon: "error",
+          title: "불러오기 실패",
+          text: "게시글을 불러오지 못했습니다.",
+        })
+      );
+  }, [isEdit, id]);
 
-  // 등록
-  const handleSubmit = () => {
-    if (!title.trim()) {
-      Swal.fire({
+  const handleSubmit = async () => {
+    if (!title.trim() || !content.trim()) {
+      return Swal.fire({
         icon: "warning",
-        title: "제목이 없습니다",
-        text: "제목을 입력해주세요!",
+        title: "입력 필요",
+        text: "제목과 내용을 모두 입력해주세요.",
       });
-      return;
-    }
-
-    if (!content.trim()) {
-      Swal.fire({
-        icon: "warning",
-        title: "내용이 없습니다",
-        text: "내용을 입력해주세요!",
-      });
-      return;
     }
 
     const formData = new FormData();
+    formData.append("user_id", storedUser.user_id);
     formData.append("title", title);
+    formData.append("category", category);
     formData.append("content", content);
-    if (imageFile) formData.append("image", imageFile);
+    formData.append("tags", JSON.stringify(tags));
 
-    console.log("전송 데이터:", [...formData.entries()]);
-
-    Swal.fire({
-      icon: "success",
-      title: "등록 완료!",
-      text: "백엔드 연동 전 테스트 완료되었습니다.",
-    });
+    try {
+      if (isEdit) {
+        await axios.put(`http://localhost:4000/api/posts/${id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        Swal.fire({ icon: "success", title: "수정 완료" }).then(() =>
+          navigate("/board")
+        );
+      } else {
+        await axios.post("http://localhost:4000/api/posts", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        Swal.fire({ icon: "success", title: "등록 완료" }).then(() =>
+          navigate("/board")
+        );
+      }
+    } catch (err) {
+      Swal.fire({ icon: "error", title: "저장 실패" });
+    }
   };
 
   return (
-    <div className="cafe-write-container">
-      <h2 className="write-title">글쓰기</h2>
-
+    <div className="write-page">
       <div className="write-layout">
-
-        {/* 왼쪽 영역 */}
         <div className="write-main">
+          <h2 className="write-title">{isEdit ? "게시글 수정" : "게시글 작성"}</h2>
 
-          {/* 게시판/말머리 선택 */}
-          <div className="category-box">
-            <select className="select-box">
-              <option>게시판을 선택해 주세요.</option>
-              <option>자유</option>
-              <option>후기</option>
-              <option>질문</option>
-            </select>
-
-            <select className="select-box">
-              <option>말머리 선택</option>
-              <option>정보</option>
-              <option>공지</option>
-              <option>후기</option>
+          <div className="input-group">
+            <label>카테고리</label>
+            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+              <option value="자유">자유</option>
+              <option value="후기">후기</option>
+              <option value="질문">질문</option>
+              <option value="Q&A">Q&A</option>
             </select>
           </div>
 
-          {/* 제목 */}
-          <input
-            className="title-input"
-            placeholder="제목을 입력해 주세요."
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-
-          {/* 상단 네이버 스타일 툴바 */}
-          <div className="toolbar">
-            <label className="tool-item">
-              📷 사진
-              <input type="file" accept="image/*" onChange={handleImageUpload} hidden />
-            </label>
-            <div className="tool-item">📁 파일</div>
-            <div className="tool-item">🔗 링크</div>
-            <div className="tool-item">📍 장소</div>
-            <div className="tool-item">📅 일정</div>
-            <div className="tool-item">📝 표</div>
+          <div className="input-group">
+            <label>제목</label>
+            <input
+              type="text"
+              placeholder="제목을 입력하세요"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
           </div>
 
-          {/* 이미지 미리보기 */}
-          {imagePreview && (
-            <img src={imagePreview} alt="preview" className="preview-image" />
-          )}
+          {/* ⭐ 에디터 박스 추가 */}
+          <div className="editor-box">
+            <TiptapEditor setContent={setContent} initialContent={content} />
+          </div>
 
-          {/* ★★★ TiptapEditor 딱 1번만! ★★★ */}
-          <TiptapEditor setContent={setContent} />
-
-          {/* 태그 */}
+          {/* 태그 입력 */}
           <div className="tag-box">
             <div className="tag-list">
               {tags.map((tag) => (
                 <div key={tag} className="tag-item">
                   #{tag}
-                  <span className="tag-remove" onClick={() => removeTag(tag)}>×</span>
+                  <span className="tag-remove" onClick={() => removeTag(tag)}>
+                    ×
+                  </span>
                 </div>
               ))}
 
@@ -165,38 +161,43 @@ export default function BoardWrite() {
                 onKeyDown={handleTagKeyDown}
               />
             </div>
-
-            <div className="tag-tip">
-              #태그는 최대 10개까지 입력할 수 있습니다.
-            </div>
+            <div className="tag-tip"># 태그는 최대 10개까지 입력할 수 있습니다.</div>
           </div>
         </div>
 
-        {/* 오른쪽 설정 영역 */}
+        {/* 오른쪽 사이드바 */}
         <div className="write-sidebar">
-          
           <div className="sidebar-section">
             <strong>공개 설정</strong>
-            <div className="sidebar-item">📍 멤버공개</div>
-            <div className="sidebar-item">🔍 검색 · 네이버 서비스 공개</div>
+            <label>
+              <input type="radio" name="open" defaultChecked /> 전체공개
+            </label>
+            <label>
+              <input type="radio" name="open" /> 나만보기
+            </label>
           </div>
 
           <div className="sidebar-section">
-            <label><input type="checkbox" defaultChecked /> 댓글 허용</label>
-            <label><input type="checkbox" defaultChecked /> 블로그·카페 공유 허용</label>
-            <label><input type="checkbox" defaultChecked /> 외부 공유 허용</label>
-            <label><input type="checkbox" defaultChecked /> 복사·저장 허용</label>
-            <label><input type="checkbox" defaultChecked /> 자동 줄바꿈 사용</label>
-            <label><input type="checkbox" /> CCL 사용</label>
+            <strong>댓글 허용</strong>
+            <label>
+              <input type="checkbox" defaultChecked /> 댓글 허용
+            </label>
+            <label>
+              <input type="checkbox" defaultChecked /> 외부 공유 허용
+            </label>
+            <label>
+              <input type="checkbox" /> 자동 숨김 허용
+            </label>
+            <label>
+              <input type="checkbox" /> CCL 사용
+            </label>
           </div>
-
         </div>
       </div>
 
       <div className="write-buttons">
-        <button className="temp-btn">임시저장</button>
         <button className="submit-btn" onClick={handleSubmit}>
-          등록
+          {isEdit ? "수정 완료" : "등록"}
         </button>
       </div>
     </div>

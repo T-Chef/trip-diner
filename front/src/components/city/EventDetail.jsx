@@ -49,6 +49,10 @@ export default function EventDetail({ user, setUser }) {
         });
 
         const data = res.data;
+
+        if (data.message) {
+          setErrorMsg(data.message);
+        }
         
         // 목록에서 넘어온 정보 + 서버 상세정보
         setEvent((prev) => ({

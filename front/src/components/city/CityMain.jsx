@@ -9,6 +9,7 @@ import ReviewCard from "./ReviewCard";
 import EventList from "./EventList";
 
 import "../../styles/page/city/CityMain.css";
+import { useSearchParams } from "react-router-dom";
 
 const DEFAULT_AREA_CODE = 6;
 
@@ -32,7 +33,6 @@ const AREA_CODE_TO_CITY = {
   39: "Jeju",
 };
 
-// 🔹 화면에 보여줄 한글 이름
 const AREA_CODE_LABEL = {
   1: "서울",
   2: "인천",
@@ -56,10 +56,18 @@ const AREA_CODE_LABEL = {
 export default function CityMain({ user, setUser }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const [filter, setFilter] = useState({
-    areaCode: DEFAULT_AREA_CODE,
-    sigunguCode: null,
-    keyword: "",
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [filter, setFilter] = useState(() => {
+    const areaParam = searchParams.get("area");
+    const sigunguParam = searchParams.get("sigungu");
+    const keywordParam = searchParams.get("keyword");
+
+    return {
+      areaCode: areaParam ? Number(areaParam) : DEFAULT_AREA_CODE,
+      sigunguCode: sigunguParam ? Number(sigunguParam) : null,
+      keyword: keywordParam || "",
+    };
   });
 
   const [weather, setWeather] = useState(null); // 현재 날씨
@@ -67,6 +75,79 @@ export default function CityMain({ user, setUser }) {
   const [useLocation] = useState(false); // 현재는 기본적으로 위치 기능 OFF
 
   const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
+
+  // ============================
+  // 🔥 URL → filter 동기화 (뒤로가기 등)
+  // ============================
+  useEffect(() => {
+    const areaParam = searchParams.get("area");
+    const sigunguParam = searchParams.get("sigungu");
+    const keywordParam = searchParams.get("keyword");
+
+    const next = {
+      areaCode: areaParam ? Number(areaParam) : DEFAULT_AREA_CODE,
+      sigunguCode: sigunguParam ? Number(sigunguParam) : null,
+      keyword: keywordParam || "",
+    };
+
+    setFilter((prev) => {
+      if (
+        prev.areaCode === next.areaCode &&
+        prev.sigunguCode === next.sigunguCode &&
+        prev.keyword === next.keyword
+      ) {
+        return prev; // 값이 같으면 변경 X
+      }
+      return next;
+    });
+  }, [searchParams]);
+
+  // ============================
+  // 🔥 filter → URL 동기화 helper
+  // ============================
+  const syncToSearchParams = useCallback(
+    (patch) => {
+      setSearchParams((prev) => {
+        const sp = new URLSearchParams(prev);
+
+        const nextArea =
+          patch.areaCode !== undefined ? patch.areaCode : filter.areaCode;
+        const nextSigungu =
+          patch.sigunguCode !== undefined
+            ? patch.sigunguCode
+            : filter.sigunguCode;
+        const nextKeyword =
+          patch.keyword !== undefined ? patch.keyword : filter.keyword;
+
+        if (nextArea) sp.set("area", String(nextArea));
+        else sp.delete("area");
+
+        if (nextSigungu) sp.set("sigungu", String(nextSigungu));
+        else sp.delete("sigungu");
+
+        if (nextKeyword && nextKeyword.trim())
+          sp.set("keyword", nextKeyword.trim());
+        else sp.delete("keyword");
+
+        return sp;
+      });
+    },
+    [setSearchParams, filter.areaCode, filter.sigunguCode, filter.keyword]
+  );
+
+  // ============================
+  // 🔥 AIFilter → 필터 변경 처리
+  // ============================
+  const handleFilterChangeFromAIFilter = useCallback(
+    (patch) => {
+      setFilter((prev) => {
+        const next = { ...prev, ...patch };
+        return next;
+      });
+      syncToSearchParams(patch);
+    },
+    [syncToSearchParams]
+  );
 
   // ============================
   // 🔥 선택된 지역에 따른 타이틀
@@ -179,15 +260,25 @@ export default function CityMain({ user, setUser }) {
   /* ===========================================================
       🔥 7) 검색창 입력 처리
   =========================================================== */
-  const handleKeywordChange = (value) => {
-    setFilter((prev) => ({ ...prev, keyword: value }));
-  };
+  const handleKeywordChange = useCallback(
+    (value) => {
+    setFilter((prev) => {
+      if (prev.keyword === value) return prev;
+      return { ...prev, keyword: value };
+    });
+    syncToSearchParams({ keyword: value });
+  }, [syncToSearchParams]);
 
   return (
     <>
       <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} user={user} />
 
-      <SideMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen} user={user} setUser={setUser} />
+      <SideMenu 
+        menuOpen={menuOpen} 
+        setMenuOpen={setMenuOpen} 
+        user={user} 
+        setUser={setUser} 
+      />
 
       <div className="city-page-wrapper">
         {/* 좌측 날씨 패널 */}
@@ -198,8 +289,9 @@ export default function CityMain({ user, setUser }) {
         {/* 우측 필터 패널 */}
         <div className="floating-right">
           <AIFilter 
-            onFilterChange={setFilter}
-            defaultAreaCode={DEFAULT_AREA_CODE} />
+            onFilterChange={handleFilterChangeFromAIFilter}
+            defaultAreaCode={filter.areaCode}
+            defaultSigunguCode={filter.sigunguCode} />
         </div>
 
         {/* 중앙 컨텐츠 */}

@@ -23,24 +23,40 @@
 
 .pd-back-btn {
   position: absolute;
-  top: -40px;
-  left: 0;
-  border: none;
-  background: transparent;
-  font-size: 14px;
-  cursor: pointer;
-  color: #555;
+  top: -40px;        /* 필요하면 숫자 조금씩 조절해도 됨 */
+  left: -8px;
+
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
+  justify-content: center;
+  gap: 6px;
+
+  padding: 8px 18px;   /* ← 히트박스 크게 */
+  min-width: 90px;     /* 텍스트보다 넓게 */
+  height: 36px;
+
+  border: none;
   border-radius: 999px;
-  transition: background 0.15s ease, color 0.15s ease;
+  background: rgba(0, 0, 0, 0.04);
+
+  font-size: 14px;
+  font-weight: 500;
+  color: #444;
+  cursor: pointer;
+
+  transition:
+  background 0.15s ease,
+  color 0.15s ease,
+  transform 0.08s ease;
 }
 
 .pd-back-btn:hover {
-  background: rgba(0, 0, 0, 0.06);
-  color: #222;
+  background: rgba(0, 0, 0, 0.08);
+  color: #111;
+}
+
+.pd-back-btn:active {
+  transform: translateY(1px);
 }
 
 .pd-hero-image-wrap {

@@ -78,8 +78,10 @@ export default function App() {
           {/* 마이페이지 */}
           <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
           <Route path="/profile/edit" element={<ProfileEdit user={user} setUser={setUser} />} />
-          <Route path="/like/posts" element={<Likeposts user={user} />} />
-          <Route path="/like/places" element={<Likeplaces user={user} />} />
+
+          <Route path="/like/posts" element={<Likeposts userId={user?.user_id} />} />
+          <Route path="/like/places" element={<Likeplaces userId={user?.user_id} />} />
+          
           <Route path="/withdraw" element={<Unsubscribe user={user} />} />
 
           {/* 캘린더 */}
@@ -90,7 +92,6 @@ export default function App() {
           <Route path="/trip/category" element={<TripCategory />} />
           <Route path="/trip/result" element={<AIScheduleResult user={user} />} />
 
-          {/* 기존 schedule url → trip으로 매핑 */}
           <Route path="/schedule" element={<Navigate to="/trip" replace />} />
           <Route path="/schedule/result" element={<Navigate to="/trip/result" replace />} />
 
@@ -106,9 +107,10 @@ export default function App() {
           <Route path="/contract" element={<Contract user={user} />} />
 
           {/* 게시판 */}
-          <Route path="/board" element={<Board user={user} />} />
-          <Route path="/board/write" element={<BoardWrite user={user} />} />
-          <Route path="/board/detail" element={<BoardDetail user={user} />} />
+          <Route path="/board/write" element={<BoardWrite />} />
+          <Route path="/board/write/:id" element={<BoardWrite />} />
+          <Route path="/board/:id" element={<BoardDetail />} />
+          <Route path="/board" element={<Board />} />
 
           {/* Dashboard */}
           <Route path="/dashboard" element={<Dashboard user={user} />} />

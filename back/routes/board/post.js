@@ -66,6 +66,29 @@ router.post("/", upload.single("image"), async (req, res) => {
 });
 
 /* -----------------------------
+   이미지 업로드 (Tiptap 전용)
+----------------------------- */
+router.post("/upload", upload.single("image"), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "파일 업로드 실패" });
+    }
+
+    // 실제 저장된 파일 이름
+    const fileName = req.file.filename;
+
+    // 프론트에서 사용할 이미지 URL
+    const imageUrl = `/postImages/${fileName}`;
+
+    return res.json({ success: true, url: imageUrl });
+  } catch (err) {
+    console.error("이미지 업로드 오류:", err);
+    return res.status(500).json({ error: "서버 오류" });
+  }
+});
+
+
+/* -----------------------------
    게시글 목록
 ----------------------------- */
 router.get("/", async (req, res) => {
@@ -99,6 +122,45 @@ router.get("/:id", async (req, res) => {
     console.error("게시글 상세 오류:", err);
     res.status(500).json({ error: "서버 오류" });
   }
+});
+
+/* -----------------------------
+   댓글 등록
+----------------------------- */
+router.post("/", async (req, res) => {
+try {
+  const { post_id, user_id, content } = req.body;
+
+  const comment = await prisma.comment.create({
+    data: {
+      post_id: Number(post_id),
+      user_id: Number(user_id),
+      content
+    }
+  });
+
+  res.json(comment);
+} catch (err) {
+  console.error("댓글 등록 실패:", err);
+  res.status(500).json({ error: "댓글 등록 실패" });
+}
+});
+
+/* -----------------------------
+   댓글 목록 조회
+----------------------------- */
+router.get("/:post_id", async (req, res) => {
+  const post_id = Number(req.params.post_id);
+
+  const list = await prisma.comment.findMany({
+    where: { post_id }, 
+    orderBy: { comment_id: "desc" },
+    include: {
+      user: true,
+    }
+  });
+
+  res.json(list);
 });
 
 /* -----------------------------

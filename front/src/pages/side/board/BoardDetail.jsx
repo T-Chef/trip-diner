@@ -1,73 +1,188 @@
-import React, { useState } from "react";
-import "../../../styles/side/board/Board.css";
+import React, { useEffect, useState, useRef } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import Swal from "sweetalert2";
+import "../../../styles/side/board/BoardDetail.css";
 
 export default function BoardDetail() {
-  const [comments, setComments] = useState([
-    { id: 1, writer: "철수", content: "좋은 정보 감사합니다!", date: "2025-01-20" },
-    { id: 2, writer: "짱아", content: "사진 너무 예뻐요!", date: "2025-01-21" },
-  ]);
+  const { id } = useParams();
+  const user = JSON.parse(localStorage.getItem("user"));
+  const user_id = user?.user_id;
 
+  const [post, setPost] = useState(null);
+
+  // 댓글
+  const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
 
-  const handleAddComment = () => {
-    if (!newComment.trim()) return;
+  // 좋아요
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
 
-    const comment = {
-      id: comments.length + 1,
-      writer: "로그인유저",
-      content: newComment,
-      date: new Date().toISOString().slice(0, 10)
-    };
+  const textRef = useRef(null);
 
-    setComments([...comments, comment]);
-    setNewComment("");
+  /* textarea 자동 높이 */
+  const autoResize = () => {
+    if (!textRef.current) return;
+    textRef.current.style.height = "auto";
+    textRef.current.style.height = textRef.current.scrollHeight + "px";
   };
 
+  /* ---------------------------
+      댓글 DB 저장
+  ---------------------------- */
+  const handleAddComment = async () => {
+    if (!user_id) {
+      return Swal.fire("로그인 필요", "댓글 작성은 로그인 후 가능합니다.", "warning");
+    }
+
+    if (!newComment.trim()) return;
+
+    try {
+      const res = await axios.post("http://localhost:4000/api/comment", {
+        post_id: id,
+        user_id,
+        content: newComment,
+        parent_id: null,
+      });
+
+      const saved = res.data.newComment;
+      setComments([...comments, saved]); // 즉시 화면 반영
+
+      setNewComment("");
+      autoResize();
+    } catch (err) {
+      Swal.fire("오류", "댓글 저장 실패", "error");
+    }
+  };
+
+  /* ---------------------------
+      상세글 / 좋아요 / 댓글 불러오기
+  ---------------------------- */
+  useEffect(() => {
+    /* 글 */
+    axios.get(`http://localhost:4000/api/posts/${id}`).then((res) => {
+      setPost(res.data);
+    });
+
+    /* 좋아요 상태 */
+    if (user_id) {
+      axios
+        .get(`http://localhost:4000/api/posts/${id}/like-status?user_id=${user_id}`)
+        .then((res) => setLiked(res.data.liked));
+    }
+
+    /* 좋아요 개수 */
+    axios
+      .get(`http://localhost:4000/api/posts/${id}/likes-count`)
+      .then((res) => setLikeCount(res.data.count));
+
+    /* 댓글 목록 */
+    axios
+      .get(`http://localhost:4000/api/comment/${id}`)
+      .then((res) => setComments(res.data))
+      .catch(() => console.log("댓글 불러오기 실패"));
+  }, [id, user_id]);
+
+  /* 좋아요 토글 */
+  const toggleLike = async () => {
+    if (!user_id) {
+      return Swal.fire("로그인 필요", "로그인 후 좋아요 가능합니다.", "warning");
+    }
+
+    const res = await axios.post(`http://localhost:4000/api/posts/${id}/like`, {
+      user_id,
+    });
+
+    if (res.data.liked) {
+      setLiked(true);
+      setLikeCount((prev) => prev + 1);
+    } else {
+      setLiked(false);
+      setLikeCount((prev) => prev - 1);
+    }
+  };
+
+  if (!post) return <div>로딩중...</div>;
+
   return (
-    <div className="board-container">
-      <h2 className="board-title">게시글 상세</h2>
+    <div className="detail-container">
+      <div className="board-detail">
 
-      {/* 게시글 내용 */}
-      <div className="post-content">
-        <h3>제목: 여행 후기 올립니다!</h3>
-        <p>작성자: 조서희 · 작성일: 2025-01-21</p>
+        {/* 목록으로 */}
+        <div className="detail-top-actions">
+          <button className="back-btn" onClick={() => window.history.back()}>
+            목록으로
+          </button>
+        </div>
 
-        {/* 업로드된 이미지 표시 */}
-        <img
-          src="https://via.placeholder.com/400x250"
-          alt="uploaded"
-          className="detail-image"
-        />
+        {/* 본문 */}
+        <div className="detail-content">
+          <h2 className="detail-title">{post.title}</h2>
 
-        <p className="mt-4">
-          부산 여행 다녀왔어요! 정말 예쁘고 좋았습니다~
-        </p>
-      </div>
+          <div
+            className="detail-body"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          ></div>
 
-      {/* 댓글 리스트 */}
-      <h3 className="comment-title">댓글</h3>
-      <div className="comment-list">
-        {comments.map((c) => (
-          <div key={c.id} className="comment-item">
-            <strong>{c.writer}</strong>
-            <span className="comment-date">{c.date}</span>
-            <p>{c.content}</p>
+          {/* 좋아요 */}
+          <div className="detail-actions">
+            <button className="like-btn" onClick={toggleLike}>
+              {liked ? "❤️" : "🤍"} {likeCount}
+            </button>
           </div>
-        ))}
-      </div>
+        </div>
 
-      {/* 댓글 작성 */}
-      <div className="comment-input-box">
-        <textarea
-          className="comment-textarea"
-          value={newComment}
-          placeholder="댓글을 입력하세요..."
-          onChange={(e) => setNewComment(e.target.value)}
-        />
+        {/* 댓글 */}
+        <div className="detail-comments">
+          <h3 className="comment-title">댓글</h3>
 
-        <button className="write-btn" onClick={handleAddComment}>
-          댓글 등록
-        </button>
+          {/* 댓글 입력 */}
+          <div className="comment-input-area">
+            <textarea
+              ref={textRef}
+              className="comment-textarea"
+              placeholder="댓글을 입력하세요..."
+              value={newComment}
+              onChange={(e) => {
+                setNewComment(e.target.value);
+                autoResize();
+              }}
+            />
+
+            <button className="comment-submit-btn" onClick={handleAddComment}>
+              등록
+            </button>
+          </div>
+
+          {/* 댓글 리스트 */}
+          <div className="comment-list">
+            {comments.map((c) => (
+              <div key={c.comment_id} className="comment-item">
+
+          {/* 프로필 이미지 */}
+          <img
+            src={
+              c.user?.profile_img
+                ? `http://localhost:4000${c.user.profile_img}`
+                : "/default_profile.png"
+            }
+            className="comment-profile"
+            alt=""
+          />
+                <div className="comment-info">
+                  <div className="comment-writer">{c.user?.name}</div>
+                  <div className="comment-content">{c.content}</div>
+                  <div className="comment-date">
+                    {c.created_at?.slice(0, 10)}
+                  </div>
+                </div>
+
+              </div>
+            ))}
+          </div>
+
+        </div>
       </div>
     </div>
   );

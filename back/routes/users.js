@@ -146,10 +146,6 @@ router.get("/check-email", async (req, res) => {
 });
 
 /* -------------------------------------
-       비밀번호 재설정 메일 요청
---------------------------------------*/
-
-/* -------------------------------------
    비밀번호 재설정 메일 요청
 --------------------------------------*/
 router.post("/forgot-password", async (req, res) => {
@@ -215,5 +211,24 @@ router.post("/reset-password", async (req, res) => {
     res.json({ success: false, message: "토큰이 만료되었거나 잘못되었습니다." });
   }
 });
+
+// 유저 정보 조회
+router.get("/user/:id", async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { user_id: Number(req.params.id) },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "유저 없음" });
+    }
+
+    return res.json(user);
+  } catch (err) {
+    console.error("유저 정보 조회 오류:", err);
+    return res.status(500).json({ error: "서버 오류" });
+  }
+});
+
 
 export default router;

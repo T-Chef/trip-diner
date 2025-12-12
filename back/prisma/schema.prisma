@@ -1,12 +1,10 @@
 generator client {
   provider = "prisma-client-js"
 }
-
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
-
 model admin {
   admin_id   BigInt       @id @default(autoincrement())
   email      String       @db.VarChar(255)
@@ -14,7 +12,6 @@ model admin {
   role       admin_role?  @default(MANAGER)
   qna_answer qna_answer[]
 }
-
 model city {
   city_id     BigInt    @id @default(autoincrement())
   name        String    @db.VarChar(100)
@@ -26,7 +23,6 @@ model city {
   plan        plan[]
   weather     weather[]
 }
-
 model event {
   event_id    BigInt    @id @default(autoincrement())
   city_id     BigInt
@@ -35,31 +31,25 @@ model event {
   start_date  DateTime? @db.Date
   end_date    DateTime? @db.Date
   city        city      @relation(fields: [city_id], references: [city_id], onDelete: NoAction, onUpdate: NoAction, map: "event_ibfk_1")
-
   @@index([city_id], map: "city_id")
 }
-
 model place {
-  place_id     BigInt         @id @default(autoincrement())
-  city_id      BigInt
-  name         String?        @db.VarChar(255)
-  category     String?        @db.VarChar(100)
-  address      String?        @db.VarChar(255)
+  place_id     BigInt     @id @default(autoincrement())
+  external_id  BigInt?    @unique
+  city_id      BigInt?
+  name         String?    @db.VarChar(255)
+  category     String?    @db.VarChar(100)
+  address      String?    @db.VarChar(255)
   lat          Float?
   lng          Float?
-  description  String?        @db.Text
-  image_url    String?        @db.VarChar(500)
-  bookmark     bookmark[]
-  city         city           @relation(fields: [city_id], references: [city_id], onDelete: NoAction, onUpdate: NoAction, map: "place_ibfk_1")
+  description  String?    @db.Text
+  image_url    String?    @db.VarChar(500)
+  city         city?      @relation(fields: [city_id], references: [city_id])
+  place_like   place_like[]
   plan_item    plan_item[]
-  recent       recent[]
   review_place review_place[]
-  content_id String? @unique @db.VarChar(50)
-
-
   @@index([city_id], map: "city_id")
 }
-
 model ai_history {
   ai_id      BigInt      @id @default(autoincrement())
   user_id    BigInt?
@@ -69,29 +59,16 @@ model ai_history {
   user       user?       @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "ai_history_ibfk_1")
   ai_keyword ai_keyword? @relation(fields: [keyword_id], references: [keyword_id], onDelete: NoAction, onUpdate: NoAction, map: "ai_history_ibfk_2")
   plan       plan?       @relation(fields: [plan_id], references: [plan_id], onDelete: NoAction, onUpdate: NoAction, map: "ai_history_ibfk_3")
-
   @@index([keyword_id], map: "keyword_id")
   @@index([plan_id], map: "plan_id")
   @@index([user_id], map: "user_id")
 }
-
 model ai_keyword {
   keyword_id  BigInt       @id @default(autoincrement())
   keyword     String?      @db.VarChar(100)
   description String?      @db.VarChar(255)
   ai_history  ai_history[]
 }
-
-model bookmark {
-  user_id  BigInt
-  place_id BigInt
-  user     user   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "bookmark_ibfk_1")
-  place    place  @relation(fields: [place_id], references: [place_id], onDelete: NoAction, onUpdate: NoAction, map: "bookmark_ibfk_2")
-
-  @@id([user_id, place_id])
-  @@index([place_id], map: "place_id")
-}
-
 model comment {
   comment_id    BigInt    @id @default(autoincrement())
   post_id       BigInt
@@ -103,12 +80,10 @@ model comment {
   user          user      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "comment_ibfk_2")
   comment       comment?  @relation("commentTocomment", fields: [parent_id], references: [comment_id], onDelete: NoAction, onUpdate: NoAction, map: "comment_ibfk_3")
   other_comment comment[] @relation("commentTocomment")
-
   @@index([parent_id], map: "parent_id")
   @@index([post_id], map: "post_id")
   @@index([user_id], map: "user_id")
 }
-
 model plan {
   plan_id    BigInt       @id @default(autoincrement())
   user_id    BigInt
@@ -123,11 +98,9 @@ model plan {
   user       user         @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "plan_ibfk_1")
   city       city?        @relation(fields: [city_id], references: [city_id], onDelete: NoAction, onUpdate: NoAction, map: "plan_ibfk_2")
   plan_day   plan_day[]
-
   @@index([city_id], map: "city_id")
   @@index([user_id], map: "user_id")
 }
-
 model plan_day {
   plan_day_id BigInt      @id @default(autoincrement())
   plan_id     BigInt
@@ -135,10 +108,8 @@ model plan_day {
   date        DateTime?   @db.Date
   plan        plan        @relation(fields: [plan_id], references: [plan_id], onDelete: Cascade, onUpdate: NoAction, map: "plan_day_ibfk_1")
   plan_item   plan_item[]
-
   @@index([plan_id], map: "plan_id")
 }
-
 model plan_item {
   plan_item_id BigInt   @id @default(autoincrement())
   plan_day_id  BigInt
@@ -148,27 +119,26 @@ model plan_item {
   time         String?  @db.VarChar(100)
   plan_day     plan_day @relation(fields: [plan_day_id], references: [plan_day_id], onDelete: Cascade, onUpdate: NoAction, map: "plan_item_ibfk_1")
   place        place?   @relation(fields: [place_id], references: [place_id], onDelete: NoAction, onUpdate: NoAction, map: "plan_item_ibfk_2")
-
   @@index([place_id], map: "place_id")
   @@index([plan_day_id], map: "plan_day_id")
 }
-
 model post {
-  post_id    BigInt    @id @default(autoincrement())
+  post_id    BigInt      @id @default(autoincrement())
   user_id    BigInt
-  title      String?   @db.VarChar(255)
-  content    String?   @db.Text
-  image_url  String?   @db.VarChar(500)
-  created_at DateTime? @default(now()) @db.DateTime(0)
-  updated_at DateTime? @default(now()) @db.DateTime(0)
-  category  String?   @db.VarChar(100)
-  views     Int?      @default(0)
+  title      String?     @db.VarChar(255)
+  content    String?     @db.Text
+  image_url  String?     @db.VarChar(500)
+  created_at DateTime?   @default(now()) @db.DateTime(0)
+  updated_at DateTime?   @default(now()) @db.DateTime(0)
+  category   String
+  views      Int      @default(0)
   comment    comment[]
-  user       user      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "post_ibfk_1")
+  user       user        @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "post_ibfk_1")
   report     report[]
-
+  post_like  post_like[]
   @@index([user_id], map: "user_id")
 }
+
 
 model qna {
   qna_id     BigInt       @id @default(autoincrement())
@@ -179,10 +149,8 @@ model qna {
   status     qna_status?  @default(WAITING)
   user       user         @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "qna_ibfk_1")
   qna_answer qna_answer[]
-
   @@index([user_id], map: "user_id")
 }
-
 model qna_answer {
   answer_id  BigInt    @id @default(autoincrement())
   qna_id     BigInt
@@ -191,22 +159,9 @@ model qna_answer {
   created_at DateTime? @default(now()) @db.DateTime(0)
   qna        qna       @relation(fields: [qna_id], references: [qna_id], onDelete: NoAction, onUpdate: NoAction, map: "qna_answer_ibfk_1")
   admin      admin     @relation(fields: [admin_id], references: [admin_id], onDelete: NoAction, onUpdate: NoAction, map: "qna_answer_ibfk_2")
-
   @@index([admin_id], map: "admin_id")
   @@index([qna_id], map: "qna_id")
 }
-
-model recent {
-  user_id   BigInt
-  place_id  BigInt
-  viewed_at DateTime? @default(now()) @db.DateTime(0)
-  user      user      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "recent_ibfk_1")
-  place     place     @relation(fields: [place_id], references: [place_id], onDelete: NoAction, onUpdate: NoAction, map: "recent_ibfk_2")
-
-  @@id([user_id, place_id])
-  @@index([place_id], map: "place_id")
-}
-
 model report {
   report_id  BigInt    @id @default(autoincrement())
   post_id    BigInt
@@ -215,11 +170,9 @@ model report {
   created_at DateTime? @default(now()) @db.DateTime(0)
   post       post      @relation(fields: [post_id], references: [post_id], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_1")
   user       user      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_2")
-
   @@index([post_id], map: "post_id")
   @@index([user_id], map: "user_id")
 }
-
 model review_place {
   review_id  BigInt    @id @default(autoincrement())
   place_id   BigInt
@@ -229,11 +182,9 @@ model review_place {
   created_at DateTime? @default(now()) @db.DateTime(0)
   place      place     @relation(fields: [place_id], references: [place_id], onDelete: NoAction, onUpdate: NoAction, map: "review_place_ibfk_1")
   user       user      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "review_place_ibfk_2")
-
   @@index([place_id], map: "place_id")
   @@index([user_id], map: "user_id")
 }
-
 model user {
   user_id      BigInt         @id @default(autoincrement())
   email        String         @unique(map: "email") @db.VarChar(255)
@@ -244,16 +195,15 @@ model user {
   created_at   DateTime?      @default(now()) @db.DateTime(0)
   deleted      Int?           @default(0) @db.TinyInt
   ai_history   ai_history[]
-  bookmark     bookmark[]
   comment      comment[]
+  place_like   place_like[]
   plan         plan[]
+  post_like  post_like[]
   post         post[]
   qna          qna[]
-  recent       recent[]
   report       report[]
   review_place review_place[]
 }
-
 model weather {
   weather_id  BigInt    @id @default(autoincrement())
   city_id     BigInt
@@ -262,29 +212,42 @@ model weather {
   status      String?   @db.VarChar(100)
   humidity    Int?
   city        city      @relation(fields: [city_id], references: [city_id], onDelete: NoAction, onUpdate: NoAction, map: "weather_ibfk_1")
-
   @@index([city_id], map: "city_id")
+}
+model place_like {
+  like_id    BigInt    @id @default(autoincrement())
+  user_id    BigInt
+  place_id   BigInt
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  place      place     @relation(fields: [place_id], references: [place_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_place_like_place")
+  user       user      @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_place_like_user")
+  @@index([place_id], map: "fk_place_like_place")
+  @@index([user_id], map: "fk_place_like_user")
+}
+model post_like {
+  like_id    BigInt    @id @default(autoincrement())
+  user_id    BigInt
+  post_id    BigInt
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  post       post      @relation(fields: [post_id], references: [post_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_post_like_post")
+  user       user      @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_post_like_user")
+  @@index([post_id], map: "fk_post_like_post")
+  @@index([user_id], map: "fk_post_like_user")
+
+  @@unique([user_id, post_id])
 }
 
 enum admin_role {
   SUPER
   MANAGER
 }
-
 enum qna_status {
   WAITING @map("대기")
   DONE    @map("완료")
 }
-
 enum user_provider {
   GOOGLE
   KAKAO
   NAVER
   LOCAL
-}
-
-model PasswordResetToken {
-  token  String  @id
-  email  String
-  expires DateTime
 }

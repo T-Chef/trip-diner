@@ -1,51 +1,88 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "../../../styles/side/board/Board.css";
 
-import BoardProfile from "./BoardProfile"; 
+import BoardProfile from "./BoardProfile";
 
 export default function Board() {
-
   const navigate = useNavigate();
-  
-  // 로그인된 사용자 정보 불러오기
-const storedUser = JSON.parse(localStorage.getItem("user"));
 
-// Board.jsx 내부에서 사용
-const [user, setUser] = useState(storedUser);
+  // 로그인 정보
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const [user, setUser] = useState(storedUser);
 
-
-  const notices = [
-    { id: 1, title: "공지사항 안내입니다", writer: "관리자", date: "2025-12-03", views: 112 },
-    { id: 2, title: "여행 후기 게시판 오픈!", writer: "관리자", date: "2024-11-27", views: 154 },
-  ];
-
-  const allPosts = [
-    { id: 4, category: "질문", title: "재래시장은 몇시까지 하나요?", writer: "병아리", date: "2025-12-05", views: 77 },
-    { id: 5, category: "후기", title: "빛축제 다녀왔어요!", writer: "여행러", date: "2025-11-11", views: 52 },
-    { id: 6, category: "자유", title: "요즘 날씨 너무 춥다", writer: "짱구", date: "2025-11-05", views: 30 },
-    { id: 7, category: "질문", title: "여행 관련 질문 있어요", writer: "호빵맨", date: "2025-11-01", views: 44 },
-    { id: 8, category: "자유", title: "오늘 점심 뭐 드셨어요?", writer: "철수", date: "2025-11-20", views: 22 },
-    { id: 9, category: "후기", title: "강릉 커피거리 너무 예뻐요!", writer: "유라", date: "2025-10-02", views: 65 },
-    { id: 10, category: "자유", title: "비오는 날 여행도 로망있다", writer: "짱아", date: "2025-09-29", views: 18 },
-    { id: 11, category: "잡담", title: "회사 쉬고 여행 가고 싶다…", writer: "철수", date: "2025-09-22", views: 41 },
-    { id: 12, category: "후기", title: "부산 해운대 맛집 추천합니다!", writer: "도라에몽", date: "2025-09-10", views: 112 },
-    { id: 13, category: "일상", title: "오늘 날씨 너무 맑고 좋아요 🌤", writer: "맹구", date: "2025-09-02", views: 15 },
-    { id: 14, category: "질문", title: "혼자 여행 가면 어디가 좋아요?", writer: "다람쥐여행사", date: "2025-08-28", views: 29 },
-    { id: 15, category: "잡담", title: "여권 갱신했어요!!", writer: "잠만보", date: "2025-08-15", views: 14 },
-    { id: 16, category: "후기", title: "전주 한옥마을 갔다왔어요", writer: "콩쥐", date: "2025-08-10", views: 87 },
-    { id: 17, category: "자유", title: "요즘 해외 항공권 너무 비싸…", writer: "흥부", date: "2025-08-05", views: 55 },
-    { id: 18, category: "일상", title: "새 카메라 샀어요 📷", writer: "포토러버", date: "2025-07-30", views: 62 },
-  ];
-
+  // 게시글 / 카테고리 / 페이지 상태
+  const [posts, setPosts] = useState([]);
   const [category, setCategory] = useState("전체");
   const [currentPage, setCurrentPage] = useState(1);
 
   const postsPerPage = 10;
 
-  const filteredPosts =
-    category === "전체" ? allPosts : allPosts.filter((p) => p.category === category);
+  /*------------------------------------------
+    📌 날짜 포맷 함수 ("방금 전" / "3시간 전" / "2025.12.08")
+  -------------------------------------------*/
+const formatDate = (value) => {
+  if (!value) return "-";
 
+  let date;
+
+  // 1) Date 객체인 경우
+  if (value instanceof Date) {
+    date = value;
+  }
+  // 2) 문자열인 경우
+  else if (typeof value === "string") {
+    // 문자열 → Date 변환 (replace 절대 사용 안함)
+    date = new Date(value);
+  }
+  // 3) 숫자(timestamp)
+  else if (typeof value === "number") {
+    date = new Date(value);
+  }
+  // 그 외는 출력 불가
+  else {
+    return "-";
+  }
+
+  // 변환 실패
+  if (isNaN(date.getTime())) return "-";
+
+  const now = new Date();
+  const diffSec = (now - date) / 1000;
+
+  if (diffSec < 60) return "방금 전";
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)}분 전`;
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}시간 전`;
+
+  return date.toISOString().slice(0, 10).replace(/-/g, ".");
+};
+
+
+  /*------------------------------------------
+    📌 DB에서 게시글 가져오기
+  -------------------------------------------*/
+  useEffect(() => {
+    axios
+      .get("http://localhost:4000/api/posts")
+      .then((res) => {
+        console.log("불러온 데이터:", res.data);
+        setPosts(res.data);
+      })
+      .catch((err) => console.error("글 불러오기 오류:", err));
+  }, []);
+
+  /*------------------------------------------
+    📌 카테고리 필터 적용
+  -------------------------------------------*/
+  const filteredPosts =
+    category === "전체"
+      ? posts
+      : posts.filter((p) => p.category === category);
+
+  /*------------------------------------------
+    📌 페이지 계산
+  -------------------------------------------*/
   const indexOfLast = currentPage * postsPerPage;
   const indexOfFirst = indexOfLast - postsPerPage;
   const currentPosts = filteredPosts.slice(indexOfFirst, indexOfLast);
@@ -57,46 +94,68 @@ const [user, setUser] = useState(storedUser);
     setCurrentPage(page);
   };
 
-  const handleCategory = (ct) => {
-    setCategory(ct);
-    setCurrentPage(1);
-  };
-
   return (
+    <div className="board-page">
     <div className="board-wrapper">
-
       {/* 배너 */}
       <div className="board-banner">여행 게시판</div>
 
       <div className="board-layout">
-
-        {/* 왼쪽 메뉴 ------------------------------------------------ */}
+        {/* ------------------ 왼쪽 메뉴 ------------------ */}
         <div className="left-panel">
-        {/* 프로필 영역 이제 컴포넌트로 렌더링 */}
           <BoardProfile user={user} setUser={setUser} />
+
           <ul className="category-list">
-            <li onClick={() => handleCategory("자유")}>자유</li>
-            <li onClick={() => handleCategory("후기")}>후기</li>
-            <li onClick={() => handleCategory("질문")}>질문</li>
-            <li onClick={() => handleCategory("전체")}>전체보기</li>
+            <li
+              className={category === "전체" ? "active" : ""}
+              onClick={() => {
+                setCategory("전체");
+                setCurrentPage(1);
+              }}
+            >
+              전체보기
+            </li>
+            <li
+              className={category === "자유" ? "active" : ""}
+              onClick={() => {
+                setCategory("자유");
+                setCurrentPage(1);
+              }}
+            >
+              자유
+            </li>
+            <li
+              className={category === "후기" ? "active" : ""}
+              onClick={() => {
+                setCategory("후기");
+                setCurrentPage(1);
+              }}
+            >
+              후기
+            </li>
+            <li
+              className={category === "질문" ? "active" : ""}
+              onClick={() => {
+                setCategory("질문");
+                setCurrentPage(1);
+              }}
+            >
+              질문
+            </li>
+            <li
+              className={category === "Q&A" ? "active" : ""}
+              onClick={() => {
+                setCategory("Q&A");
+                setCurrentPage(1);
+              }}
+            >
+              Q&A
+            </li>
           </ul>
         </div>
 
-        {/* 오른쪽 게시판 ------------------------------------------------ */}
+        {/* ------------------ 오른쪽 게시판 ------------------ */}
         <div className="right-panel">
-
-          {/* 공지 */}
-          <div className="notice-section">
-            {notices.map((n) => (
-              <div key={n.id} className="notice-item">
-                <div className="notice-title">- {n.title}</div>
-                <div className="notice-info">{n.writer} | {n.date} | {n.views}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="divider"></div>
-
           {/* 테이블 헤더 */}
           <div className="post-header">
             <div className="col-category">종류</div>
@@ -111,20 +170,28 @@ const [user, setUser] = useState(storedUser);
             {currentPosts.length > 0 ? (
               currentPosts.map((p) => (
                 <div
-                  key={p.id}
+                  key={p.post_id}
                   className="post-row"
-                  onClick={() => navigate(`/board/${p.id}`)}
+                  onClick={() => navigate(`/board/${p.post_id}`)}
                 >
-                  <div className="col-category">{p.category}</div>
+                  <div className="col-category">{p.category || "-"}</div>
                   <div className="col-title">{p.title}</div>
-                  <div className="col-writer">{p.writer}</div>
-                  <div className="col-date">{p.date}</div>
-                  <div className="col-views">{p.views}</div>
+                  <div className="col-writer">{p.user?.name ?? "익명"}</div>
+
+                  <div className="col-date">{formatDate(p.created_at)}</div>
+
+                  <div className="col-views">{p.views ?? 0}</div>
                 </div>
               ))
             ) : (
-              <p style={{ textAlign: "center", color: "#777", marginTop: "20px" }}>
-                해당 카테고리의 글이 없습니다.
+              <p
+                style={{
+                  textAlign: "center",
+                  color: "#777",
+                  marginTop: "20px",
+                }}
+              >
+                게시글이 없습니다.
               </p>
             )}
           </div>
@@ -146,10 +213,16 @@ const [user, setUser] = useState(storedUser);
             <span onClick={() => changePage(currentPage + 1)}>{">"}</span>
           </div>
 
-          <button className="write-btn"
-          onClick={() => navigate("/board/write")}>글쓰기</button>
+          {/* 글쓰기 */}
+          <button
+            className="write-btn"
+            onClick={() => navigate("/board/write")}
+          >
+            글쓰기
+          </button>
         </div>
       </div>
+    </div>
     </div>
   );
 }

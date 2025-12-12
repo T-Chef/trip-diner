@@ -22,6 +22,7 @@ export default function PlaceDetail({ user, setUser }) {
 
   // 👉 목록에서 넘어온 기본 정보
   const basePlace = location.state?.basePlace || null;
+  const fromLocation = location.state?.from || null;
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [place, setPlace] = useState(basePlace); // 기본값은 basePlace
@@ -176,6 +177,29 @@ export default function PlaceDetail({ user, setUser }) {
 
   const finalTel = place.tel || basePlace?.tel || "";
 
+  /* -------------------------------------------------------
+     🔙 뒤로 버튼 핸들러
+  ------------------------------------------------------- */
+  const handleBack = () => {
+    // 1순위: CityListItem에서 넘겨준 from 정보
+    if (fromLocation) {
+      navigate(fromLocation.pathname + fromLocation.search);
+      return;
+    }
+
+    // 2순위: 브라우저 히스토리 뒤로
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+
+    // 3순위: 쿼리에서 area/sigungu/keyword만 남기고 /city로 복원
+    const params = new URLSearchParams(location.search);
+    params.delete("type"); // 상세 전용 파라미터는 제거
+    const qs = params.toString();
+    navigate(`/city${qs ? `?${qs}` : ""}`);
+  };
+
   return (
     <>
       <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} user={user} />
@@ -189,7 +213,7 @@ export default function PlaceDetail({ user, setUser }) {
       <div className="place-detail-page">
         {/* 상단 히어로 이미지 */}
         <section className="pd-hero">
-          <button className="pd-back-btn" onClick={() => navigate(-1)}>
+          <button className="pd-back-btn" onClick={handleBack}>
             ← 뒤로
           </button>
 
