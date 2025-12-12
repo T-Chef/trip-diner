@@ -2,25 +2,27 @@
 import dotenv from "dotenv";
 dotenv.config({ path: "./.env" });
 
-import express from 'express';
-import helmet from 'helmet';
-import cookieParser from 'cookie-parser';
-import cors from 'cors';
+import express from "express";
+import helmet from "helmet";
+import cookieParser from "cookie-parser";
+import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// 라우터 가져오기
-import cityRouter from './routes/city.js';
-import categoryRouter from './routes/category.js';
-import placeRouter from './routes/place.js';
-import reviewRouter from './routes/review.js';
-import tripRouter from './routes/trip.js';
-import usersRouter from './routes/users.js';
+// 라우터
+import cityRouter from "./routes/city.js";
+import categoryRouter from "./routes/category.js";
+import placeRouter from "./routes/place.js";
+import reviewRouter from "./routes/review.js";
+import tripRouter from "./routes/trip.js";
+import usersRouter from "./routes/users.js";
 import tourRouter from "./routes/tour.js";
 import aiRouter from "./routes/ai.js";
 import profileRouter from "./routes/mypage/profile.js";
-// import likeRouter from "./routes/like.js";  // 🔥 삭제 또는 주석처리!
 
+// ✅ 관리자
+import adminRouter from "./routes/admin/admin.js";
+import adminAuthRouter from "./routes/admin/adminAuth.js";
 
 const app = express();
 
@@ -29,7 +31,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /* -------------------------------------------------------
-   프로필 이미지 차단 방지
+   보안 헤더 (프로필 이미지 차단 방지)
 ------------------------------------------------------- */
 app.use(
   helmet({
@@ -52,7 +54,7 @@ app.use(
 );
 
 /* -------------------------------------------------------
-   Static 이미지 (몇개 짤리는거 수정 해야함)
+   Static 이미지
 ------------------------------------------------------- */
 app.use(
   "/uploads",
@@ -67,36 +69,31 @@ app.use(
 /* -------------------------------------------------------
    테스트
 ------------------------------------------------------- */
-app.get('/api/test', (req, res) => {
-  res.json({ message: 'server ok' });
+app.get("/api/test", (req, res) => {
+  res.json({ message: "server ok" });
 });
 
 /* -------------------------------------------------------
-   라우터
+   API 라우터
 ------------------------------------------------------- */
-app.use('/api/auth', usersRouter);
-app.use('/api/city', cityRouter);
-app.use('/api/category', categoryRouter);
-
-// ✔ tour.js 는 도시 / 시군구 / 상세
-app.use('/api/tour', tourRouter);
-
-// ✔ place.js 는 목록 / 상세 / 좋아요(통합)
-app.use('/api/place', placeRouter);
-
-app.use('/api/review', reviewRouter);
-app.use('/api/trip', tripRouter);
-
+app.use("/api/auth", usersRouter);
+app.use("/api/city", cityRouter);
+app.use("/api/category", categoryRouter);
+app.use("/api/tour", tourRouter);
+app.use("/api/place", placeRouter);
+app.use("/api/review", reviewRouter);
+app.use("/api/trip", tripRouter);
 app.use("/api/ai", aiRouter);
 app.use("/api/profile", profileRouter);
 
+// ✅ 관리자
+app.use("/api/admin/auth", adminAuthRouter); // 로그인
+app.use("/api/admin", adminRouter);           // 관리자 기능
 
 /* -------------------------------------------------------
-   포트번호 (5000 -> 4000 으로 수정완료)
+   서버 시작
 ------------------------------------------------------- */
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-console.log("placeRouter loaded:", placeRouter);
