@@ -296,3 +296,153 @@
 .place-status.closed {
   color: #ff3b30;
 }
+.place-summary {
+  margin-top: 4px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #555;
+  line-height: 1.4;
+}
+.place-category {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ff6b6b;
+}
+
+/* ✅ 여행 요약 카드 */
+.trip-summary-card {
+  margin-bottom: 18px;
+  padding: 16px 18px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+  font-size: 13px;
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.summary-days {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.summary-people {
+  font-size: 12px;
+  color: #888;
+}
+
+.summary-stats {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px;
+}
+
+.summary-stats li {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.summary-stats .label {
+  color: #777;
+}
+
+.summary-stats strong {
+  font-weight: 600;
+}
+
+.summary-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.summary-tag {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #f4f6ff;
+  color: #4b6bff;
+  font-size: 11px;
+}
+
+/* ✅ 지도 일차 레전드 */
+.map-area {
+  position: relative;
+}
+
+.day-legend {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 10;
+  padding: 8px 14px;
+  background: #ffffff;
+  border-radius: 999px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* 1일차~5일차 색상 (AIScheduleMap dayColors와 맞춰야 함) */
+.legend-dot-0 { background: #0078ff; }
+.legend-line-0 { border-top: 2px solid #0078ff; }
+
+.legend-dot-1 { background: #1ec800; }
+.legend-line-1 { border-top: 2px solid #1ec800; }
+
+.legend-dot-2 { background: #ff3b30; }
+.legend-line-2 { border-top: 2px solid #ff3b30; }
+
+.legend-dot-3 { background: #ff9500; }
+.legend-line-3 { border-top: 2px solid #ff9500; }
+
+.legend-dot-4 { background: #9b59b6; }
+.legend-line-4 { border-top: 2px solid #9b59b6; }
+
+.legend-line {
+  width: 42px;
+  height: 0;
+  margin: 0 2px;
+}
+
+.legend-label {
+  font-size: 12px;
+}
+
+.summary-themes {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.summary-tag {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #f5f5f5;
+  color: #555;
+  border: 1px solid #eee;
+}

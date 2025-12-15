@@ -22,6 +22,7 @@ import Calendar from "./pages/side/mypage/Calendar.jsx";
 // AI (주한이형)
 import AISchedule from "./pages/side/schedule/AISchedule.jsx";
 import AIScheduleResult from "./pages/side/schedule/AIScheduleResult.jsx";
+import AIScheduleSummary from "./pages/side/schedule/AIScheduleSummary.jsx";
 import TripCategory from "./pages/side/schedule/category/TripCategory.jsx";
 
 // City (진호)
@@ -91,6 +92,7 @@ export default function App() {
           <Route path="/trip" element={<AISchedule user={user} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />} />
           <Route path="/trip/category" element={<TripCategory />} />
           <Route path="/trip/result" element={<AIScheduleResult user={user} />} />
+          <Route path="/trip/summary" element={<AIScheduleSummary />} />
 
           <Route path="/schedule" element={<Navigate to="/trip" replace />} />
           <Route path="/schedule/result" element={<Navigate to="/trip/result" replace />} />
