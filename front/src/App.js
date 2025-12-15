@@ -30,7 +30,7 @@ import CityMain from "./components/city/CityMain.jsx";
 import Board from "./pages/side/Board.jsx";
 import Contract from "./pages/side/Contract.jsx";
 
-// 관리자 페이지 ⭐
+// 관리자 페이지
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 

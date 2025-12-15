@@ -10,8 +10,33 @@ export default function CityList({ filter, user }) {
   const contentTypeId = "";
 
   const [places, setPlaces] = useState([]);
+  const [likedPlaceIds, setLikedPlaceIds] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  /* ---------------------------------
+     🔹 내가 좋아요한 여행지 ID
+  ----------------------------------*/
+  useEffect(() => {
+    if (!user?.user_id) {
+      setLikedPlaceIds([]);
+      return;
+    }
+
+    axios
+      .get(`${API_BASE}/place/likes`, {
+        params: { userId: user.user_id },
+      })
+      .then((res) => {
+        setLikedPlaceIds(res.data.likedPlaceIds || []);
+      })
+      .catch(() => {
+        setLikedPlaceIds([]);
+      });
+  }, [user]);
+
+  /* ---------------------------------
+     🔹 좋아요 토글
+  ----------------------------------*/
   const handleLikeToggle = async (placeInfo, newLiked, userId) => {
     if (!userId) {
       alert("로그인 후 좋아요 가능합니다.");
@@ -19,7 +44,7 @@ export default function CityList({ filter, user }) {
     }
 
     try {
-      const res = await axios.post(`${API_BASE}/place/like`, {
+      await axios.post(`${API_BASE}/place/like`, {
         userId,
         contentId: placeInfo.contentId,
         title: placeInfo.title,
@@ -32,13 +57,19 @@ export default function CityList({ filter, user }) {
         liked: newLiked,
       });
 
-      console.log("좋아요 반영 결과:", res.data);
+      setLikedPlaceIds((prev) =>
+        newLiked
+          ? [...prev, placeInfo.contentId]
+          : prev.filter((id) => id !== placeInfo.contentId)
+      );
     } catch (err) {
       console.error("좋아요 토글 실패:", err);
     }
   };
 
-  // 관광지 목록 가져오기
+  /* ---------------------------------
+     🔹 관광지 목록
+  ----------------------------------*/
   useEffect(() => {
     if (!areaCode) {
       setPlaces([]);
@@ -57,8 +88,7 @@ export default function CityList({ filter, user }) {
           },
         });
 
-        const list = res.data.slice(0, 10);
-        setPlaces(list);
+        setPlaces(res.data.slice(0, 10));
       } catch (e) {
         console.error("관광지 데이터 불러오기 실패", e);
       } finally {
@@ -83,6 +113,7 @@ export default function CityList({ filter, user }) {
             index={idx + 1}
             item={p}
             user={user}
+            isLiked={likedPlaceIds.includes(p.contentId)}
             onLikeToggle={handleLikeToggle}
           />
         ))}
@@ -95,6 +126,7 @@ export default function CityList({ filter, user }) {
             index={idx + 6}
             item={p}
             user={user}
+            isLiked={likedPlaceIds.includes(p.contentId)}
             onLikeToggle={handleLikeToggle}
           />
         ))}

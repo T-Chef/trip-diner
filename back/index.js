@@ -20,9 +20,9 @@ import tourRouter from "./routes/tour.js";
 import aiRouter from "./routes/ai.js";
 import profileRouter from "./routes/mypage/profile.js";
 
-// ✅ 관리자
+// 관리자
 import adminRouter from "./routes/admin/admin.js";
-import adminAuthRouter from "./routes/admin/adminAuth.js";
+import adminLoginRouter from "./routes/admin/adminLogin.js";
 
 const app = express();
 
@@ -87,8 +87,8 @@ app.use("/api/ai", aiRouter);
 app.use("/api/profile", profileRouter);
 
 // ✅ 관리자
-app.use("/api/admin/auth", adminAuthRouter); // 로그인
-app.use("/api/admin", adminRouter);           // 관리자 기능
+app.use("/api/admin", adminLoginRouter); 
+app.use("/api/admin", adminRouter);           
 
 /* -------------------------------------------------------
    서버 시작

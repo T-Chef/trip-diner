@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
-export default function AdminLogin({ setAdmin }) {
+export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -15,19 +17,15 @@ export default function AdminLogin({ setAdmin }) {
         password,
       });
 
-      toast.success("관리자 로그인 성공!");
+      // ✅ 관리자 토큰 저장
+      localStorage.setItem("adminToken", res.data.token);
 
-      const adminInfo = res.data.admin;
-      const token = res.data.token;
+      toast.success("관리자 로그인 성공");
 
-      localStorage.setItem("admin", JSON.stringify(adminInfo));
-      localStorage.setItem("adminToken", token);
-
-      setAdmin(adminInfo);
-
-      window.location.href = "/admin"; // 관리자 페이지로 이동
+      // ✅ 반드시 dashboard로 이동
+      navigate("/admin/dashboard");
     } catch (err) {
-      toast.error(err.response?.data?.message || "로그인 실패");
+      toast.error(err.response?.data?.message || "관리자 로그인 실패");
     }
   };
 

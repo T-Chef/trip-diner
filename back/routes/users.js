@@ -71,6 +71,14 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    // ⭐ 비활성화 유저 차단
+    if (user.deleted === 1) {
+      return res.status(403).json({
+        success: false,
+        message: "비활성화된 계정입니다. 관리자에게 문의하세요.",
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
@@ -79,30 +87,30 @@ router.post("/login", async (req, res) => {
         message: "비밀번호가 일치하지 않습니다.",
       });
     }
+
     const accessToken = jwt.sign(
       { user_id: user.user_id.toString(), email: user.email },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "15m"} 
+      { expiresIn: "15m" }
     );
 
     const refreshToken = jwt.sign(
       { user_id: user.user_id.toString(), email: user.email },
       process.env.REFRESH_TOKEN_SECRET,
-      {expiresIn: "7d"}
+      { expiresIn: "7d" }
     );
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false, // https면 true
+      secure: false,
       sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    // BigInt 쓰지 않고 순수 JSON으로 재구성
     const safeUser = {
       user_id: user.user_id.toString(),
       email: user.email,
-      name: user.name || "사용자",   // name이 NULL이면 기본값
+      name: user.name || "사용자",
       provider: user.provider,
       created_at: user.created_at,
       profile_img: user.profile_img,
@@ -111,7 +119,7 @@ router.post("/login", async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "로그인 성공",
-      accessToken, // 프론트는 이걸 AUthorization에 저장후 사용
+      accessToken,
       user: safeUser,
     });
   } catch (err) {

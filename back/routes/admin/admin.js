@@ -1,61 +1,60 @@
 import express from "express";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import prisma from "../../prisma/prismaClient.js";
 import { adminAuth } from "../../middleware/adminAuth.js";
 
 const router = express.Router();
 
-// 관리자 로그인
-router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+/* ==========================
+  관리자: 전체 유저 목록
+========================== */
+router.get("/users", adminAuth, async (req, res) => {
+  const users = await prisma.user.findMany({
+    orderBy: { user_id: "desc" },
+  });
+
+  res.json(
+    users.map((u) => ({
+      ...u,
+      user_id: Number(u.user_id),
+    }))
+  );
+});
+
+/* ==========================
+   유저 비활성화
+========================== */
+router.patch("/users/:userId/deactivate", adminAuth, async (req, res) => {
+  const { userId } = req.params;
 
   try {
-    const admin = await prisma.admin.findUnique({
-      where: { email }
+    await prisma.user.update({
+      where: { user_id: BigInt(userId) },
+      data: { deleted: 1 },
     });
 
-    if (!admin) {
-      return res.status(400).json({
-        success: false,
-        message: "존재하지 않는 관리자입니다."
-      });
-    }
-
-    const isMatch = await bcrypt.compare(password, admin.password);
-
-    if (!isMatch) {
-      return res.status(400).json({
-        success: false,
-        message: "비밀번호가 일치하지 않습니다."
-      });
-    }
-
-    const token = jwt.sign(
-      {
-        admin_id: admin.admin_id.toString(),
-        role: admin.role
-      },
-      process.env.ADMIN_SECRET,
-      { expiresIn: "2h" }
-    );
-
-    return res.json({
-      success: true,
-      token,
-      admin: {
-        admin_id: admin.admin_id.toString(),
-        email: admin.email,
-        role: admin.role
-      }
-    });
-
+    res.json({ success: true });
   } catch (err) {
-    console.error("관리자 로그인 오류:", err);
-    res.status(500).json({
-      success: false,
-      message: "서버 오류가 발생했습니다."
+    console.error("유저 비활성화 오류:", err);
+    res.status(500).json({ message: "비활성화 실패" });
+  }
+});
+
+/* ==========================
+   유저 활성화
+========================== */
+router.patch("/users/:userId/activate", adminAuth, async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    await prisma.user.update({
+      where: { user_id: BigInt(userId) },
+      data: { deleted: 0 },
     });
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("유저 활성화 오류:", err);
+    res.status(500).json({ message: "활성화 실패" });
   }
 });
 

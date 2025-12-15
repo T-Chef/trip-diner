@@ -1,43 +1,35 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import "../../styles/page/city/CityListItem.css";
 
-export default function CityListItem({ index, item, onLikeToggle, user }) {
-  const [liked, setLiked] = useState(false);
-
-  // 좋아요
-  useEffect(() => {
-    const savedLikes = JSON.parse(localStorage.getItem("likedPlaces") || "[]");
-    setLiked(savedLikes.includes(item.contentId));
-  }, [item.contentId]);
-
+export default function CityListItem({
+  index,
+  item,
+  onLikeToggle,
+  user,
+  isLiked,
+}) {
   const handleLikeClick = (e) => {
     e.stopPropagation();
-    const newLiked = !liked;
-    setLiked(newLiked);
 
-    const saved = JSON.parse(localStorage.getItem("likedPlaces") || "[]");
-    const updated = newLiked
-      ? [...saved, item.contentId]
-      : saved.filter((id) => id !== item.contentId);
-
-    localStorage.setItem("likedPlaces", JSON.stringify(updated));
-
-    if (onLikeToggle) {
-      onLikeToggle(
-        {
-          contentId: item.contentId,
-          title: item.title,
-          address: item.address,
-          image: item.image,
-          overview: item.overview,
-          lat: item.latitude,
-          lng: item.longitude,
-          areaCode: item.areaCode,
-        },
-        newLiked,
-        user?.user_id
-      );
+    if (!user?.user_id) {
+      alert("로그인 후 좋아요 가능합니다.");
+      return;
     }
+
+    onLikeToggle(
+      {
+        contentId: item.contentId,
+        title: item.title,
+        address: item.address,
+        image: item.image,
+        overview: item.overview,
+        lat: item.latitude,
+        lng: item.longitude,
+        areaCode: item.areaCode,
+      },
+      !isLiked,
+      user.user_id
+    );
   };
 
   return (
@@ -47,9 +39,8 @@ export default function CityListItem({ index, item, onLikeToggle, user }) {
       <div className="city-info">
         <div className="title-row">
           <h3>{item.title}</h3>
-
           <button className="like-btn" onClick={handleLikeClick}>
-            {liked ? "❤️" : "🤍"}
+            {isLiked ? "❤️" : "🤍"}
           </button>
         </div>
 
