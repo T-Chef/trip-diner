@@ -55,6 +55,7 @@ html, body {
   transform: translateY(0);
 }
 
+
 /* 종이 특유의 은은한 결 표현 */
 .section-box::before {
   content: "";

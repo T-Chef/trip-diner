@@ -14,7 +14,7 @@ export default function CityList({ filter, user }) {
   const [loading, setLoading] = useState(false);
 
   /* ---------------------------------
-     🔹 내가 좋아요한 여행지 ID
+     🔹 내가 좋아요한 여행지 ID 조회
   ----------------------------------*/
   useEffect(() => {
     if (!user?.user_id) {
@@ -23,11 +23,15 @@ export default function CityList({ filter, user }) {
     }
 
     axios
-      .get(`${API_BASE}/place/likes`, {
-        params: { userId: user.user_id },
-      })
+      .get(`${API_BASE}/like/place/${user.user_id}`)
       .then((res) => {
-        setLikedPlaceIds(res.data.likedPlaceIds || []);
+        // place.external_id 기준으로 contentId 목록 만들기
+        const ids = res.data
+          .map((row) => row.place?.external_id)
+          .filter(Boolean)
+          .map(String);
+
+        setLikedPlaceIds(ids);
       })
       .catch(() => {
         setLikedPlaceIds([]);
@@ -44,23 +48,23 @@ export default function CityList({ filter, user }) {
     }
 
     try {
-      await axios.post(`${API_BASE}/place/like`, {
+      await axios.post(`${API_BASE}/like/place`, {
         userId,
         contentId: placeInfo.contentId,
         title: placeInfo.title,
         address: placeInfo.address,
         image: placeInfo.image,
         overview: placeInfo.overview,
-        lat: placeInfo.lat,
-        lng: placeInfo.lng,
+        lat: placeInfo.latitude,
+        lng: placeInfo.longitude,
         areaCode: placeInfo.areaCode,
         liked: newLiked,
       });
 
       setLikedPlaceIds((prev) =>
         newLiked
-          ? [...prev, placeInfo.contentId]
-          : prev.filter((id) => id !== placeInfo.contentId)
+          ? [...prev, String(placeInfo.contentId)]
+          : prev.filter((id) => id !== String(placeInfo.contentId))
       );
     } catch (err) {
       console.error("좋아요 토글 실패:", err);
@@ -68,7 +72,7 @@ export default function CityList({ filter, user }) {
   };
 
   /* ---------------------------------
-     🔹 관광지 목록
+     🔹 관광지 목록 조회
   ----------------------------------*/
   useEffect(() => {
     if (!areaCode) {
@@ -113,7 +117,7 @@ export default function CityList({ filter, user }) {
             index={idx + 1}
             item={p}
             user={user}
-            isLiked={likedPlaceIds.includes(p.contentId)}
+            isLiked={likedPlaceIds.includes(String(p.contentId))}
             onLikeToggle={handleLikeToggle}
           />
         ))}
@@ -126,7 +130,7 @@ export default function CityList({ filter, user }) {
             index={idx + 6}
             item={p}
             user={user}
-            isLiked={likedPlaceIds.includes(p.contentId)}
+            isLiked={likedPlaceIds.includes(String(p.contentId))}
             onLikeToggle={handleLikeToggle}
           />
         ))}

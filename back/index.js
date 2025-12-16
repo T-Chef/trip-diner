@@ -20,9 +20,18 @@ import tourRouter from "./routes/tour.js";
 import aiRouter from "./routes/ai.js";
 import profileRouter from "./routes/mypage/profile.js";
 
+// 게시판
+import postRouter from "./routes/board/post.js";
+import commentRouter from "./routes/board/comment.js";
+
+// 좋아요
+import placeLikeRouter from "./routes/like/PlaceLike.js";
+import postLikeRouter from "./routes/like/PostLike.js";
+
 // 관리자
 import adminRouter from "./routes/admin/admin.js";
 import adminLoginRouter from "./routes/admin/adminLogin.js";
+
 
 const app = express();
 
@@ -43,7 +52,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 /* -------------------------------------------------------
-   CORS
+    CORS 설정 
 ------------------------------------------------------- */
 app.use(
   cors({
@@ -54,16 +63,32 @@ app.use(
 );
 
 /* -------------------------------------------------------
-   Static 이미지
+   Static 이미지 (프로필 이미지가 여기에 속함)
 ------------------------------------------------------- */
 app.use(
-  "/uploads",
-  (req, res, next) => {
-    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-    res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
-    next();
-  },
-  express.static(path.join(__dirname, "uploads"))
+  "/uploads",
+  (req, res, next) => {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
+    res.setHeader("Cross-Origin-Opener-Policy", "unsafe-none"); 
+    next();
+  },
+  express.static(path.join(__dirname, "uploads"))
+);
+
+
+/* -------------------------------------------------------
+   게시글 이미지 postImages
+------------------------------------------------------- */
+app.use(
+  "/postImages",
+  (req, res, next) => {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
+    res.setHeader("Cross-Origin-Opener-Policy", "unsafe-none"); 
+    next();
+  },
+  express.static(path.join(__dirname, "uploads/postImages"))
 );
 
 /* -------------------------------------------------------
@@ -76,6 +101,7 @@ app.get("/api/test", (req, res) => {
 /* -------------------------------------------------------
    API 라우터
 ------------------------------------------------------- */
+
 app.use("/api/auth", usersRouter);
 app.use("/api/city", cityRouter);
 app.use("/api/category", categoryRouter);
@@ -86,9 +112,17 @@ app.use("/api/trip", tripRouter);
 app.use("/api/ai", aiRouter);
 app.use("/api/profile", profileRouter);
 
-// ✅ 관리자
-app.use("/api/admin", adminLoginRouter); 
-app.use("/api/admin", adminRouter);           
+// 게시판
+app.use("/api/posts", postRouter);
+app.use("/api/comment", commentRouter);
+
+// 좋아요
+app.use("/api/like", placeLikeRouter);
+app.use("/api/like", postLikeRouter);
+     
+// 관리자
+app.use("/api/admin", adminLoginRouter);
+app.use("/api/admin", adminRouter);
 
 /* -------------------------------------------------------
    서버 시작
@@ -96,4 +130,10 @@ app.use("/api/admin", adminRouter);
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+
 });
+
+console.log("placeLikeRouter loaded:", placeLikeRouter);
+console.log("postLikeRouter loaded:", postLikeRouter);
+console.log("postRouter loaded:", postRouter);
+console.log("commentRouter loaded:", commentRouter);

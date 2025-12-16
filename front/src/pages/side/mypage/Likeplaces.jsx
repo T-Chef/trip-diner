@@ -2,28 +2,31 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import "../../../styles/side/mypage/Likeplaces.css";
 
-const API_BASE = "http://localhost:4000/api";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 
 export default function LikePlaces({ userId }) {
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      setPlaces([]);
+      setLoading(false);
+      return;
+    }
 
     async function fetchLiked() {
+      setLoading(true);
       try {
-        const res = await axios.get(`${API_BASE}/place/like/place/${userId}`);
-
+        // ✅ 새 API 경로
+        const res = await axios.get(`${API_BASE}/like/place/${userId}`);
         console.log("좋아요 목록 응답:", res.data);
 
-        // 서버가 BigInt → Number 변환한 데이터만 넣기
         const data = Array.isArray(res.data) ? res.data : [];
-
         setPlaces(data);
       } catch (err) {
         console.error("여행지 좋아요 불러오기 에러:", err);
-        setPlaces([]); // 오류 발생 시 빈 배열로 처리
+        setPlaces([]);
       } finally {
         setLoading(false);
       }
@@ -52,10 +55,13 @@ export default function LikePlaces({ userId }) {
         {places.map((item) => {
           const place = item.place || {};
 
-          const imgSrc =
-            place.image_url && place.image_url.trim() !== ""
-              ? place.image_url
-              : "/images/no-image.png";
+          // ✅ place.image_url이 "/uploads/..." 같은 상대경로일 수도 있으니 보정
+          const raw = (place.image_url || "").trim();
+          const imgSrc = raw
+            ? raw.startsWith("http")
+              ? raw
+              : `http://localhost:4000${raw.startsWith("/") ? "" : "/"}${raw}`
+            : "/images/no-image.png";
 
           return (
             <div className="like-card" key={String(item.like_id)}>

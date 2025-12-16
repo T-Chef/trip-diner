@@ -59,6 +59,7 @@
   transition: 0.15s;
 }
 
+
 .place-item:hover {
   background: #eef5ff;
 }
@@ -153,3 +154,4 @@
 .btn-primary { background: #0078ff; }
 .btn-accent { background: #ff2f77; }
 .btn-dark { background: #333; }
+

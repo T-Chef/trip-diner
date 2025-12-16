@@ -23,11 +23,15 @@ import AISchedule from "./pages/side/schedule/AISchedule.jsx";
 import AIScheduleResult from "./pages/side/schedule/AIScheduleResult.jsx";
 import TripCategory from "./pages/side/schedule/category/TripCategory.jsx";
 
-// City
+// City (진호)
 import CityMain from "./components/city/CityMain.jsx";
 
-// 사이드 메뉴
-import Board from "./pages/side/Board.jsx";
+// 게시판 (서희)
+import Board from "./pages/side/board/Board.jsx";
+import BoardWrite from "./pages/side/board/BoardWrite.jsx";
+import BoardDetail from "./pages/side/board/BoardDetail.jsx";
+
+// 사이드
 import Contract from "./pages/side/Contract.jsx";
 
 // 관리자 페이지
@@ -96,7 +100,17 @@ export default function App() {
                 <Route path="/trip/category" element={<TripCategory />} />
                 <Route path="/trip/result" element={<AIScheduleResult user={user} />} />
 
+          {/* 게시판 */}
+          <Route path="/board/write" element={<BoardWrite />} />
+          <Route path="/board/write/:id" element={<BoardWrite />} />
+          <Route path="/board/:id" element={<BoardDetail />} />
+          <Route path="/board" element={<Board />} />
+
+
+          {/* Dashboard */}
+          <Route path="/dashboard" element={<Dashboard user={user} />} />
                 <Route path="/city" element={<CityMain user={user} setUser={setUser} />} />
+
 
                 <Route path="/board" element={<Board user={user} />} />
                 <Route path="/contract" element={<Contract user={user} />} />
@@ -115,3 +129,4 @@ export default function App() {
     </Router>
   );
 }
+

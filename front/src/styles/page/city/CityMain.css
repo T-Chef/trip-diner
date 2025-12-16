@@ -30,10 +30,12 @@
   양 옆 떠 있는 패널 (Weather / Filter)
 ========================== */
 
+
 .floating-left,
 .floating-right {
   position: fixed;
   top: 50px;              /* 헤더 아래 위치 – 필요하면 조절 */
+
   width: var(--panel-width);
   z-index: 5;
 }

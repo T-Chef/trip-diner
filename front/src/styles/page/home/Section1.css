@@ -139,6 +139,7 @@
   transform: translateY(24px);
   filter: blur(3px);
   transition: 0.7s ease-out;
+
 }
 
 .intro-card.show {
