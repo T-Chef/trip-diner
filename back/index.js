@@ -1,11 +1,5 @@
 // back/index.js
 import dotenv from "dotenv";
-dotenv.config({ path: "./.env" });
-
-import express from "express";
-import helmet from "helmet";
-import cookieParser from "cookie-parser";
-import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -14,6 +8,15 @@ import { fileURLToPath } from "url";
 // ------------------------------
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, ".env") });
+console.log("NAVER ID LOADED:", process.env.NAVER_CLIENT_ID ? "YES" : "NO");
+console.log("NAVER SECRET LOADED:", process.env.NAVER_CLIENT_SECRET ? "YES" : "NO");
+
+import express from "express";
+import helmet from "helmet";
+import cookieParser from "cookie-parser";
+import cors from "cors";
 
 // ------------------------------
 //  라우터 import
@@ -28,6 +31,7 @@ import usersRouter from "./routes/users.js";
 import tourRouter from "./routes/tour.js";
 import aiRouter from "./routes/ai.js";
 import profileRouter from "./routes/mypage/profile.js";
+import weatherRouter from "./routes/weather.js";
 
 // 게시판
 import postlikeRouter from "./routes/board/postlike.js";
@@ -111,6 +115,7 @@ app.use("/api/category", categoryRouter);
 app.use("/api/tour", tourRouter);      // 시/도 + 시군구 코드
 app.use("/api/place", placeRouter);    // 관광지 목록/상세 통합
 app.use("/api/event", eventRouter);    // 축제/이벤트 목록/상세
+app.use("/api/weather", weatherRouter); // 도시별 날씨
 
 // 리뷰 / 일정
 app.use("/api/review", reviewRouter);

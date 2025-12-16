@@ -1,187 +1,242 @@
 // src/components/city/AIFilter.jsx
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import axios from "axios";
 import "../../styles/page/city/AIFilter.css";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 
-export default function AIFilter({ 
-  onFilterChange,
-  defaultAreaCode, 
-  defaultSigunguCode 
+const isCanceled = (err) =>
+  err?.name === "CanceledError" || err?.code === "ERR_CANCELED";
+
+// ===============================
+// ✅ Cities cache + inflight (옵션이지만 StrictMode 중복요청 줄이기 좋음)
+// ===============================
+const _citiesCache = new Map(); // "cities" -> { v, exp }
+const _citiesInflight = new Map(); // "cities" -> { ctrl, promise, refs }
+const CITIES_TTL = 5 * 60 * 1000; // 5분
+
+function getCache(map, key) {
+  const hit = map.get(key);
+  if (!hit) return null;
+  if (Date.now() > hit.exp) {
+    map.delete(key);
+    return null;
+  }
+  return hit.v;
+}
+
+function acquireShared(key, inflightMap, cacheMap, makeRequest, ttlMs) {
+  const cached = getCache(cacheMap, key);
+  if (cached) {
+    return { promise: Promise.resolve(cached), release: () => {} };
+  }
+
+  const existing = inflightMap.get(key);
+  if (existing) {
+    existing.refs += 1;
+    return { promise: existing.promise, release: () => releaseShared(key, inflightMap) };
+  }
+
+  const ctrl = new AbortController();
+  const entry = { ctrl, refs: 1, promise: null };
+
+  entry.promise = (async () => {
+    try {
+      const v = await makeRequest(ctrl.signal);
+      cacheMap.set(key, { v, exp: Date.now() + ttlMs });
+      return v;
+    } finally {
+      inflightMap.delete(key);
+    }
+  })();
+
+  inflightMap.set(key, entry);
+  return { promise: entry.promise, release: () => releaseShared(key, inflightMap) };
+}
+
+function releaseShared(key, inflightMap) {
+  const entry = inflightMap.get(key);
+  if (!entry) return;
+  entry.refs -= 1;
+  if (entry.refs <= 0) {
+    entry.ctrl.abort();
+    inflightMap.delete(key);
+  }
+}
+
+// ===============================
+// ✅ Districts cache + inflight (핵심)
+// ===============================
+const _districtCache = new Map();   // areaCode -> { v, exp }
+const _districtInflight = new Map(); // areaCode -> { ctrl, promise, refs }
+const DISTRICT_TTL = 60 * 1000; // 60초
+
+export default function AIFilter({
+  value,    // { areaCode, sigunguCode }
+  onChange, // (patch) => void
 }) {
+  const areaCode = value?.areaCode ?? null;
+  const sigunguCode = value?.sigunguCode ?? null;
+
   const [cities, setCities] = useState([]);
   const [districts, setDistricts] = useState([]);
+  const [loadingCities, setLoadingCities] = useState(false);
+  const [loadingDistricts, setLoadingDistricts] = useState(false);
 
-  const [selectedCity, setSelectedCity] = useState(null);
-  const [selectedDistrict, setSelectedDistrict] = useState(null);
-
-  // 부모에게 필터를 넘길 준비가 됐는지 여부
-  const [isReady, setIsReady] = useState(false);
-
-  // 🔥 URL에서 처음 넘어온 sigunguCode를 고정해서 보관
-  const [initialSigunguCode] = useState(
-    defaultSigunguCode != null ? Number(defaultSigunguCode) : null
-  );
-  const [appliedDefaultDistrict, setAppliedDefaultDistrict] = useState(false);
-
-  /* -------------------------
-     🔹 도시 목록 가져오기
-  ------------------------- */
+  // 1) ✅ 도시 목록 1회(공유 + 캐시)
   useEffect(() => {
-    const fetchCities = async () => {
-      try {
-        const res = await axios.get(`${API_BASE}/tour/cities`);
-        setCities(res.data || []);
-      } catch (err) {
-        console.error("⚠ 도시 목록 불러오기 실패:", err);
-        setCities([]);
-        setIsReady(true); // 실패해도 최소한 필터는 동작하도록
-      }
-    };
+    let alive = true;
 
-    fetchCities();
-  }, []);
-
-  /* -------------------------
-     🔹 도시 목록 로딩 후 기본 도시 선택
-        (defaultAreaCode 기준)
-  ------------------------- */
-  useEffect(() => {
-    if (!cities.length) return; // 아직 로딩 안 됨
-
-    // defaultAreaCode가 없는 경우
-    if (!defaultAreaCode) {
-      setIsReady(true);
-      return;
-    }
-
-    // 이미 동일한 도시가 선택되어 있으면 그대로 사용
-    if (
-      selectedCity &&
-      Number(selectedCity.areaCode) === Number(defaultAreaCode)
-    ) {
-      setIsReady(true);
-      return;
-    }
-
-    const defaultCity = cities.find(
-      (c) => Number(c.areaCode) === Number(defaultAreaCode)
+    const { promise, release } = acquireShared(
+      "cities",
+      _citiesInflight,
+      _citiesCache,
+      async (signal) => {
+        const res = await axios.get(`${API_BASE}/tour/cities`, { signal });
+        return res.data || [];
+      },
+      CITIES_TTL
     );
 
-    if (defaultCity) {
-      setSelectedCity(defaultCity);
-      setSelectedDistrict(null);
-    }
+    (async () => {
+      try {
+        setLoadingCities(true);
+        const list = await promise;
+        if (!alive) return;
+        setCities(list);
+      } catch (e) {
+        if (!alive) return;
+        if (isCanceled(e)) return;
+        console.error("⚠ 도시 목록 불러오기 실패:", e);
+        setCities([]);
+      } finally {
+        if (alive) setLoadingCities(false);
+      }
+    })();
 
-    setIsReady(true);
-  }, [cities, defaultAreaCode, selectedCity]);
+    return () => {
+      alive = false;
+      release();
+    };
+  }, []);
 
-  /* -------------------------
-     🔹 도시 선택 → 시군구 목록 가져오기
-  ------------------------- */
+  // 2) ✅ areaCode 변경 시 시군구 목록(공유 + 캐시 + refCount abort)
   useEffect(() => {
-    if (!selectedCity) {
+    if (!areaCode) {
       setDistricts([]);
       return;
     }
 
-    const fetchDistricts = async () => {
-      try {
+    let alive = true;
+
+    // UX: 도시 바뀌면 목록 즉시 비우고 로딩 표시 (원하면 비우지 않고 유지해도 됨)
+    setDistricts([]);
+
+    const key = String(areaCode);
+    const { promise, release } = acquireShared(
+      key,
+      _districtInflight,
+      _districtCache,
+      async (signal) => {
         const res = await axios.get(`${API_BASE}/tour/areas`, {
-          params: { areaCode: selectedCity.areaCode },
+          params: { areaCode },
+          signal,
         });
-        setDistricts(res.data || []);
-      } catch (err) {
-        console.error("⚠ 시군구 목록 불러오기 실패:", err);
-        setDistricts([]);
-      }
-    };
-
-    fetchDistricts();
-  }, [selectedCity]);
-
-/* -------------------------
-     🔹 시군구 로딩 후 "처음 URL 기준" 기본 시군구 선택
-        - initialSigunguCode를 한 번만 사용
-  ------------------------- */
-  useEffect(() => {
-    if (!districts.length) return;
-    if (appliedDefaultDistrict) return;
-    if (initialSigunguCode == null) return;
-
-    const def = districts.find(
-      (d) => Number(d.sigunguCode) === initialSigunguCode
+        return res.data || [];
+      },
+      DISTRICT_TTL
     );
-    if (def) {
-      setSelectedDistrict(def);
-      setAppliedDefaultDistrict(true);
-    }
-  }, [districts, initialSigunguCode, appliedDefaultDistrict]);
 
-  /* -------------------------
-     🔹 부모로 필터 전달
-        (CityMain의 handleFilterChangeFromAIFilter)
-  ------------------------- */
-  useEffect(() => {
-    if (!isReady) return;
+    (async () => {
+      try {
+        setLoadingDistricts(true);
+        const list = await promise;
+        if (!alive) return;
+        setDistricts(list);
+      } catch (e) {
+        if (!alive) return;
+        if (isCanceled(e)) return;
+        console.error("⚠ 시군구 목록 불러오기 실패:", e);
+        setDistricts([]);
+      } finally {
+        if (alive) setLoadingDistricts(false);
+      }
+    })();
 
-    onFilterChange({
-      areaCode: selectedCity ? Number(selectedCity.areaCode) : null,
-      sigunguCode: selectedDistrict
-        ? Number(selectedDistrict.sigunguCode)
-        : null,
-    });
-  }, [selectedCity, selectedDistrict, onFilterChange, isReady]);
+    return () => {
+      alive = false;
+      release(); // ✅ refs--, 필요 시 abort
+    };
+  }, [areaCode]);
+
+  // 3) 클릭 핸들러들
+  const handleCityClick = useCallback(
+    (nextAreaCode) => {
+      // ✅ 도시 바꾸면 시군구는 초기화
+      onChange?.({ areaCode: Number(nextAreaCode), sigunguCode: null });
+    },
+    [onChange]
+  );
+
+  const handleAllDistrict = useCallback(() => {
+    onChange?.({ sigunguCode: null });
+  }, [onChange]);
+
+  const handleDistrictClick = useCallback(
+    (nextSigunguCode) => {
+      onChange?.({ sigunguCode: Number(nextSigunguCode) });
+    },
+    [onChange]
+  );
+
+  const cityTags = useMemo(() => cities, [cities]);
 
   return (
     <div className="ai-filter-wrapper">
-      {/* 광역시/도 해시태그 */}
+      {/* 광역시/도 */}
       <div className="ai-filter-city-tags">
-        {cities.map((city) => (
-          <div
-            key={city.areaCode}
-            className={`city-tag ${
-              selectedCity?.areaCode === city.areaCode ? "active" : ""
-            }`}
-            onClick={() => {
-              setSelectedCity(city);
-              setSelectedDistrict(null);
-              setAppliedDefaultDistrict(true);
-            }}
-          >
-            #{city.name}
-          </div>
-        ))}
+        {loadingCities ? (
+          <div className="city-loading">도시 불러오는 중...</div>
+        ) : (
+          cityTags.map((city) => (
+            <div
+              key={city.areaCode}
+              className={`city-tag ${
+                Number(city.areaCode) === Number(areaCode) ? "active" : ""
+              }`}
+              onClick={() => handleCityClick(city.areaCode)}
+            >
+              #{city.name}
+            </div>
+          ))
+        )}
       </div>
 
       {/* 시군구 */}
-      {selectedCity && (
+      {!!areaCode && (
         <div className="ai-filter-district-grid">
           <div
-            className={`district-tag ${selectedDistrict ? "" : "active"}`}
-            onClick={() => {
-              setSelectedDistrict(null);
-              setAppliedDefaultDistrict(true);
-            }}
+            className={`district-tag ${sigunguCode == null ? "active" : ""}`}
+            onClick={handleAllDistrict}
           >
             전체
           </div>
 
-          {districts.map((d) => (
-            <div
-              key={d.sigunguCode}
-              className={`district-tag ${
-                selectedDistrict?.sigunguCode === d.sigunguCode ? "active" : ""
-              }`}
-              onClick={() => {
-                setSelectedDistrict(d);
-                setAppliedDefaultDistrict(true);
-              }}
-            >
-            {d.name}
-            </div>
-          ))}
+          {loadingDistricts ? (
+            <div className="district-loading">불러오는 중...</div>
+          ) : (
+            districts.map((d) => (
+              <div
+                key={d.sigunguCode}
+                className={`district-tag ${
+                  Number(d.sigunguCode) === Number(sigunguCode) ? "active" : ""
+                }`}
+                onClick={() => handleDistrictClick(d.sigunguCode)}
+              >
+                {d.name}
+              </div>
+            ))
+          )}
         </div>
       )}
     </div>

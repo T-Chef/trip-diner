@@ -1,18 +1,59 @@
 // back/routes/place.js
 import express from "express";
 import "dotenv/config";
+
+// import db from "../db/index.js"; // ✅ 좋아요 기능에 필요 (경로 맞게 유지)
+
 import { generateDescription } from "../utils/aiDescription.js";
 import { setCache, getCache } from "../utils/cache.js";
-import { cleanText, cleanOverview, buildTagsFromCategory } from "../utils/textUtils.js";
+import {
+  cleanText,
+  cleanOverview,
+  buildTagsFromCategory,
+} from "../utils/textUtils.js";
+
 import { enhanceWithNaverLocal } from "../services/naverService.js";
 import { enhanceImage } from "../services/imageService.js";
-// ⚠ db import 잊지 말기
-// import db from "../db/index.js";
 
 const router = express.Router();
 const TOUR_API_KEY = process.env.TOUR_API_KEY;
 
-/* 공통: 상세 fallback 응답 생성 헬퍼 */
+/* -------------------------------------------------------
+   ✅ TourAPI quota 감지 + 전역 락 (중요)
+------------------------------------------------------- */
+let quotaBlockedUntil = 0;
+const isQuotaBlocked = () => Date.now() < quotaBlockedUntil;
+const blockQuota = (ms = 60 * 1000) => {
+  quotaBlockedUntil = Date.now() + ms;
+};
+
+const hasQuotaMessage = (raw) =>
+  typeof raw === "string" && raw.includes("API token quota exceeded");
+
+// TourAPI 호출 공통 (text로 받고 quota 먼저 체크 → JSON 파싱)
+async function fetchTourJson(url) {
+  const res = await fetch(url);
+  const raw = await res.text();
+
+  if (hasQuotaMessage(raw)) {
+    blockQuota(60 * 1000);
+    const err = new Error("TOUR_API_QUOTA_EXCEEDED");
+    err.code = "TOUR_API_QUOTA_EXCEEDED";
+    err.raw = raw;
+    throw err;
+  }
+
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    const err = new Error("TOUR_API_PARSE_FAILED");
+    err.code = "TOUR_API_PARSE_FAILED";
+    err.raw = raw;
+    throw err;
+  }
+}
+
+/* 공통: 상세 fallback 응답 생성 */
 function makeDetailFallback({
   contentId,
   contentTypeId,
@@ -41,139 +82,162 @@ function makeDetailFallback({
   };
 }
 
+/* 간단 동시성 제한 (외부 API 폭주 방지) */
+async function mapWithConcurrency(list, limit, mapper) {
+  const results = new Array(list.length);
+  let idx = 0;
+
+  const workers = new Array(Math.min(limit, list.length)).fill(null).map(async () => {
+    while (idx < list.length) {
+      const cur = idx++;
+      results[cur] = await mapper(list[cur], cur);
+    }
+  });
+
+  await Promise.all(workers);
+  return results;
+}
+
 /* -------------------------------------------------------
-   1) 관광지 목록 조회
+   1) 관광지 목록 조회 (✅ N번 detailCommon 호출 제거 버전)
 ------------------------------------------------------- */
 router.get("/places", async (req, res) => {
-  const { areaCode, sigunguCode, contentTypeId, keyword } = req.query;
+  const {
+    areaCode,
+    sigunguCode,
+    contentTypeId,
+    keyword,
+    numOfRows,
+    pageNo,
+    ai,       // optional: ai=1 일 때만 AI 설명 생성
+    enhance,  // optional: enhance=1 일 때만 이미지 보강
+  } = req.query;
+
   if (!areaCode) return res.status(400).json({ error: "areaCode 필요" });
 
+  const rows = Math.min(Number(numOfRows || 50), 200); // ✅ 기본 50, 최대 200
+  const page = Math.max(Number(pageNo || 1), 1);
+
   const cacheKey = [
-    "places",
+    "places:v2",
     areaCode,
     sigunguCode || "",
     contentTypeId || "",
     (keyword || "").trim(),
+    rows,
+    page,
+    ai ? "ai1" : "ai0",
+    enhance ? "e1" : "e0",
   ].join("|");
 
   const cached = getCache(cacheKey);
+  if (cached) {
+    res.setHeader("X-From-Cache", "1");
+    return res.json(cached);
+  }
+
+  // ✅ 전역 quota 락이면, 외부 TourAPI 호출하지 않음 (폭주 방지)
+  if (isQuotaBlocked()) {
+    res.setHeader("X-Quota-Blocked", "1");
+    // 목록은 프론트가 배열 기대하는 경우가 많아서 [] 반환
+    return res.json([]);
+  }
 
   try {
-    if (cached) {
-      console.log("[CACHE HIT] /places", cacheKey);
-      return res.json(cached);
-    }
+    const params = new URLSearchParams({
+      serviceKey: TOUR_API_KEY,
+      MobileOS: "ETC",
+      MobileApp: "TripDiner",
+      _type: "json",
+      numOfRows: String(rows),
+      pageNo: String(page),
+      areaCode: String(areaCode),
+    });
 
-    const encodedKey = encodeURIComponent(TOUR_API_KEY);
+    if (sigunguCode) params.set("sigunguCode", String(sigunguCode));
+    if (contentTypeId) params.set("contentTypeId", String(contentTypeId));
 
-    let url =
-      `https://apis.data.go.kr/B551011/KorService2/areaBasedList2?serviceKey=${encodedKey}` +
-      `&MobileOS=ETC&MobileApp=TripDiner&_type=json&numOfRows=200&pageNo=1` +
-      `&areaCode=${areaCode}`;
+    const url = `https://apis.data.go.kr/B551011/KorService2/areaBasedList2?${params.toString()}`;
+    const data = await fetchTourJson(url);
 
-    if (sigunguCode) url += `&sigunguCode=${sigunguCode}`;
-    if (contentTypeId) url += `&contentTypeId=${contentTypeId}`;
+    let items = data?.response?.body?.items?.item || [];
 
-    const response = await fetch(url);
-    const data = await response.json();
-    const items = data?.response?.body?.items?.item || [];
-
-    // 개별 상세 overview 조회 함수
-    const fetchOverview = async (contentId, typeId) => {
-      try {
-        const detailUrl =
-          `https://apis.data.go.kr/B551011/KorService2/detailCommon2?serviceKey=${encodedKey}` +
-          `&MobileOS=ETC&MobileApp=TripDiner&_type=json` +
-          `&contentId=${contentId}&contentTypeId=${typeId}` +
-          `&overviewYN=Y&defaultYN=Y`;
-
-        const res = await fetch(detailUrl);
-        const json = await res.json();
-        return json?.response?.body?.items?.item?.[0]?.overview || null;
-      } catch {
-        return null;
-      }
-    };
-
-    const result = await Promise.all(
-      items.map(async (i, idx) => {
-        const contentId = i.contentid;
-        const typeId = i.contenttypeid;
-
-        // 1) 관광공사 overview
-        const overviewRaw = await fetchOverview(contentId, typeId);
-        let overview = cleanOverview(overviewRaw);
-
-        // 2) overview 없으면 AI 생성 (상위 20개)
-        if (!overview && idx < 20) {
-          const safeAddress = cleanText(i.addr1);
-          const aiText = await generateDescription(i.title, safeAddress);
-          if (aiText && aiText.trim().length > 0) {
-            overview = aiText.trim();
-          }
-        }
-
-        // 3) 그래도 없으면 주소 + 이름 한 줄
-        if (!overview) {
-          const addr = cleanText(i.addr1);
-          const title = i.title || "";
-          if (addr && title) {
-            overview = `${addr}에 위치한 "${title}" 장소입니다.`;
-          } else if (title) {
-            overview = `"${title}"에 대한 소개가 아직 준비 중인 장소입니다.`;
-          } else {
-            overview = "이 장소에 대한 소개가 아직 준비 중입니다.";
-          }
-        }
-
-        // 4) 이미지 보강
-        let finalImage = i.firstimage || null;
-        if (!finalImage && idx < 20) {
-          const enhancedImg = await enhanceImage(i.title, i.mapy, i.mapx);
-          if (enhancedImg) finalImage = enhancedImg;
-        }
-
-        return {
-          contentId,
-          contentTypeId: typeId,
-          title: i.title,
-          address: i.addr1,
-          tel: i.tel,
-          latitude: i.mapy,
-          longitude: i.mapx,
-          image: finalImage,
-          overview,
-        };
-      })
-    );
-
-    // keyword 필터링
-    let filtered = result;
+    // ✅ keyword가 있으면, TourAPI 목록단에서 먼저 필터(가벼움)
     if (keyword && keyword.trim()) {
       const kw = keyword.trim().toLowerCase();
-      filtered = filtered.filter((p) => {
-        const t = p.title?.toLowerCase() || "";
-        const a = p.address?.toLowerCase() || "";
-        const o = p.overview?.toLowerCase() || "";
-        return t.includes(kw) || a.includes(kw) || o.includes(kw);
+      items = items.filter((i) => {
+        const t = (i.title || "").toLowerCase();
+        const a = (i.addr1 || "").toLowerCase();
+        return t.includes(kw) || a.includes(kw);
       });
     }
 
-    setCache(cacheKey, filtered, 5 * 60 * 1000);
-    return res.json(filtered);
-  } catch (err) {
-    console.error("🔥 Place API Error:", err);
+    const useAI = String(ai) === "1";
+    const useEnhance = String(enhance) === "1";
 
-    if (cached) {
-      console.warn("⚠ 외부 API 에러 발생, 캐시 데이터로 대체:", cacheKey);
-      res.setHeader("X-From-Cache", "1");   // 필요하면 헤더로만 표시
-      return res.json(cached);
+    // ✅ 목록에서는 overview를 "기본 문구"로 생성 (detailCommon2 호출 금지!)
+    // ✅ AI/이미지 보강은 옵션 + 소수만 + 동시성 제한
+    const result = await mapWithConcurrency(items, 5, async (i, idx) => {
+      const contentId = i.contentid;
+      const typeId = i.contenttypeid;
+
+      const title = cleanText(i.title);
+      const address = cleanText(i.addr1);
+
+      // 기본 overview (목록용)
+      let overview = "";
+      if (address && title) overview = `${address}에 위치한 "${title}" 장소입니다.`;
+      else if (title) overview = `"${title}"에 대한 소개가 아직 준비 중인 장소입니다.`;
+      else overview = "이 장소에 대한 소개가 아직 준비 중입니다.";
+
+      // (옵션) AI 설명: 상위 10개만
+      if (useAI && idx < 10) {
+        try {
+          const aiText = await generateDescription(title, address);
+          if (aiText && aiText.trim()) overview = aiText.trim();
+        } catch (e) {
+          // AI 실패해도 기본 overview 유지
+        }
+      }
+
+      // 이미지
+      let finalImage = i.firstimage || null;
+
+      // (옵션) 이미지 보강: 상위 10개만
+      if (!finalImage && useEnhance && idx < 10) {
+        try {
+          const enhancedImg = await enhanceImage(title, i.mapy, i.mapx);
+          if (enhancedImg) finalImage = enhancedImg;
+        } catch {}
+      }
+
+      return {
+        contentId,
+        contentTypeId: typeId,
+        title,
+        address,
+        tel: cleanText(i.tel),
+        latitude: i.mapy,
+        longitude: i.mapx,
+        image: finalImage,
+        overview,
+      };
+    });
+
+    setCache(cacheKey, result, 5 * 60 * 1000);
+    return res.json(result);
+  } catch (err) {
+    console.error("🔥 Place /places Error:", err.code || err.message, err.raw || "");
+
+    // 쿼터 초과면 전역락 걸려있고, 목록은 빈 배열 반환(프론트 안정성)
+    if (err.code === "TOUR_API_QUOTA_EXCEEDED") {
+      res.setHeader("X-Quota-Blocked", "1");
+      return res.json([]);
     }
 
     return res.status(502).json({
       ok: false,
-      error: "TOUR_API_FAILED",
-      code: err.cause?.code || err.code || null,
+      error: err.code || "TOUR_API_FAILED",
       message:
         "관광공사 서버 응답이 지연되어 여행지 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
     });
@@ -181,7 +245,7 @@ router.get("/places", async (req, res) => {
 });
 
 /* -------------------------------------------------------
-   2) 관광지 상세 정보
+   2) 관광지 상세 정보 (detailCommon2는 여기서 '1회'만)
 ------------------------------------------------------- */
 router.get("/detail", async (req, res) => {
   const {
@@ -195,79 +259,69 @@ router.get("/detail", async (req, res) => {
   if (!contentId) return res.status(400).json({ error: "contentId 필요" });
   if (!contentTypeId) return res.status(400).json({ error: "contentTypeId 필요" });
 
-  const cacheKey = ["detail", contentId, contentTypeId].join("|");
+  const cacheKey = ["detail:v2", contentId, contentTypeId].join("|");
   const cached = getCache(cacheKey);
+  if (cached) {
+    res.setHeader("X-From-Cache", "1");
+    return res.json(cached);
+  }
+
+  // ✅ quota 락 상태면 TourAPI를 아예 호출하지 않고, 네이버 기반 fallback만
+  if (isQuotaBlocked()) {
+    let tel = fallbackTel || "";
+    let tags = [];
+    try {
+      if (fallbackTitle || fallbackAddress) {
+        const extra = await enhanceWithNaverLocal(fallbackTitle || "", fallbackAddress || "");
+        if (!tel && extra.tel) tel = extra.tel;
+        if (extra.category) tags = buildTagsFromCategory(extra.category, contentTypeId);
+      }
+    } catch {}
+
+    const fastFallback = makeDetailFallback({
+      contentId,
+      contentTypeId,
+      title: fallbackTitle,
+      address: fallbackAddress,
+      tel,
+      tags,
+      error: "TOUR_API_QUOTA_BLOCKED",
+      message: "현재 TourAPI 호출 한도 초과 상태입니다. 잠시 후 다시 시도해 주세요.",
+    });
+
+    setCache(cacheKey, fastFallback, 30 * 1000);
+    return res.json(fastFallback);
+  }
 
   try {
-    if (cached) {
-      return res.json(cached);
-    }
+    const params = new URLSearchParams({
+      serviceKey: TOUR_API_KEY,
+      MobileOS: "ETC",
+      MobileApp: "TripDiner",
+      _type: "json",
+      contentId: String(contentId),
+      contentTypeId: String(contentTypeId),
+      defaultYN: "Y",
+      overviewYN: "Y",
+      addrinfoYN: "Y",
+      imageYN: "Y",
+      mapinfoYN: "Y",
+    });
 
-    const encodedKey = encodeURIComponent(TOUR_API_KEY);
-
-    // detailCommon2
-    const commonUrl =
-      `https://apis.data.go.kr/B551011/KorService2/detailCommon2?serviceKey=${encodedKey}` +
-      `&MobileOS=ETC&MobileApp=TripDiner&_type=json` +
-      `&contentId=${contentId}&contentTypeId=${contentTypeId}` +
-      `&defaultYN=Y&overviewYN=Y&addrinfoYN=Y&imageYN=Y&mapinfoYN=Y`;
-
-    const commonRes = await fetch(commonUrl);
-    const commonRaw = await commonRes.text();
-
-    let commonJson;
-    try {
-      commonJson = JSON.parse(commonRaw);
-    } catch (parseErr) {
-      console.error("🔥 DetailCommon Raw response (not JSON):", commonRaw);
-
-      let tel = fallbackTel || "";
-      let tags = [];
-
-      if (fallbackTitle || fallbackAddress) {
-        const extra = await enhanceWithNaverLocal(
-          fallbackTitle || "",
-          fallbackAddress || ""
-        );
-        tel = extra.tel || tel;
-        tags = buildTagsFromCategory(extra.category || "", contentTypeId);
-      }
-
-      const fallbackResponse = makeDetailFallback({
-        contentId,
-        contentTypeId,
-        title: fallbackTitle,
-        address: fallbackAddress,
-        tel,
-        tags,
-        error: "DETAIL_PARSE_ERROR",
-        message: "상세 정보를 불러오는 중 오류가 발생하여 기본 정보만 표시합니다.",
-      });
-
-      setCache(cacheKey, fallbackResponse, 60 * 1000);
-      return res.json(fallbackResponse);
-    }
+    const commonUrl = `https://apis.data.go.kr/B551011/KorService2/detailCommon2?${params.toString()}`;
+    const commonJson = await fetchTourJson(commonUrl);
 
     const info = commonJson?.response?.body?.items?.item?.[0];
 
-    // 상세가 아예 없을 때
+    // 상세 없으면 fallback
     if (!info) {
       let tel = fallbackTel || "";
       let tags = [];
-
       try {
-        if (fallbackTitle || fallbackAddress) {
-          const extra = await enhanceWithNaverLocal(
-            fallbackTitle || "",
-            fallbackAddress || ""
-          );
-          if (extra.tel) tel = extra.tel;
-          if (extra.category)
-            tags = buildTagsFromCategory(extra.category, contentTypeId);
-        }
-      } catch (e) {
-        console.warn("⚠ Naver Local fallback 실패:", e.message);
-      }
+        const extra = await enhanceWithNaverLocal(fallbackTitle || "", fallbackAddress || "");
+        if (!tel && extra.tel) tel = extra.tel;
+        if (extra.category) tags = buildTagsFromCategory(extra.category, contentTypeId);
+      } catch {}
 
       const fallbackResponse = makeDetailFallback({
         contentId,
@@ -277,81 +331,42 @@ router.get("/detail", async (req, res) => {
         tel,
         tags,
         error: "DETAIL_EMPTY",
-        message: "등록된 상세 정보가 없어 목록의 기본 정보만 표시합니다.",
+        message: "등록된 상세 정보가 없어 기본 정보만 표시합니다.",
       });
 
       setCache(cacheKey, fallbackResponse, 60 * 1000);
       return res.json(fallbackResponse);
     }
 
-    // 기본 전화번호
+    // 전화/태그 보강 (네이버)
     let tel = (info.tel || fallbackTel || "").trim();
     let tags = [];
 
-    // detailIntro2 로 안내전화 보강
-    try {
-      const introUrl =
-        `https://apis.data.go.kr/B551011/KorService2/detailIntro2?serviceKey=${encodedKey}` +
-        `&MobileOS=ETC&MobileApp=TripDiner&_type=json` +
-        `&contentId=${contentId}&contentTypeId=${contentTypeId}`;
-
-      const introRes = await fetch(introUrl);
-      const introRaw = await introRes.text();
-
-      let introJson;
-      try {
-        introJson = JSON.parse(introRaw);
-      } catch (e) {
-        console.error("🔥 DetailIntro Raw response (not JSON):", introRaw);
-      }
-
-      const intro = introJson?.response?.body?.items?.item?.[0];
-
-      if (intro) {
-        tel =
-          intro.infocenterfood ||
-          intro.infocentertour ||
-          intro.infocenterleports ||
-          intro.infocenter ||
-          tel;
-      }
-    } catch (e) {
-      console.warn("⚠ detailIntro 불러오기 실패:", e.message);
-    }
-
-    // Naver Local 로 전화번호 + 태그 보강
     try {
       const extra = await enhanceWithNaverLocal(
         info.title || fallbackTitle || "",
         info.addr1 || fallbackAddress || ""
       );
 
-      if (extra.tel && !tel) tel = extra.tel;
-      if (extra.category) {
-        tags = buildTagsFromCategory(extra.category, contentTypeId);
-      }
+      if (!tel && extra.tel) tel = extra.tel;
+      if (extra.category) tags = buildTagsFromCategory(extra.category, contentTypeId);
+      if (!tel || tel === "-" || tel === "없음") tel = "";
+    } catch {}
 
-      if (!tel || tel === "-" || tel === "없음") {
-        tel = "";
-      }
-    } catch (e) {
-      console.warn("⚠ Naver Local 태그 보강 실패:", e.message);
-    }
-
-    // 이미지 보강
+    // 이미지 보강 (한 번만)
     let finalImage = info.firstimage || null;
     try {
-      const enhancedImg = await enhanceImage(info.title, info.mapy, info.mapx);
-      if (enhancedImg) finalImage = enhancedImg;
-    } catch (e) {
-      console.warn("⚠ 이미지 보강 실패(detail):", e.message);
-    }
+      if (!finalImage) {
+        const enhancedImg = await enhanceImage(info.title, info.mapy, info.mapx);
+        if (enhancedImg) finalImage = enhancedImg;
+      }
+    } catch {}
 
     const responseBody = {
       contentId,
       contentTypeId,
-      title: info.title,
-      address: info.addr1,
+      title: cleanText(info.title),
+      address: cleanText(info.addr1),
       tel,
       overview: cleanOverview(info.overview),
       homepage: info.homepage,
@@ -367,24 +382,42 @@ router.get("/detail", async (req, res) => {
     setCache(cacheKey, responseBody, 10 * 60 * 1000);
     return res.json(responseBody);
   } catch (err) {
-    console.error("🔥 Detail API Error:", err);
+    console.error("🔥 Place /detail Error:", err.code || err.message, err.raw || "");
 
+    // quota 초과면 즉시 fallback + 짧게 캐시
+    if (err.code === "TOUR_API_QUOTA_EXCEEDED") {
+      let tel = fallbackTel || "";
+      let tags = [];
+
+      try {
+        const extra = await enhanceWithNaverLocal(fallbackTitle || "", fallbackAddress || "");
+        if (!tel && extra.tel) tel = extra.tel;
+        if (extra.category) tags = buildTagsFromCategory(extra.category, contentTypeId);
+      } catch {}
+
+      const fallbackResponse = makeDetailFallback({
+        contentId,
+        contentTypeId,
+        title: fallbackTitle,
+        address: fallbackAddress,
+        tel,
+        tags,
+        error: "TOUR_API_QUOTA",
+        message: "TourAPI 호출 한도 초과로 상세 정보를 불러올 수 없습니다. 잠시 후 재시도해 주세요.",
+      });
+
+      setCache(cacheKey, fallbackResponse, 60 * 1000);
+      return res.json(fallbackResponse);
+    }
+
+    // 기타 에러 fallback
     let tel = fallbackTel || "";
     let tags = [];
-
     try {
-      if (fallbackTitle || fallbackAddress) {
-        const extra = await enhanceWithNaverLocal(
-          fallbackTitle || "",
-          fallbackAddress || ""
-        );
-        if (extra.tel) tel = extra.tel;
-        if (extra.category)
-          tags = buildTagsFromCategory(extra.category, contentTypeId);
-      }
-    } catch (e) {
-      console.warn("⚠ fallback Naver Local 도 실패:", e.message);
-    }
+      const extra = await enhanceWithNaverLocal(fallbackTitle || "", fallbackAddress || "");
+      if (!tel && extra.tel) tel = extra.tel;
+      if (extra.category) tags = buildTagsFromCategory(extra.category, contentTypeId);
+    } catch {}
 
     const fallbackResponse = makeDetailFallback({
       contentId,
@@ -393,9 +426,8 @@ router.get("/detail", async (req, res) => {
       address: fallbackAddress,
       tel,
       tags,
-      error: "DETAIL_API_FAILED",
-      message:
-        "상세 API 호출 중 오류가 발생하여, 기본 정보만 표시합니다. 전화번호 등 일부 정보가 없을 수 있어요.",
+      error: err.code || "DETAIL_API_FAILED",
+      message: "상세 정보를 불러오는 중 오류가 발생하여 기본 정보만 표시합니다.",
     });
 
     setCache(cacheKey, fallbackResponse, 60 * 1000);
@@ -420,12 +452,11 @@ router.post("/like", async (req, res) => {
         [userId, contentId]
       );
     } else {
-      await db.query(
-        "DELETE FROM likes WHERE user_id=? AND content_id=?",
-        [userId, contentId]
-      );
+      await db.query("DELETE FROM likes WHERE user_id=? AND content_id=?", [
+        userId,
+        contentId,
+      ]);
     }
-
     res.json({ success: true });
   } catch (err) {
     console.error("좋아요 저장 오류:", err);
