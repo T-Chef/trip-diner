@@ -17,13 +17,12 @@ export default function AdminLogin() {
         password,
       });
 
-      // ✅ 관리자 토큰 저장
+      // 관리자 토큰 저장시키기(사이드 메뉴 추가했으니)
       localStorage.setItem("adminToken", res.data.token);
 
       toast.success("관리자 로그인 성공");
 
-      // ✅ 반드시 dashboard로 이동
-      navigate("/admin/dashboard");
+      navigate("/admin");
     } catch (err) {
       toast.error(err.response?.data?.message || "관리자 로그인 실패");
     }
@@ -39,6 +38,7 @@ export default function AdminLogin() {
           placeholder="관리자 이메일"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
 
         <input
@@ -46,6 +46,7 @@ export default function AdminLogin() {
           placeholder="비밀번호"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
 
         <button type="submit">로그인</button>

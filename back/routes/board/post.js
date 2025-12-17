@@ -4,6 +4,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import prisma from "../../prisma/prismaClient.js";
+import { authMiddleware } from "../middleware/Auth.js";
 
 const router = express.Router();
 
@@ -38,51 +39,64 @@ function safeJson(obj) {
 }
 
 /* ---------------------------------------------
-   1) Tiptap 이미지 업로드  (라우트 충돌 방지: 반드시 위쪽!)
+   1) Tiptap 이미지 업로드 (로그인 + 활성 유저만)
 ---------------------------------------------- */
-router.post("/upload", upload.single("image"), (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: "파일 업로드 실패" });
+router.post(
+  "/upload",
+  authMiddleware,
+  upload.single("image"),
+  (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "파일 업로드 실패" });
+      }
+
+      const imageUrl = `/postImages/${req.file.filename}`;
+      return res.json({ success: true, url: imageUrl });
+    } catch (err) {
+      console.error("이미지 업로드 오류:", err);
+      return res.status(500).json({ error: "서버 오류" });
     }
-
-    const imageUrl = `/postImages/${req.file.filename}`;
-    return res.json({ success: true, url: imageUrl });
-  } catch (err) {
-    console.error("이미지 업로드 오류:", err);
-    return res.status(500).json({ error: "서버 오류" });
   }
-});
+);
 
 /* ---------------------------------------------
-   2) 게시글 작성
+   2) 게시글 작성 (로그인 + 활성 유저만)
 ---------------------------------------------- */
-router.post("/", upload.single("image"), async (req, res) => {
-  try {
-    const { user_id, title, content, category } = req.body;
+router.post(
+  "/",
+  authMiddleware,
+  upload.single("image"),
+  async (req, res) => {
+    try {
+      const { title, content, category } = req.body;
 
-    const imageUrl = req.file ? `/postImages/${req.file.filename}` : null;
+      // 🔐 user_id는 토큰에서 가져오는 게 정석
+      const user_id = Number(req.user.user_id);
 
-    const newPost = await prisma.post.create({
-      data: {
-        user_id: Number(user_id),
-        title,
-        content,
-        category,
-        image_url: imageUrl,
-        views: 0,
-      },
-    });
+      const imageUrl = req.file ? `/postImages/${req.file.filename}` : null;
 
-    res.json(safeJson({ success: true, post: newPost }));
-  } catch (err) {
-    console.error("게시글 작성 오류", err);
-    res.status(500).json({ error: "서버 오류" });
+      const newPost = await prisma.post.create({
+        data: {
+          user_id,
+          title,
+          content,
+          category,
+          image_url: imageUrl,
+          views: 0,
+        },
+      });
+
+      res.json(safeJson({ success: true, post: newPost }));
+    } catch (err) {
+      console.error("게시글 작성 오류", err);
+      res.status(500).json({ error: "서버 오류" });
+    }
   }
-});
+);
 
 /* ---------------------------------------------
-   3) 게시글 목록
+   3) 게시글 목록 (비로그인 가능)
 ---------------------------------------------- */
 router.get("/", async (req, res) => {
   try {
@@ -103,7 +117,7 @@ router.get("/", async (req, res) => {
 });
 
 /* ---------------------------------------------
-   4) 게시글 단일 조회 (⚠️ 반드시 가장 아래!!)
+   4) 게시글 단일 조회 (비로그인 가능)
 ---------------------------------------------- */
 router.get("/:id", async (req, res) => {
   try {
