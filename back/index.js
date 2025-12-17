@@ -1,4 +1,3 @@
-// back/index.js
 import dotenv from "dotenv";
 dotenv.config({ path: "./.env" });
 
@@ -9,7 +8,7 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// 라우터
+// 라우터 import
 import cityRouter from "./routes/city.js";
 import categoryRouter from "./routes/category.js";
 import placeRouter from "./routes/place.js";
@@ -32,16 +31,17 @@ import postLikeRouter from "./routes/like/PostLike.js";
 import adminRouter from "./routes/admin/admin.js";
 import adminLoginRouter from "./routes/admin/adminLogin.js";
 
-
+/* =================================================
+    Express 앱 설정
+================================================= */
 const app = express();
 
-// ESModule용 __dirname
+/* =================================================
+   공통 설정
+================================================= */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/* -------------------------------------------------------
-   보안 헤더 (프로필 이미지 차단 방지)
-------------------------------------------------------- */
 app.use(
   helmet({
     contentSecurityPolicy: false,
@@ -51,9 +51,6 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-/* -------------------------------------------------------
-    CORS 설정 
-------------------------------------------------------- */
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -62,46 +59,34 @@ app.use(
   })
 );
 
-/* -------------------------------------------------------
-   Static 이미지 (프로필 이미지가 여기에 속함)
-------------------------------------------------------- */
+/* =================================================
+   Static / 게시글, 프로필 이미지
+================================================= */
+
 app.use(
-  "/uploads",
-  (req, res, next) => {
-    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-    res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
-    res.setHeader("Cross-Origin-Opener-Policy", "unsafe-none"); 
-    next();
-  },
-  express.static(path.join(__dirname, "uploads"))
+  "/uploads",
+  (req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    next();
+  },
+  express.static(path.join(__dirname, "uploads"))
 );
 
-
-/* -------------------------------------------------------
-   게시글 이미지 postImages
-------------------------------------------------------- */
 app.use(
-  "/postImages",
-  (req, res, next) => {
-    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-    res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
-    res.setHeader("Cross-Origin-Opener-Policy", "unsafe-none"); 
-    next();
-  },
-  express.static(path.join(__dirname, "uploads/postImages"))
+  "/postImages",
+  (req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    next();
+  },
+  express.static(path.join(__dirname, "uploads/postImages"))
 );
 
-/* -------------------------------------------------------
-   테스트
-------------------------------------------------------- */
-app.get("/api/test", (req, res) => {
-  res.json({ message: "server ok" });
-});
-
-/* -------------------------------------------------------
+/* =================================================
    API 라우터
-------------------------------------------------------- */
-
+================================================= */
 app.use("/api/auth", usersRouter);
 app.use("/api/city", cityRouter);
 app.use("/api/category", categoryRouter);
@@ -119,21 +104,15 @@ app.use("/api/comment", commentRouter);
 // 좋아요
 app.use("/api/like", placeLikeRouter);
 app.use("/api/like", postLikeRouter);
-     
+
 // 관리자
 app.use("/api/admin", adminLoginRouter);
 app.use("/api/admin", adminRouter);
 
-/* -------------------------------------------------------
+/* =================================================
    서버 시작
-------------------------------------------------------- */
+================================================= */
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-
 });
-
-console.log("placeLikeRouter loaded:", placeLikeRouter);
-console.log("postLikeRouter loaded:", postLikeRouter);
-console.log("postRouter loaded:", postRouter);
-console.log("commentRouter loaded:", commentRouter);

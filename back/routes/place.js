@@ -74,3 +74,4 @@ router.get("/places", async (req, res) => {
 });
 
 export default router;
+
