@@ -30,6 +30,7 @@ import postLikeRouter from "./routes/like/PostLike.js";
 // 관리자
 import adminRouter from "./routes/admin/admin.js";
 import adminLoginRouter from "./routes/admin/adminLogin.js";
+import adminUsersRouter from "./routes/admin/adminUsers.js";
 
 /* =================================================
     Express 앱 설정
@@ -108,6 +109,7 @@ app.use("/api/like", postLikeRouter);
 // 관리자
 app.use("/api/admin", adminLoginRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/admin", adminUsersRouter);
 
 /* =================================================
    서버 시작
