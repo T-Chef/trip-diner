@@ -5,8 +5,7 @@
   width: 100%;
   max-width: 1300px;
   margin: 0 auto;
-  padding: 30px 20px;
-  font-family: "Noto Sans KR", sans-serif;
+  padding: 40px 20px;
 }
 
 /* 제목 */
@@ -21,14 +20,16 @@
    레이아웃 (메인 + 사이드바)
 ================================ */
 .write-layout {
+  width: 100%;
   display: flex;
-  align-items: flex-start;
-  gap: 25px;
+  justify-content: space-between;
+  gap: 60px;
 }
 
 /* 왼쪽 본문 */
 .write-main {
   flex: 1;
+  min-width: 0;
 }
 
 /* ================================
@@ -224,10 +225,11 @@
 ================================ */
 .write-sidebar {
   width: 260px;
-  padding: 15px;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  flex-shrink: 0;
+  padding: 20px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  background: white;
 }
 
 .sidebar-section {

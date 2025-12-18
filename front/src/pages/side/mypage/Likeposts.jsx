@@ -6,17 +6,34 @@ const API_BASE = "http://localhost:4000/api";
 
 export default function LikePosts({ userId }) {
   const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!userId) return; // userId 없으면 API 호출하지 않음
+    if (!userId) {
+      setPosts([]);
+      setLoading(false);
+      return;
+    }
 
-    axios
-      .get(`${API_BASE}/like/post/${userId}`)
-      .then((res) => {
-        setPosts(res.data);
-      })
-      .catch((err) => console.error("게시글 좋아요 불러오기 에러:", err));
+    async function fetchLikedPosts() {
+      try {
+        // ✅ 여기만 수정됨
+        const res = await axios.get(`${API_BASE}/like/post/${userId}`);
+        setPosts(Array.isArray(res.data) ? res.data : []);
+      } catch (err) {
+        console.error("게시글 좋아요 불러오기 에러:", err);
+        setPosts([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchLikedPosts();
   }, [userId]);
+
+  if (loading) {
+    return <p className="empty-msg">불러오는 중...</p>;
+  }
 
   return (
     <div className="likes-wrapper">
@@ -30,7 +47,11 @@ export default function LikePosts({ userId }) {
         {posts.map((item) => (
           <div className="like-card" key={item.like_id}>
             <img
-              src={item.post?.image_url}
+              src={
+                item.post?.image_url
+                  ? item.post.image_url
+                  : "/images/no-image.png"
+              }
               className="like-img"
               alt={item.post?.title}
             />

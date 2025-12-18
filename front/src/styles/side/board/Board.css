@@ -1,12 +1,12 @@
 /* ========================================
-   전체 페이지 레이아웃
+   전체 페이지
 ======================================== */
 .board-page {
   width: 100%;
   display: flex;
   justify-content: center;
   background: #f8f9fc;
-  font-size: 16px; 
+  font-size: 16px;
 }
 
 .board-wrapper {
@@ -19,7 +19,7 @@
 /* 배너 */
 .board-banner {
   width: 250%;
-  height: 210px;
+  height: 300px;
   background: #82b7ff;
   color: white;
   display: flex;
@@ -30,39 +30,90 @@
   margin-bottom: 30px;
 }
 
+/* ================================
+   프로필 박스
+================================ */
+.board-profile-view {
+  text-align: center;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+}
+
+.profile-circle {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  border: 4px solid #dbe6ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 12px auto;
+  overflow: hidden;
+  position: relative;
+}
+
+.profile-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: relative;
+  z-index: 10;
+}
+
+/* 닉네임 */
+.board-profile-name {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+/* 환영 문구 */
+.board-profile-welcome {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
 /* ========================================
-   메인 콘텐츠 레이아웃
+   레이아웃
 ======================================== */
 .board-layout {
-  width: 100%;
-  max-width: 1200px;
   display: flex;
-  min-height: calc(100vh - 220px);
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  gap: 40px;
 }
 
-/* ========================================
-   왼쪽 패널 (프로필, 카테고리)
-======================================== */
+/* 왼쪽 패널 */
 .left-panel {
   width: 260px;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 600px;
 }
 
-/* 카테고리 메뉴 */
+/* 카테고리 */
 .category-list {
+  flex: 1;
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
 }
 
 .category-list li {
-  padding: 20px;
+  padding: 18px;
   border-bottom: 1px solid #eee;
   cursor: pointer;
+  text-align: center;
   transition: 0.2s;
+  font-size: 15px;
 }
 
 .category-list li:hover {
@@ -75,21 +126,12 @@
   color: #1e90ff;
 }
 
-/* ========================================
-   오른쪽 게시판 패널
-======================================== */
+/* 오른쪽 게시판 */
 .right-panel {
   flex: 1;
-  margin-left: 20px;
-  padding: 20px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 6px;
 }
 
-/* =======================
-   테이블 헤더 (리스트형)
-========================= */
+/* 테이블 */
 .post-header {
   display: flex;
   padding: 12px 0;
@@ -99,43 +141,16 @@
   color: #333;
 }
 
-.col-category {
-  width: 10%;
-  text-align: center;
-  font-size: 16px;
-}
+.col-category { width: 10%; text-align: center; }
+.col-title { width: 50%; padding-left: 10px; }
+.col-writer { width: 12%; text-align: center; }
+.col-date { width: 18%; text-align: center; }
+.col-views { width: 10%; text-align: center; }
 
-.col-title {
-  width: 50%;
-  padding-left: 10px;
-  font-size: 16px;
-}
-
-.col-writer {
-  width: 12%;
-  text-align: center;
-  font-size: 16px;
-}
-
-.col-date {
-  width: 18%;
-  text-align: center;
-  font-size: 16px;
-}
-
-.col-views {
-  width: 10%;
-  text-align: center;
-  font-size: 16px;
-}
-
-/* =======================
-   게시글 행
-========================= */
 .post-row {
   display: flex;
   padding: 15px 0;
-  font-size: 14px;
+  font-size: 16px;
   border-bottom: 1px solid #eee;
   cursor: pointer;
   transition: 0.15s;
@@ -151,9 +166,7 @@
   text-overflow: ellipsis;
 }
 
-/* =======================
-   페이지네이션
-========================= */
+/* 페이지네이션 */
 .pagination {
   display: flex;
   justify-content: center;
@@ -177,9 +190,7 @@
   border-bottom: 2px solid #1e90ff;
 }
 
-/* =======================
-   글쓰기 버튼
-========================= */
+/* 글쓰기 버튼 */
 .write-btn {
   margin-top: 20px;
   padding: 12px 20px;
@@ -190,11 +201,9 @@
   font-size: 15px;
   cursor: pointer;
   transition: 0.2s;
-
   display: block;
-  margin-left: auto;   /* ⭐ 오른쪽 정렬 핵심 */
+  margin-left: auto;
 }
-
 
 .write-btn:hover {
   background: #3b78e0;

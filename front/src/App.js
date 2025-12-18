@@ -1,8 +1,11 @@
+
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
-// Layout
+// =======================
+// 일반 유저 Layout
+// =======================
 import Layout from "./components/layout/Layout.jsx";
 
 // 기본 페이지
@@ -19,26 +22,36 @@ import Likeplaces from "./pages/side/mypage/Likeplaces.jsx";
 import Unsubscribe from "./pages/side/mypage/Unsubscribe.jsx";
 import Calendar from "./pages/side/mypage/Calendar.jsx";
 
-// AI (주한이형)
+// AI / 여행
 import AISchedule from "./pages/side/schedule/AISchedule.jsx";
 import AIScheduleResult from "./pages/side/schedule/AIScheduleResult.jsx";
 import AIScheduleSummary from "./pages/side/schedule/AIScheduleSummary.jsx";
 import TripCategory from "./pages/side/schedule/category/TripCategory.jsx";
 
-// City (진호)
-import CityMain from "./pages/side/city/CityMain.jsx";
-import PlaceDetail from "./pages/side/city/place/PlaceDetail.jsx";
-import EventDetail from "./pages/side/city/event/EventDetail.jsx";
+// City
+import CityMain from "./components/city/CityMain.jsx";
+import PlaceDetail from "./components/city/PlaceDetail.jsx";
+import EventDetail from "./components/city/EventDetail.jsx";
 
-// 게시판 (서희)
+// 게시판
 import Board from "./pages/side/board/Board.jsx";
 import BoardWrite from "./pages/side/board/BoardWrite.jsx";
 import BoardDetail from "./pages/side/board/BoardDetail.jsx";
 
-// 사이드
+// 기타
 import Contract from "./pages/side/Contract.jsx";
 
-// 비밀번호 재설정
+// =======================
+// 관리자
+// =======================
+import AdminLogin from "./pages/admin/AdminLogin.jsx";
+import AdminLayout from "./pages/admin/layout/AdminLayout.jsx";
+import AdminHome from "./pages/admin/AdminHome.jsx";
+import AdminUsers from "./pages/admin/AdminUsers.jsx";
+import AdminPosts from "./pages/admin/AdminPosts.jsx";
+import AdminInquiries from "./pages/admin/AdminInquiries.jsx";
+
+// 비밀번호
 import ForgotPassword from "./pages/pw/ForgotPassword";
 import ResetPassword from "./pages/pw/ResetPassword";
 
@@ -49,83 +62,101 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // 로그인 유지
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) setUser(JSON.parse(savedUser));
   }, []);
 
-  // user 변경 시 저장하기
   useEffect(() => {
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
-    }
+    if (user) localStorage.setItem("user", JSON.stringify(user));
   }, [user]);
 
   return (
     <Router>
       <Toaster position="top-center" />
 
-      <Layout user={user} setUser={setUser}>
-        <Routes>
+      <Routes>
+        {/* =========================
+            관리자
+        ========================= */}
+        <Route path="/admin/login" element={<AdminLogin />} />
 
-          {/* 홈 */}
-          <Route path="/" element={<Home user={user} setUser={setUser} />} />
+        {/* 관리자 메인 (메인 페이지 스타일 그대로 쓸 예정) */}
+        <Route path="/admin" element={<AdminHome />} />
 
-          {/* 로그인/회원가입 */}
-          <Route path="/login" element={<Login setUser={setUser} />} />
-          <Route path="/signup" element={<Signup />} />
+        {/* 관리자 관리 영역 */}
+        <Route path="/admin/*" element={<AdminLayout />}>
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="posts" element={<AdminPosts />} />
+          <Route path="inquiries" element={<AdminInquiries />} />
+        </Route>
 
-          {/* 마이페이지 */}
-          <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
-          <Route path="/profile/edit" element={<ProfileEdit user={user} setUser={setUser} />} />
+        {/* =========================
+            일반 유저
+        ========================= */}
+        <Route
+          path="/*"
+          element={
+            <Layout user={user} setUser={setUser}>
+              <Routes>
+                 {/* 홈 */}
+                <Route path="/" element={<Home user={user} setUser={setUser} />} />
+                
+                {/* 로그인/회원가입 */}
+                <Route path="/login" element={<Login setUser={setUser} />} />
+                <Route path="/signup" element={<Signup />} />
 
-          <Route path="/like/posts" element={<Likeposts userId={user?.user_id} />} />
-          <Route path="/like/places" element={<Likeplaces userId={user?.user_id} />} />
-          
-          <Route path="/withdraw" element={<Unsubscribe user={user} />} />
+                 {/* 마이페이지 */}
+                <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
+                <Route path="/profile/edit" element={<ProfileEdit user={user} setUser={setUser} />} />
 
-          {/* 캘린더 */}
-          <Route path="/calendar" element={<Calendar user={user} />} />
+                {/* 좋아요 */}
+                <Route path="/like/posts" element={<Likeposts userId={user?.user_id} />} />
+                <Route path="/like/places" element={<Likeplaces userId={user?.user_id} />} />
 
-          {/* Trip-Diner (AI 여행 계획) */}
-          <Route path="/trip" element={<AISchedule user={user} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />} />
-          <Route path="/trip/category" element={<TripCategory />} />
-          <Route path="/trip/result" element={<AIScheduleResult user={user} />} />
-          <Route path="/trip/summary" element={<AIScheduleSummary />} />
+                <Route path="/withdraw" element={<Unsubscribe user={user} />} />
+                <Route path="/calendar" element={<Calendar user={user} />} />
 
-          <Route path="/schedule" element={<Navigate to="/trip" replace />} />
-          <Route path="/schedule/result" element={<Navigate to="/trip/result" replace />} />
+                {/* Trip-Diner (AI 여행 계획) */}
+                <Route path="/trip" element={<AISchedule user={user} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />} />
+                <Route path="/trip/category" element={<TripCategory />} />
+                <Route path="/trip/result" element={<AIScheduleResult user={user} />} />
+                <Route path="/trip/summary" element={<AIScheduleSummary />} />
 
-          {/* City 페이지 */}
-          <Route path="/city" element={<CityMain user={user} setUser={setUser} />} />
+                <Route path="/schedule" element={<Navigate to="/trip" replace />} />
+                <Route path="/schedule/result" element={<Navigate to="/trip/result" replace />} />
 
-          <Route path="/place/:id" element={<PlaceDetail user={user} setUser={setUser} />} />
+                 {/* City 페이지 */}
+                <Route path="/city" element={<CityMain user={user} setUser={setUser} />} />
+                <Route path="/place/:id" element={<PlaceDetail user={user} setUser={setUser} />} />
+                <Route path="/event/:id" element={<EventDetail user={user} setUser={setUser} />} />
 
-          <Route path="/event/:id" element={<EventDetail user={user} setUser={setUser} />} />
+                {/* 게시판 */}
+                <Route path="/board/write" element={<BoardWrite />} />
+                <Route path="/board/write/:id" element={<BoardWrite />} />
+                <Route path="/board/:id" element={<BoardDetail />} />
 
-          {/* 나머지 메뉴 */}
-          <Route path="/board" element={<Board user={user} />} />
-          <Route path="/contract" element={<Contract user={user} />} />
+                <Route path="/board/list" element={<Board />} />
+                <Route path="/board/list/:category" element={<Board />} />
+                <Route path="/board" element={<Board />} />
 
-          {/* 게시판 */}
-          <Route path="/board/write" element={<BoardWrite />} />
-          <Route path="/board/write/:id" element={<BoardWrite />} />
-          <Route path="/board/:id" element={<BoardDetail />} />
-          <Route path="/board" element={<Board />} />
+                {/* Dashboard */}
+                <Route path="/dashboard" element={<Dashboard user={user} />} />
+                <Route path="/city" element={<CityMain user={user} setUser={setUser} />} />
 
-          {/* Dashboard */}
-          <Route path="/dashboard" element={<Dashboard user={user} />} />
+                <Route path="/contract" element={<Contract user={user} />} />
 
-          {/* 비밀번호 재설정 */}
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
 
-          {/* 404 */}
-          <Route path="*" element={<NotFound />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
 
-        </Routes>
-      </Layout>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Layout>
+          }
+        />
+      </Routes>
     </Router>
   );
 }
+

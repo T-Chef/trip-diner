@@ -11,8 +11,6 @@ const router = express.Router();
    회원가입
 ------------------------------------------------------- */
 router.post("/register", async (req, res) => {
-  console.log("회원가입 요청 데이터:", req.body);
-
   const { name, email, password } = req.body;
 
   try {
@@ -27,10 +25,11 @@ router.post("/register", async (req, res) => {
 
     const user = await prisma.user.create({
       data: {
-        name: name,       // ✔ 반드시 저장
-        email: email,
+        name,
+        email,
         password: hashedPassword,
         provider: "LOCAL",
+        deleted: 0,
       },
     });
 
@@ -41,9 +40,8 @@ router.post("/register", async (req, res) => {
         user_id: user.user_id.toString(),
         email: user.email,
         name: user.name,
-      }
+      },
     });
-
   } catch (err) {
     console.error("회원가입 에러:", err);
     return res.status(500).json({
@@ -54,7 +52,7 @@ router.post("/register", async (req, res) => {
 });
 
 /* -------------------------------------------------------
-   로그인
+   로그인 + 비활성화 유저 로그인 못하게 처리
 ------------------------------------------------------- */
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -71,46 +69,53 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    if (user.deleted === 1) {
+      return res.status(403).json({
+        success: false,
+        message: "비활성화된 계정입니다. 관리자에게 문의하세요.",
+      });
+    }
 
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({
         success: false,
         message: "비밀번호가 일치하지 않습니다.",
       });
     }
+
     const accessToken = jwt.sign(
       { user_id: user.user_id.toString(), email: user.email },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "15m"} 
+      { expiresIn: "15m" }
     );
 
     const refreshToken = jwt.sign(
       { user_id: user.user_id.toString(), email: user.email },
       process.env.REFRESH_TOKEN_SECRET,
-      {expiresIn: "7d"}
+      { expiresIn: "7d" }
     );
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false, // https면 true
+      secure: false,
       sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    // BigInt 쓰지 않고 순수 JSON으로 재구성
     const safeUser = {
       user_id: user.user_id.toString(),
       email: user.email,
-      name: user.name || "사용자",   // name이 NULL이면 기본값
+      name: user.name || "사용자",
       provider: user.provider,
       created_at: user.created_at,
+      profile_img: user.profile_img,
     };
 
     return res.status(200).json({
       success: true,
       message: "로그인 성공",
-      accessToken, // 프론트는 이걸 AUthorization에 저장후 사용
+      accessToken,
       user: safeUser,
     });
   } catch (err) {
@@ -147,7 +152,7 @@ router.get("/check-email", async (req, res) => {
 
 /* -------------------------------------
    비밀번호 재설정 메일 요청
---------------------------------------*/
+----------------------------------------*/
 router.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
 
@@ -160,15 +165,22 @@ router.post("/forgot-password", async (req, res) => {
     });
   }
 
-  // ⚠ must include user_id in token payload!
+  if (user.deleted === 1) {
+    return res.json({
+      success: false,
+      message: "비활성화된 계정입니다. 관리자에게 문의하세요.",
+    });
+  }
+
   const token = jwt.sign(
-    { user_id: user.user_id.toString() }, 
+    { user_id: user.user_id.toString() },
     process.env.JWT_SECRET || "secretkey",
     { expiresIn: "2h" }
   );
 
-  // URL 인코딩
-  const resetLink = `http://localhost:3000/reset-password?token=${encodeURIComponent(token)}`;
+  const resetLink = `http://localhost:3000/reset-password?token=${encodeURIComponent(
+    token
+  )}`;
 
   try {
     await transporter.sendMail({
@@ -178,57 +190,36 @@ router.post("/forgot-password", async (req, res) => {
       text: `비밀번호 재설정 링크: ${resetLink}`,
     });
 
-    console.log("Generated reset token:", token); // ✔ 디버깅용
-
     res.json({ success: true, message: "메일 전송 완료" });
   } catch (err) {
-    console.error(err);
     res.json({ success: false, message: "메일 전송 실패" });
   }
 });
 
 /* ---------------------------------------
-      비밀번호 변경
+   유저 정보 조회
 ----------------------------------------*/
-router.post("/reset-password", async (req, res) => {
-  const { token, password } = req.body;
-
-  try {
-    // 토큰 검증 → payload 안에 user_id 포함됨
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
-
-    // password hash
-    const hash = await bcrypt.hash(password, 10);
-
-    await prisma.user.update({
-      where: { user_id: BigInt(decoded.user_id) }, // payload에 user_id가 있어야 작동
-      data: { password: hash },
-    });
-
-    res.json({ success: true });
-  } catch (err) {
-    console.error(err);
-    res.json({ success: false, message: "토큰이 만료되었거나 잘못되었습니다." });
-  }
-});
-
-// 유저 정보 조회
 router.get("/user/:id", async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { user_id: Number(req.params.id) },
+      where: { user_id: BigInt(req.params.id) },
     });
 
-    if (!user) {
+    if (!user || user.deleted === 1) {
       return res.status(404).json({ error: "유저 없음" });
     }
 
-    return res.json(user);
+    return res.json({
+      user_id: user.user_id.toString(),
+      email: user.email,
+      name: user.name,
+      profile_img: user.profile_img,
+      created_at: user.created_at,
+    });
   } catch (err) {
     console.error("유저 정보 조회 오류:", err);
     return res.status(500).json({ error: "서버 오류" });
   }
 });
-
 
 export default router;

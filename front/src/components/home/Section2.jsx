@@ -2,75 +2,100 @@ import { useEffect, useRef } from "react";
 import "../../styles/page/home/Section2.css";
 
 export default function Section2({ sectionRef }) {
-  const paperBg = process.env.PUBLIC_URL + "/assets/textures/paper.jpg";
+  const paperBg = process.env.PUBLIC_URL + "/assets/images/cream-paper.jpg";
+  const cardRefs = useRef([]);
 
-  const fadeRefs = useRef([]); // 애니메이션 대상들 담기
-
- useEffect(() => {
+  useEffect(() => {
     const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(e => {
+      (entries) => {
+        entries.forEach((e) => {
           if (e.isIntersecting) e.target.classList.add("show");
         });
       },
-      { threshold: 0.2 }
+      { threshold: 0.3 }
     );
 
-    fadeRefs.current.forEach(el => el && observer.observe(el));
-
+    cardRefs.current.forEach((el) => el && observer.observe(el));
     return () => observer.disconnect();
   }, []);
 
-
   return (
     <section
-      className="section-box style-select-section"
+      className="section-box menu-layout"
       ref={sectionRef}
       style={{
-        backgroundImage: `url(${paperBg})`,
+        backgroundImage: `
+          linear-gradient(to bottom, rgba(255,255,255,0.96), rgba(250,250,250,0.96)),
+          url(${paperBg})
+        `,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
     >
-      <div className="style-content-area">
-        
-        {/* 왼쪽 메인 문구 */}
-        <div className="left-main fade-item" ref={el => (fadeRefs.current[0] = el)}>
-          <h1 className="main-title fade-up delay-1">어떤 취향이든, 다 맞춰주니까</h1>
+      {/* LEFT */}
+      <div className="section2-left">
+        <p className="label">AI 일정표</p>
 
-          <p className="sub-desc">
-            어떤 여행 취향이든 T-chef에게 알려주세요!<br />
-            취향에 꼭 맞는 일정을 추천해 드립니다.
-          </p>
+        <h2 className="title">
+          여행을 한눈에,
+          <br />
+          그리고 한 번에!
+        </h2>
 
-          <button className="blue-btn">AI 일정 만들어보기</button>
-        </div>
-        
-        {/* 오른쪽 스타일 선택지 */}
-        <div className="right-style fade-item" ref={el => (fadeRefs.current[1] = el)}>
-          <div className="camera-icon">📷</div>
-          <h3 className="right-title">내가 선호하는 여행 스타일은?</h3>
-          <p className="small">다중 선택 가능</p>
+        <p className="desc">
+          여행 전에 계획하고 여행 중에는 수정하고
+          <br />
+          Trip-Dinner는 한 화면에서 끝낼 수 있어요.
+        </p>
 
-          <div className="style-chips">
-            <button>체험, 활동적</button>
-            <button>유명 관광지</button>
-            <button className="selected">여유롭게 힐링</button>
-            <button>문화, 예술, 역사</button>
-            <button>관광보다 맛집</button>
-          </div>
+        <ul className="bullet-list">
+          <li>✓ 누구와, 언제, 전국 어디든</li>
+          <li>✓ 내가 가고 싶은 여행 테마까지</li>
+          <li>✓ T-chef가 내 취향에 맞게 찾아주니까</li>
+        </ul>
 
-          <div className="example-card">
-            <img
-              src="/assets/images/plan.jpg"
-              className="example-thumb"
-              alt="여행 일정 예시"
-            />
+        <button className="cta-btn">일정 살펴보기</button>
+      </div>
 
-            <div className="card-text">
-              <h4>부산, 3박 4일 여행 완성</h4>
-              <p>AI 맞춤 일정으로 떠나보세요!</p>
+      {/* RIGHT TIMELINE */}
+      <div className="section2-right">
+        {[
+          {
+            n: 1,
+            title: "서울",
+            sub: "서울1",
+            img: "/assets/images/seoul/seoul1.jpg",
+          },
+          {
+            n: 2,
+            title: "서울",
+            sub: "서울2",
+            img: "/assets/images/seoul/seoul2.jpg",
+          },
+          {
+            n: 3,
+            title: "서울",
+            sub: "서울3",
+            img: "/assets/images/seoul/seoul3.jpg",
+          },
+        ].map((item, idx) => (
+          <div
+            className="timeline-row fade-item"
+            ref={(el) => (cardRefs.current[idx] = el)}
+            key={idx}
+          >
+            <div className="dot">{item.n}</div>
+
+            <div className="timeline-card">
+              <div className="card-text">
+                <h4>{item.title}</h4>
+                <p>{item.sub}</p>
+              </div>
+
+              <img src={item.img} className="card-thumb" alt="" />
             </div>
           </div>
-        </div>
+        ))}
       </div>
     </section>
   );

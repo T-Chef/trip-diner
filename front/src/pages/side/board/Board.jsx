@@ -1,92 +1,69 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // 🚨 useParams 추가
 import axios from "axios";
 import "../../../styles/side/board/Board.css";
 
-import BoardProfile from "./BoardProfile";
-
 export default function Board() {
   const navigate = useNavigate();
+  const { category: urlCategory } = useParams(); // 🚨 URL에서 /board/list/:category 파라미터 읽기
 
   // 로그인 정보
   const storedUser = JSON.parse(localStorage.getItem("user"));
-  const [user, setUser] = useState(storedUser);
+  const [user] = useState(storedUser);
 
-  // 게시글 / 카테고리 / 페이지 상태
+  // ⭐ 프로필 이미지 URL 생성
+  const PROFILE_BASE_URL = "http://localhost:4000";
+  const profileSrc = user?.profile_img
+    ? (user.profile_img.startsWith(PROFILE_BASE_URL)
+        ? user.profile_img
+        : `${PROFILE_BASE_URL}${user.profile_img.startsWith('/') ? '' : '/'}${user.profile_img}`)
+    : "/default_profile.png";
+
+  // 게시글 데이터 상태 관리
   const [posts, setPosts] = useState([]);
   const [category, setCategory] = useState("전체");
   const [currentPage, setCurrentPage] = useState(1);
-
   const postsPerPage = 10;
 
-  /*------------------------------------------
-    📌 날짜 포맷 함수 ("방금 전" / "3시간 전" / "2025.12.08")
-  -------------------------------------------*/
-const formatDate = (value) => {
-  if (!value) return "-";
-
-  let date;
-
-  // 1) Date 객체인 경우
-  if (value instanceof Date) {
-    date = value;
-  }
-  // 2) 문자열인 경우
-  else if (typeof value === "string") {
-    // 문자열 → Date 변환 (replace 절대 사용 안함)
-    date = new Date(value);
-  }
-  // 3) 숫자(timestamp)
-  else if (typeof value === "number") {
-    date = new Date(value);
-  }
-  // 그 외는 출력 불가
-  else {
-    return "-";
-  }
-
-  // 변환 실패
-  if (isNaN(date.getTime())) return "-";
-
-  const now = new Date();
-  const diffSec = (now - date) / 1000;
-
-  if (diffSec < 60) return "방금 전";
-  if (diffSec < 3600) return `${Math.floor(diffSec / 60)}분 전`;
-  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}시간 전`;
-
-  return date.toISOString().slice(0, 10).replace(/-/g, ".");
-};
-
-
-  /*------------------------------------------
-    📌 DB에서 게시글 가져오기
-  -------------------------------------------*/
+  /* 게시글 전체 로드 */
   useEffect(() => {
     axios
       .get("http://localhost:4000/api/posts")
-      .then((res) => {
-        console.log("불러온 데이터:", res.data);
-        setPosts(res.data);
-      })
+      .then((res) => setPosts(res.data))
       .catch((err) => console.error("글 불러오기 오류:", err));
   }, []);
 
-  /*------------------------------------------
-    📌 카테고리 필터 적용
-  -------------------------------------------*/
+  // ************************************************************
+  // 🚨 [추가된 핵심 로직] URL 파라미터 변경 시 카테고리 상태 동기화
+  // ************************************************************
+  useEffect(() => {
+    if (urlCategory) {
+      // URL 파라미터가 있으면 해당 카테고리로 상태 변경 (전체보기 대응)
+      setCategory(urlCategory === "전체" ? "전체" : urlCategory);
+    } else {
+      setCategory("전체");
+    }
+    setCurrentPage(1); // 카테고리 변경 시 첫 페이지로 이동
+  }, [urlCategory]);
+
+  // 🚨 카테고리 클릭 시 URL을 변경해주는 핸들러
+  const handleCategoryChange = (cat) => {
+    const targetPath = cat === "전체보기" ? "전체" : cat;
+    // URL을 직접 변경하여 상단의 useEffect([urlCategory])가 실행되도록 유도
+    navigate(`/board/list/${targetPath}`); 
+  };
+  // ************************************************************
+
+  /* 카테고리 필터 */
   const filteredPosts =
-    category === "전체"
-      ? posts
+    category === "전체" || category === "전체보기" 
+      ? posts 
       : posts.filter((p) => p.category === category);
 
-  /*------------------------------------------
-    📌 페이지 계산
-  -------------------------------------------*/
+  /* 페이지네이션 계산 */
   const indexOfLast = currentPage * postsPerPage;
   const indexOfFirst = indexOfLast - postsPerPage;
   const currentPosts = filteredPosts.slice(indexOfFirst, indexOfLast);
-
   const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
 
   const changePage = (page) => {
@@ -96,133 +73,95 @@ const formatDate = (value) => {
 
   return (
     <div className="board-page">
-    <div className="board-wrapper">
-      {/* 배너 */}
-      <div className="board-banner">여행 게시판</div>
+      <div className="board-wrapper">
+        <div className="board-banner">여행 게시판</div>
 
-      <div className="board-layout">
-        {/* ------------------ 왼쪽 메뉴 ------------------ */}
-        <div className="left-panel">
-          <BoardProfile user={user} setUser={setUser} />
+        <div className="board-layout">
+          {/* ------------------ 왼쪽 메뉴 ------------------ */}
+          <div className="left-panel">
 
-          <ul className="category-list">
-            <li
-              className={category === "전체" ? "active" : ""}
-              onClick={() => {
-                setCategory("전체");
-                setCurrentPage(1);
-              }}
-            >
-              전체보기
-            </li>
-            <li
-              className={category === "자유" ? "active" : ""}
-              onClick={() => {
-                setCategory("자유");
-                setCurrentPage(1);
-              }}
-            >
-              자유
-            </li>
-            <li
-              className={category === "후기" ? "active" : ""}
-              onClick={() => {
-                setCategory("후기");
-                setCurrentPage(1);
-              }}
-            >
-              후기
-            </li>
-            <li
-              className={category === "질문" ? "active" : ""}
-              onClick={() => {
-                setCategory("질문");
-                setCurrentPage(1);
-              }}
-            >
-              질문
-            </li>
-            <li
-              className={category === "Q&A" ? "active" : ""}
-              onClick={() => {
-                setCategory("Q&A");
-                setCurrentPage(1);
-              }}
-            >
-              Q&A
-            </li>
-          </ul>
-        </div>
+            {/* ⭐ 프로필 박스 */}
+            <div className="board-profile-view">
+              <div className="profile-circle">
+                <img src={profileSrc} alt="프로필" />
+              </div>
+              <div className="board-profile-name">{user?.name} 님</div>
+              <div className="board-profile-welcome">
+                환영합니다 {user?.name}님!
+              </div>
+            </div>
 
-        {/* ------------------ 오른쪽 게시판 ------------------ */}
-        <div className="right-panel">
-          {/* 테이블 헤더 */}
-          <div className="post-header">
-            <div className="col-category">종류</div>
-            <div className="col-title">제목</div>
-            <div className="col-writer">작성자</div>
-            <div className="col-date">작성일</div>
-            <div className="col-views">조회수</div>
-          </div>
-
-          {/* 게시글 목록 */}
-          <div className="post-section">
-            {currentPosts.length > 0 ? (
-              currentPosts.map((p) => (
-                <div
-                  key={p.post_id}
-                  className="post-row"
-                  onClick={() => navigate(`/board/${p.post_id}`)}
+            {/* ⭐ 카테고리 리스트 (map을 사용하여 최적화) */}
+            <ul className="category-list">
+              {["전체보기", "자유", "후기", "질문", "Q&A"].map((cat) => (
+                <li
+                  key={cat}
+                  // 현재 선택된 카테고리와 메뉴명이 일치하면 'active' 클래스 부여
+                  className={(category === cat || (category === "전체" && cat === "전체보기")) ? "active" : ""}
+                  onClick={() => handleCategoryChange(cat)}
                 >
-                  <div className="col-category">{p.category || "-"}</div>
-                  <div className="col-title">{p.title}</div>
-                  <div className="col-writer">{p.user?.name ?? "익명"}</div>
+                  {cat}
+                </li>
+              ))}
+            </ul>
+          </div>
 
-                  <div className="col-date">{formatDate(p.created_at)}</div>
+          {/* ------------------ 오른쪽 게시판 ------------------ */}
+          <div className="right-panel">
+            <div className="post-header">
+              <div className="col-category">종류</div>
+              <div className="col-title">제목</div>
+              <div className="col-writer">작성자</div>
+              <div className="col-date">작성일</div>
+              <div className="col-views">조회수</div>
+            </div>
 
-                  <div className="col-views">{p.views ?? 0}</div>
+            <div className="post-section">
+              {currentPosts.length > 0 ? (
+                currentPosts.map((p) => (
+                  <div
+                    key={p.post_id}
+                    className="post-row"
+                    onClick={() => navigate(`/board/${p.post_id}`)}
+                  >
+                    <div className="col-category">{p.category}</div>
+                    <div className="col-title">{p.title}</div>
+                    <div className="col-writer">{p.user?.name || "익명"}</div>
+                    <div className="col-date">{p.created_at?.slice(0, 10)}</div>
+                    <div className="col-views">{p.views || 0}</div>
+                  </div>
+                ))
+              ) : (
+                <div className="no-posts" style={{textAlign: "center", padding: "50px"}}>
+                  해당 카테고리에 게시글이 없습니다.
                 </div>
-              ))
-            ) : (
-              <p
-                style={{
-                  textAlign: "center",
-                  color: "#777",
-                  marginTop: "20px",
-                }}
-              >
-                게시글이 없습니다.
-              </p>
-            )}
+              )}
+            </div>
+
+            <div className="pagination">
+              <span onClick={() => changePage(currentPage - 1)} style={{cursor: "pointer"}}>{"<"}</span>
+              {[...Array(totalPages)].map((_, i) => (
+                <span
+                  key={i}
+                  className={currentPage === i + 1 ? "active-page" : ""}
+                  onClick={() => changePage(i + 1)}
+                >
+                  {i + 1}
+                </span>
+              ))}
+              <span onClick={() => changePage(currentPage + 1)} style={{cursor: "pointer"}}>{">"}</span>
+
+            </div>
+
+            <button
+              className="write-btn"
+              onClick={() => navigate("/board/write")}
+            >
+              글쓰기
+            </button>
           </div>
-
-          {/* 페이지네이션 */}
-          <div className="pagination">
-            <span onClick={() => changePage(currentPage - 1)}>{"<"}</span>
-
-            {[...Array(totalPages)].map((_, i) => (
-              <span
-                key={i}
-                className={currentPage === i + 1 ? "active-page" : ""}
-                onClick={() => changePage(i + 1)}
-              >
-                {i + 1}
-              </span>
-            ))}
-
-            <span onClick={() => changePage(currentPage + 1)}>{">"}</span>
-          </div>
-
-          {/* 글쓰기 */}
-          <button
-            className="write-btn"
-            onClick={() => navigate("/board/write")}
-          >
-            글쓰기
-          </button>
         </div>
       </div>
-    </div>
     </div>
   );
 }
