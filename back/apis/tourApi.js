@@ -20,18 +20,20 @@ async function callTourAPI(path, params) {
   const text = await res.text();
 
   if (text.startsWith("Unauthorized") || text.includes("SERVICE ERROR")) {
-    throw new Error("TourAPI Unauthorized or Service Error");
-  }
+  console.error("TourAPI Unauthorized or Service Error RAW:", text);
+  return [];
+}
 
   let json;
-  try {
-    json = JSON.parse(text);
-  } catch (e) {
-    console.error("JSON 파싱 실패 RAW:", text);
-    throw e;
-  }
+try {
+  json = JSON.parse(text);
+} catch (e) {
+  console.error("JSON 파싱 실패 RAW:", text);
+  // 504 같은 경우에는 그냥 "결과 없음"으로 처리
+  return [];   // 🔥 throw e 대신 이걸로!
+}
 
-  return json.response?.body?.items?.item || [];
+return json.response?.body?.items?.item || [];
 }
 
 /**

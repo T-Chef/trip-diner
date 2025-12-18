@@ -1,11 +1,27 @@
+// front/src/pages/.../AIScheduleMap.jsx
 import React, { useEffect, useRef, useState, useCallback } from "react";
 
-const AIScheduleMap = ({ aiPlan, onSelectPlace, activePlace }) => {
+const AIScheduleMap = ({
+  aiPlan,
+  onSelectPlace,
+  activePlace,
+  selectedDayExternal,   
+}) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const markersRef = useRef([]);
   const polylinesRef = useRef([]);
   const [selectedDay, setSelectedDay] = useState("ALL");
+  // ★ 요약 페이지에서 넘겨준 Day 필터 반영
+  React.useEffect(() => {
+    if (!selectedDayExternal) return; // undefined면 무시
+
+    if (selectedDayExternal === "ALL") {
+      setSelectedDay("ALL");
+    } else {
+      setSelectedDay(selectedDayExternal); // 1,2,3 같은 숫자(day)
+    }
+  }, [selectedDayExternal]);
 
   const dayColors = ["#0078ff", "#1ec800", "#ff3b30", "#ff9500", "#9b59b6"];
 
@@ -18,28 +34,48 @@ const AIScheduleMap = ({ aiPlan, onSelectPlace, activePlace }) => {
     }
   };
 
-  const initMap = useCallback(() => {
-    if (!mapRef.current || !window.naver) return;
+  // 🔥 첫 장소 좌표 찾는 함수
+  const getFirstPlaceLatLng = () => {
+    if (!aiPlan?.days) return null;
+    for (const day of aiPlan.days) {
+      for (const p of day.places || []) {
+        if (p.lat && p.lng) {
+          return { lat: p.lat, lng: p.lng };
+        }
+      }
+    }
+    return null;
+  };
 
+  const initMap = useCallback(() => {
+    if (!mapRef.current || !window.naver || !aiPlan?.days) return;
+
+    // 🗺 최초 한 번만 지도 생성 + 중심을 첫 장소로 설정
     if (!mapInstance.current) {
+      const first = getFirstPlaceLatLng();
+      const centerLatLng = first
+        ? new window.naver.maps.LatLng(first.lat, first.lng)
+        : new window.naver.maps.LatLng(37.5665, 126.9780); // fallback
+
       mapInstance.current = new window.naver.maps.Map(mapRef.current, {
         zoom: 11,
-        center: new window.naver.maps.LatLng(37.5665, 126.9780),
+        center: centerLatLng,
       });
 
       window.addEventListener("resize", resizeMap);
     }
 
+    // 기존 마커/폴리라인 제거
     markersRef.current.forEach((m) => m.setMap(null));
     markersRef.current = [];
     polylinesRef.current.forEach((p) => p.setMap(null));
     polylinesRef.current = [];
 
-    if (!aiPlan || aiPlan.length === 0) return;
-
     const bounds = new window.naver.maps.LatLngBounds();
+    let hasAnyPoint = false;
 
-    aiPlan.forEach((dayPlan, dayIndex) => {
+    (aiPlan.days || []).forEach((dayPlan, dayIndex) => {
+      if (!dayPlan?.places) return;
       if (selectedDay !== "ALL" && selectedDay !== dayIndex + 1) return;
 
       const color = dayColors[dayIndex % dayColors.length];
@@ -47,8 +83,11 @@ const AIScheduleMap = ({ aiPlan, onSelectPlace, activePlace }) => {
       let markerNumber = 1;
 
       dayPlan.places.forEach((place, placeIndex) => {
+        if (!place.lat || !place.lng) return;
+
         const latlng = new window.naver.maps.LatLng(place.lat, place.lng);
         bounds.extend(latlng);
+        hasAnyPoint = true;
 
         const marker = new window.naver.maps.Marker({
           position: latlng,
@@ -71,11 +110,11 @@ const AIScheduleMap = ({ aiPlan, onSelectPlace, activePlace }) => {
                 ${markerNumber}
               </div>`,
             anchor: new window.naver.maps.Point(14, 14),
-          }
+          },
         });
 
-        marker.day = dayIndex;
-        marker.index = placeIndex;
+        marker.customDay = dayIndex;
+        marker.customIndex = placeIndex;
 
         window.naver.maps.Event.addListener(marker, "click", () =>
           onSelectPlace?.(dayIndex, placeIndex)
@@ -98,49 +137,61 @@ const AIScheduleMap = ({ aiPlan, onSelectPlace, activePlace }) => {
       }
     });
 
-    mapInstance.current.fitBounds(bounds);
+    // 지도 크기 먼저 맞춤
     resizeMap();
-  }, [aiPlan, selectedDay, onSelectPlace]);
 
-  const loadMap = useCallback(() => {
-    const scriptId = "naver-map-sdk";
-    if (!document.getElementById(scriptId)) {
+    // activePlace 있을 때는 fitBounds 실행 금지
+    if (!activePlace) {
+      if (hasAnyPoint) {
+        mapInstance.current.fitBounds(bounds);
+      } else {
+        mapInstance.current.setCenter(
+          new window.naver.maps.LatLng(37.5665, 126.9780)
+        );
+        mapInstance.current.setZoom(11);
+      }
+    }
+  }, [aiPlan, selectedDay, onSelectPlace]); // activePlace는 여기서 안 씀
+
+  useEffect(() => {
+    console.log("🧪 지도에 전달된 aiPlan:", aiPlan);
+
+    if (!window.naver) {
       const script = document.createElement("script");
-      script.id = scriptId;
       script.src =
         "https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=1o7cfked5o";
-      script.async = true;
       script.onload = initMap;
       document.head.appendChild(script);
-    } else initMap();
-  }, [initMap]);
-
-  useEffect(() => {
-    loadMap();
-
-  return () => {
-    if (mapInstance.current) {
-      window.removeEventListener("resize", resizeMap);
-      markersRef.current.forEach((m) => m.setMap(null));
-      polylinesRef.current.forEach((p) => p.setMap(null));
-      markersRef.current = [];
-      polylinesRef.current = [];
+    } else {
+      initMap();
     }
-  };
-}, [aiPlan, selectedDay, loadMap]); // ★ 여기 수정
 
+    return () => {
+      if (mapInstance.current) {
+        window.removeEventListener("resize", resizeMap);
+        markersRef.current.forEach((m) => m.setMap(null));
+        polylinesRef.current.forEach((p) => p.setMap(null));
+        markersRef.current = [];
+        polylinesRef.current = [];
+      }
+    };
+  }, [aiPlan, selectedDay, initMap]);
+
+  // 🔍 리스트에서 장소 클릭했을 때 해당 마커로 이동
   useEffect(() => {
     if (!mapInstance.current || !activePlace) return;
-    if (!activePlace || activePlace.day === null) return;
 
-    const { day, index } = activePlace;
     const targetMarker = markersRef.current.find(
-      (m) => m.day === day && m.index === index
+      (m) =>
+        m.customDay === activePlace.day && m.customIndex === activePlace.index
     );
     if (!targetMarker) return;
+
     mapInstance.current.panTo(targetMarker.getPosition());
     mapInstance.current.setZoom(14);
-    window.naver.maps.Event.trigger(targetMarker, "click");
+
+    targetMarker.setAnimation(window.naver.maps.Animation.BOUNCE);
+    setTimeout(() => targetMarker.setAnimation(null), 1200);
   }, [activePlace]);
 
   return (

@@ -6,32 +6,43 @@
   gap: 25px;
 }
 
-/* 상단 지역 태그 */
+/* ===========================
+   상단 지역 태그
+=========================== */
 .ai-filter-city-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px 8px;
 }
 
 .city-tag {
-  padding: 6px 14px;
-  border-radius: 18px;
-  background: #f2f2f2;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #f7f7f7;
+  border: 1px solid #eeeeee;
   cursor: pointer;
-  font-size: 15px;
-  transition: 0.15s;
+  font-size: 14px;
+  color: #555;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease,
+    transform 0.08s ease;
 }
 
 .city-tag:hover {
-  background: #ddd;
+  background: #eceff7;
+  border-color: #d1d9ff;
 }
 
 .city-tag.active {
   background: #3a76ff;
-  color: white;
+  border-color: #3a76ff;
+  color: #ffffff;
+  font-weight: 600;
+  transform: translateY(-1px);
 }
 
-/* 구·군 그리드 */
+/* ===========================
+   구·군 그리드
+=========================== */
 .ai-filter-district-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -43,44 +54,61 @@
   padding: 6px 8px;
   border-radius: 10px;
   background: #f6f6f6;
+  border: 1px solid #eeeeee;
   cursor: pointer;
-  transition: 0.15s;
+  font-size: 14px;
+  color: #555;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease,
+    transform 0.08s ease;
 }
 
 .district-tag:hover {
-  background: #ececec;
+  background: #f0f3ff;
+  border-color: #d1d9ff;
 }
 
 .district-tag.active {
   background: #3a76ff;
-  color: white;
+  border-color: #3a76ff;
+  color: #ffffff;
+  font-weight: 600;
+  transform: translateY(-1px);
 }
 
-/* 오른쪽 패널 내부 스타일 */
+/* ===========================
+   오른쪽 패널 내부 스타일
+=========================== */
 .floating-right .ai-filter-wrapper {
   background: #ffffff;
-  padding: 20px 18px;
+  padding: 18px 16px 20px;
   border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   width: 260px;
-  max-height: 78vh;       /* 화면 높이에 맞게 자동 조절 */
-  overflow-y: auto;        /* 내부 스크롤 */
+  max-height: 78vh;
+  overflow-y: auto;
+  scrollbar-width: none;
 }
 
-/* 지역 태그 크기 줄이기 */
+.floating-right .ai-filter-wrapper::-webkit-scrollbar {
+  display: none; /* Chrome, Edge, Safari */
+}
+
+/* 좁은 패널용 사이즈 조정 */
 .floating-right .city-tag {
   padding: 5px 10px;
   font-size: 13px;
 }
 
-/* 구/군 태그 사이즈 줄이기 */
 .floating-right .district-tag {
   padding: 5px 8px;
   font-size: 13px;
 }
 
-/* 그리드를 좁은 너비에 맞게 2열로 변경 */
+/* 좁은 너비에 맞게 2열로 */
 .floating-right .ai-filter-district-grid {
   grid-template-columns: repeat(2, 1fr);
 }
-

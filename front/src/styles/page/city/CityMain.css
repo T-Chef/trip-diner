@@ -29,13 +29,16 @@
 /* ==========================
   양 옆 떠 있는 패널 (Weather / Filter)
 ========================== */
+.floating-left {
+  position: fixed;
+  top: 80px;
+  width: var(--panel-width);
+  z-index: 5;
+}
 
-
-.floating-left,
 .floating-right {
   position: fixed;
-  top: 50px;              /* 헤더 아래 위치 – 필요하면 조절 */
-
+  top: 50px;             
   width: var(--panel-width);
   z-index: 5;
 }
@@ -58,19 +61,24 @@
   타이틀 영역
 ========================== */
 .city-title-wrap {
-  margin-top: 10px;
-  margin-bottom: 20px;
+  margin: 24px 0 16px;
+  text-align: left;          
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;   
+  gap: 4px;
 }
 
 .city-title {
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 800;
   margin-bottom: 8px;
+  color: #222;
 }
 
 .city-subtitle {
-  font-size: 15px;
-  color: #666;
+  font-size: 14px;
+  color: #777;
 }
 
 /* ==========================

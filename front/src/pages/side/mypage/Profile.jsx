@@ -145,7 +145,6 @@ export default function Profile({ user, setUser }) {
         <div className="grid-item" onClick={() => navigate("/Like/Posts")}>
           <FaThumbsUp /> 좋아요 한 게시글
         </div>
-
         <div className="grid-item" onClick={() => navigate("/Like/Places")}>
           <FaHeart /> 좋아요 한 여행지
         </div>

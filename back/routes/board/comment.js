@@ -35,7 +35,6 @@ router.post("/", userAuth, async (req, res) => {
       content,
     },
   });
-
   res.json(safeJson(comment));
 });
 
@@ -48,6 +47,7 @@ router.put("/:id", userAuth, async (req, res) => {
 
   if (!comment || comment.user_id !== user_id) {
     return res.status(403).json({ error: "권한 없음" });
+
   }
 
   const updated = await prisma.comment.update({
@@ -77,3 +77,4 @@ router.delete("/:id", userAuth, async (req, res) => {
 });
 
 export default router;
+

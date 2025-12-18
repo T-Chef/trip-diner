@@ -4,105 +4,85 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 const router = express.Router();
 
-/* =================================================
-   1️⃣ 게시글 좋아요 토글
-   POST /api/like/post
-================================================= */
-router.post("/post", async (req, res) => {
-  const { userId, postId, liked } = req.body;
+// 1. 좋아요 토글 (POST /api/like/post/:postId)
+router.post("/post/:postId", async (req, res) => {
+  const { postId } = req.params;
+  const { user_id } = req.body;
 
-  if (!userId || !postId) {
-    return res.status(400).json({ error: "userId, postId 필요" });
-  }
-
-  let uid, pid;
-  try {
-    uid = BigInt(userId);
-    pid = BigInt(postId);
-  } catch {
-    return res.status(400).json({ error: "잘못된 ID 형식" });
-  }
+  if (!user_id || !postId) return res.status(400).json({ error: "데이터 부족" });
 
   try {
+    const uid = BigInt(user_id);
+    const pid = BigInt(postId);
+
     const exists = await prisma.post_like.findFirst({
       where: { user_id: uid, post_id: pid },
     });
 
-    // 좋아요 해제
-    if (!liked) {
-      if (exists) {
-        await prisma.post_like.delete({
-          where: { like_id: exists.like_id },
-        });
-      }
+    if (exists) {
+      await prisma.post_like.delete({ where: { like_id: exists.like_id } });
       return res.json({ liked: false });
+    } else {
+      await prisma.post_like.create({ data: { user_id: uid, post_id: pid } });
+      return res.json({ liked: true });
     }
-
-    // 좋아요 추가
-    if (!exists) {
-      await prisma.post_like.create({
-        data: {
-          user_id: uid,
-          post_id: pid,
-        },
-      });
-    }
-
-    return res.json({ liked: true });
   } catch (err) {
-    console.error("게시글 좋아요 토글 오류:", err);
     res.status(500).json({ error: "서버 오류" });
   }
 });
 
-/* =================================================
-   2️⃣ 내가 좋아요한 게시글 목록
-   GET /api/like/post/:userId
-================================================= */
+// 2. 좋아요 상태 및 개수 조회 (GET /api/like/post/:postId/status)
+router.get("/post/:postId/status", async (req, res) => {
+  const { postId } = req.params;
+  const { user_id } = req.query;
+
+  try {
+    const pid = BigInt(postId);
+    const count = await prisma.post_like.count({ where: { post_id: pid } });
+    
+    let liked = false;
+    if (user_id) {
+      const exists = await prisma.post_like.findFirst({
+        where: { user_id: BigInt(user_id), post_id: pid }
+      });
+      liked = !!exists;
+    }
+    res.json({ count, liked });
+  } catch (err) {
+    res.status(500).json({ count: 0, liked: false });
+  }
+});
+
+// 3. 사용자가 좋아요한 게시물 목록 조회 (GET /api/like/post/:userId)
 router.get("/post/:userId", async (req, res) => {
   const { userId } = req.params;
 
-  let uid;
   try {
-    uid = BigInt(userId);
-  } catch {
-    return res.status(400).json({ error: "잘못된 userId 형식" });
-  }
+    const uid = BigInt(userId);
 
-  try {
-    const result = await prisma.post_like.findMany({
+    const likedPosts = await prisma.post_like.findMany({
       where: { user_id: uid },
       include: {
         post: {
-          select: {
-            post_id: true,
-            title: true,
-            content: true,
-            image_url: true,
-            created_at: true,
-          },
-        },
+          include: {
+            user: { select: { name: true } } // 게시글 작성자 정보가 필요하면 포함
+          }
+        }
       },
-      orderBy: { created_at: "desc" },
+      orderBy: { created_at: 'desc' } // 최신순 정렬
     });
 
-    const safeResult = result.map((row) => ({
-      like_id: Number(row.like_id),
-      user_id: Number(row.user_id),
-      post_id: Number(row.post_id),
-      created_at: row.created_at,
-      post: row.post
-        ? {
-            ...row.post,
-            post_id: Number(row.post.post_id),
-          }
-        : null,
-    }));
+    // BigInt 포함된 데이터를 JSON으로 변환 (에러 방지)
+    const safeResult = JSON.parse(
+      JSON.stringify(likedPosts, (key, value) =>
+        typeof value === "bigint" ? value.toString() : value
+      )
+    );
 
     res.json(safeResult);
   } catch (err) {
-    console.error("게시글 좋아요 조회 오류:", err);
-    res.status(500).json([]);
+    console.error("좋아요 목록 조회 오류:", err);
+    res.status(500).json({ error: "서버 오류" });
   }
 });
 

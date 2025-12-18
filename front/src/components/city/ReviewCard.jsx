@@ -7,7 +7,7 @@ export default function ReviewCard({ item }) {
       {/* 썸네일 영역 */}
       <div className="review-thumb">
         <img 
-          src={item?.thumb || "/default-thumb.jpg"} 
+          src={item?.thumb || "/assets/images/default-thumb.jpg"} 
           alt="여행 후기"
         />
       </div>
@@ -17,7 +17,7 @@ export default function ReviewCard({ item }) {
         <div className="user">
           <img 
             className="user-img" 
-            src={item?.userImg || "/default-user.png"} 
+            src={item?.userImg || "/assets/images/default-user.png"} 
             alt="유저"
           />
           <span className="user-name">{item?.userName || "작성자"}</span>

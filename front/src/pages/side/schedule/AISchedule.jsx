@@ -1,3 +1,4 @@
+// front/src/pages/side/schedule/AISchedule.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -8,18 +9,35 @@ const API_BASE = "http://localhost:4000/api";
 const AISchedule = ({ userId = 1 }) => {
   const navigate = useNavigate();
 
+  // 1~4 단계: 1) 도시 2) 기간 3) 동행 4) 컨셉
   const [step, setStep] = useState(1);
 
   const [cities, setCities] = useState([]);
-  const [districts, setDistricts] = useState([]);
 
   const [selectedCity, setSelectedCity] = useState(null);
-  const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [days, setDays] = useState(null);
   const [peopleType, setPeopleType] = useState(null);
   const [themes, setThemes] = useState([]);
 
-  const themeOptions = ["먹방", "힐링", "액티비티", "쇼핑", "문화", "자연"];
+  // 👉 로딩 상태
+  const [loading, setLoading] = useState(false);
+
+  const themeOptions = [
+  "먹방",
+  "힐링",
+  "액티비티",
+  "쇼핑",
+  "문화",
+  "자연",
+  "바다",
+  "산·자연",
+  "실내 여행지",
+  "문화·역사",
+  "전통시장",
+  "카페·디저트",
+  "SNS 핫플",
+  "축제·공연",
+];
   const dayOptions = [
     { text: "당일치기", value: 1 },
     { text: "1박 2일", value: 2 },
@@ -28,48 +46,62 @@ const AISchedule = ({ userId = 1 }) => {
     { text: "4박 5일", value: 5 },
   ];
 
+  // 도시 목록 불러오기
   useEffect(() => {
     axios.get(`${API_BASE}/tour/cities`).then((res) => setCities(res.data));
   }, []);
 
-  useEffect(() => {
-    if (!selectedCity) return;
-    axios
-      .get(`${API_BASE}/tour/areas`, {
-        params: { areaCode: selectedCity.areaCode },
-      })
-      .then((res) => setDistricts(res.data));
-  }, [selectedCity]);
-
   const handleNext = () => setStep((prev) => prev + 1);
   const handleBack = () => setStep((prev) => prev - 1);
 
+  // 👉 구/군 없이 city 기준으로만 요청
   const handleGeneratePlan = async () => {
     try {
+      setLoading(true); // 🔥 로딩 시작
+
       const res = await axios.post(`${API_BASE}/ai/plan`, {
         userId,
         cityName: selectedCity.name,
         areaCode: selectedCity.areaCode,
-        districtName: selectedDistrict?.name,
-        sigunguCode: selectedDistrict?.sigunguCode,
         days,
         peopleType,
         themes,
       });
+      // 🔥 aiPlan 안에 부가 정보 심어서 보내기
+const enrichedPlan = {
+  ...res.data.aiPlan,
+  cityName: selectedCity.name,
+  peopleType,
+  themes,          // ✅ 여기!
+  daysCount: days, // 요약 카드에서 쓰면 편함
+};
 
-      navigate("/trip/result", { state: { aiPlan: res.data.aiPlan } });
+      navigate("/trip/result", {
+        state: {
+          aiPlan: enrichedPlan,
+          meta: {
+            cityName: selectedCity.name,
+            days,
+            peopleType,
+            themes,
+            },
+        },
+      });
     } catch (e) {
-      alert("AI 일정 생성에 실패했습니다 😢");
       console.error(e);
+      alert("AI 일정 생성에 실패했습니다 😢");
+    } finally {
+      // 결과 페이지로 넘어가도 혹시 모를 상황 대비해서 정리
+      setLoading(false);
     }
   };
 
+  // 단계별 필수 선택 체크
   const canNext = () => {
     if (step === 1) return !!selectedCity;
-    if (step === 2) return !!selectedDistrict;
-    if (step === 3) return !!days;
-    if (step === 4) return !!peopleType;
-    if (step === 5) return themes.length > 0;
+    if (step === 2) return !!days;
+    if (step === 3) return !!peopleType;
+    if (step === 4) return themes.length >= 2;
     return false;
   };
 
@@ -90,10 +122,8 @@ const AISchedule = ({ userId = 1 }) => {
                   className={
                     selectedCity?.areaCode === city.areaCode ? "active" : ""
                   }
-                  onClick={() => {
-                    setSelectedCity(city);
-                    setSelectedDistrict(null);
-                  }}
+                  onClick={() => setSelectedCity(city)}
+                  disabled={loading}
                 >
                   {city.name}
                 </button>
@@ -102,30 +132,8 @@ const AISchedule = ({ userId = 1 }) => {
           </>
         )}
 
-        {/* STEP2: 지역 선택 */}
+        {/* STEP2: 여행 일수 */}
         {step === 2 && (
-          <>
-            <h2>어느 지역으로 가요?</h2>
-            <div className="btn-grid">
-              {districts.map((d) => (
-                <button
-                  key={d.sigunguCode}
-                  className={
-                    selectedDistrict?.sigunguCode === d.sigunguCode
-                      ? "active"
-                      : ""
-                  }
-                  onClick={() => setSelectedDistrict(d)}
-                >
-                  {d.name}
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-
-        {/* STEP3: 여행 일수 */}
-        {step === 3 && (
           <>
             <h2>여행 기간을 선택하세요</h2>
             <div className="btn-grid">
@@ -134,6 +142,7 @@ const AISchedule = ({ userId = 1 }) => {
                   key={d.value}
                   className={days === d.value ? "active" : ""}
                   onClick={() => setDays(d.value)}
+                  disabled={loading}
                 >
                   {d.text}
                 </button>
@@ -142,8 +151,8 @@ const AISchedule = ({ userId = 1 }) => {
           </>
         )}
 
-        {/* STEP4: 동행 */}
-        {step === 4 && (
+        {/* STEP3: 동행 */}
+        {step === 3 && (
           <>
             <h2>누구와 떠나나요?</h2>
             <div className="btn-grid">
@@ -152,6 +161,7 @@ const AISchedule = ({ userId = 1 }) => {
                   key={p}
                   className={peopleType === p ? "active" : ""}
                   onClick={() => setPeopleType(p)}
+                  disabled={loading}
                 >
                   {p}
                 </button>
@@ -160,8 +170,8 @@ const AISchedule = ({ userId = 1 }) => {
           </>
         )}
 
-        {/* STEP5: 테마 */}
-        {step === 5 && (
+        {/* STEP4: 테마(컨셉) */}
+        {step === 4 && (
           <>
             <h2>어떤 컨셉이에요?</h2>
             <div className="btn-grid">
@@ -176,39 +186,77 @@ const AISchedule = ({ userId = 1 }) => {
                         : [...prev, theme]
                     )
                   }
+                  disabled={loading}
                 >
                   {theme}
                 </button>
               ))}
             </div>
+
+            {/* 🔥 안내 문구 */}
+            <p
+              style={{
+                marginTop: "10px",
+                fontSize: "14px",
+                color: themes.length < 2 ? "#ff4d4f" : "#999",
+                textAlign: "center",
+              }}
+            >
+              최소 <b>2개 이상</b> 선택해주세요 (현재 {themes.length}개)
+            </p>
           </>
         )}
 
         {/* 네비게이션 버튼 */}
         <div className="nav-buttons">
           {step > 1 && (
-            <button className="back" onClick={handleBack}>
+            <button className="back" onClick={handleBack} disabled={loading}>
               이전
             </button>
           )}
 
-          {step < 5 && (
-            <button className="next" disabled={!canNext()} onClick={handleNext}>
+          {step < 4 && (
+            <button
+              className="next"
+              disabled={!canNext() || loading}
+              onClick={handleNext}
+            >
               다음
             </button>
           )}
 
-          {step === 5 && (
+          {step === 4 && (
             <button
               className="submit"
-              disabled={!canNext()}
+              disabled={!canNext() || loading}
               onClick={handleGeneratePlan}
             >
-              여행 메뉴 만들기 🍽
+              {loading ? "AI가 메뉴 만드는 중..." : "여행 메뉴 만들기 🍽"}
             </button>
           )}
         </div>
       </div>
+
+      {/* 🔮 로딩 오버레이 */}
+      {loading && (
+        <div className="loading-overlay">
+          <div className="loading-box">
+            <div className="loading-icon">🤖</div>
+            <h3 className="loading-title">AI 여행 플래너가</h3>
+            <h3 className="loading-title">당신만의 여행 코스를 만드는 중...</h3>
+            <p className="loading-sub">
+              주변 맛집·명소를 분석해서 일정표를 짜고 있어요.
+              <br />
+              잠시만 기다려 주세요!
+            </p>
+            <div className="loading-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -15,9 +15,9 @@ router.post("/register", async (req, res) => {
 
   try {
     if (!name || !email || !password) {
-      return res.status(400).json({
+      return res.status(400).json({ 
         success: false,
-        message: "모든 필드를 입력해주세요.",
+        message: "모든 필드를 입력해주세요." 
       });
     }
 
@@ -127,7 +127,30 @@ router.post("/login", async (req, res) => {
   }
 });
 
-/* ---------------------------------------
+/* ------------------------------------
+      nodemailer 설정
+-------------------------------------*/
+const transporter = nodemailer.createTransport({
+  service: "naver",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+/*  -----------------------------------
+       이메일 중복 체크
+--------------------------------------*/
+router.get("/check-email", async (req, res) => {
+  const { email } = req.query;
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (user) return res.json({ exists: true });
+
+  res.json({ exists: false });
+});
+
+/* -------------------------------------
    비밀번호 재설정 메일 요청
 ----------------------------------------*/
 router.post("/forgot-password", async (req, res) => {
@@ -152,7 +175,7 @@ router.post("/forgot-password", async (req, res) => {
   const token = jwt.sign(
     { user_id: user.user_id.toString() },
     process.env.JWT_SECRET || "secretkey",
-    { expiresIn: "1h" }
+    { expiresIn: "2h" }
   );
 
   const resetLink = `http://localhost:3000/reset-password?token=${encodeURIComponent(

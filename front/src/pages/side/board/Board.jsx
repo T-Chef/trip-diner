@@ -1,34 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // 🚨 useParams 추가
 import axios from "axios";
 import "../../../styles/side/board/Board.css";
 
 export default function Board() {
   const navigate = useNavigate();
+  const { category: urlCategory } = useParams(); // 🚨 URL에서 /board/list/:category 파라미터 읽기
 
   // 로그인 정보
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const [user] = useState(storedUser);
 
-  // ⭐ 프로필 이미지 URL 생성 (수정된 핵심 로직)
-  // URL 중복을 방지하고 BASE URL을 조건부로 붙여줍니다.
+  // ⭐ 프로필 이미지 URL 생성
   const PROFILE_BASE_URL = "http://localhost:4000";
-
   const profileSrc = user?.profile_img
-    ? // 1. 이미 전체 URL(http://localhost:4000 포함)인 경우 그대로 사용
-      (user.profile_img.startsWith(PROFILE_BASE_URL)
+    ? (user.profile_img.startsWith(PROFILE_BASE_URL)
         ? user.profile_img
-        : // 2. 상대 경로(/uploads/...)인 경우에만 BASE_URL을 붙임
-          `${PROFILE_BASE_URL}${user.profile_img.startsWith('/') ? '' : '/'}${user.profile_img}`)
-    : "/default_profile.png"; // 경로가 없으면 기본 이미지
+        : `${PROFILE_BASE_URL}${user.profile_img.startsWith('/') ? '' : '/'}${user.profile_img}`)
+    : "/default_profile.png";
 
   // 게시글 데이터 상태 관리
   const [posts, setPosts] = useState([]);
   const [category, setCategory] = useState("전체");
   const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 10; // postsPerPage 변수 정의
+  const postsPerPage = 10;
 
-  /* 게시글 로드 */
+  /* 게시글 전체 로드 */
   useEffect(() => {
     axios
       .get("http://localhost:4000/api/posts")
@@ -36,27 +33,43 @@ export default function Board() {
       .catch((err) => console.error("글 불러오기 오류:", err));
   }, []);
 
-  // ************************************************
-  // ⭐ ESLint 오류 해결: 필터링 및 페이지네이션 로직 복원 ⭐
-  // ************************************************
+  // ************************************************************
+  // 🚨 [추가된 핵심 로직] URL 파라미터 변경 시 카테고리 상태 동기화
+  // ************************************************************
+  useEffect(() => {
+    if (urlCategory) {
+      // URL 파라미터가 있으면 해당 카테고리로 상태 변경 (전체보기 대응)
+      setCategory(urlCategory === "전체" ? "전체" : urlCategory);
+    } else {
+      setCategory("전체");
+    }
+    setCurrentPage(1); // 카테고리 변경 시 첫 페이지로 이동
+  }, [urlCategory]);
+
+  // 🚨 카테고리 클릭 시 URL을 변경해주는 핸들러
+  const handleCategoryChange = (cat) => {
+    const targetPath = cat === "전체보기" ? "전체" : cat;
+    // URL을 직접 변경하여 상단의 useEffect([urlCategory])가 실행되도록 유도
+    navigate(`/board/list/${targetPath}`); 
+  };
+  // ************************************************************
 
   /* 카테고리 필터 */
   const filteredPosts =
-    category === "전체" ? posts : posts.filter((p) => p.category === category);
+    category === "전체" || category === "전체보기" 
+      ? posts 
+      : posts.filter((p) => p.category === category);
 
-  /* 페이지네이션 변수 정의 */
+  /* 페이지네이션 계산 */
   const indexOfLast = currentPage * postsPerPage;
   const indexOfFirst = indexOfLast - postsPerPage;
-  const currentPosts = filteredPosts.slice(indexOfFirst, indexOfLast); // currentPosts 정의
-  const totalPages = Math.ceil(filteredPosts.length / postsPerPage); // totalPages 정의
+  const currentPosts = filteredPosts.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
 
-  /* 페이지 변경 함수 정의 */
-  const changePage = (page) => { // changePage 정의
+  const changePage = (page) => {
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
   };
-  
-  // ************************************************
 
   return (
     <div className="board-page">
@@ -70,66 +83,26 @@ export default function Board() {
             {/* ⭐ 프로필 박스 */}
             <div className="board-profile-view">
               <div className="profile-circle">
-                <img src={profileSrc} alt=""/>
+                <img src={profileSrc} alt="프로필" />
               </div>
-
               <div className="board-profile-name">{user?.name} 님</div>
               <div className="board-profile-welcome">
                 환영합니다 {user?.name}님!
               </div>
             </div>
 
-            {/* 카테고리 리스트 */}
+            {/* ⭐ 카테고리 리스트 (map을 사용하여 최적화) */}
             <ul className="category-list">
-              <li
-                className={category === "전체" ? "active" : ""}
-                onClick={() => {
-                  setCategory("전체");
-                  setCurrentPage(1);
-                }}
-              >
-                전체보기
-              </li>
-
-              <li
-                className={category === "자유" ? "active" : ""}
-                onClick={() => {
-                  setCategory("자유");
-                  setCurrentPage(1);
-                }}
-              >
-                자유
-              </li>
-
-              <li
-                className={category === "후기" ? "active" : ""}
-                onClick={() => {
-                  setCategory("후기");
-                  setCurrentPage(1);
-                }}
-              >
-                후기
-              </li>
-
-              <li
-                className={category === "질문" ? "active" : ""}
-                onClick={() => {
-                  setCategory("질문");
-                  setCurrentPage(1);
-                }}
-              >
-                질문
-              </li>
-
-              <li
-                className={category === "Q&A" ? "active" : ""}
-                onClick={() => {
-                  setCategory("Q&A");
-                  setCurrentPage(1);
-                }}
-              >
-                Q&A
-              </li>
+              {["전체보기", "자유", "후기", "질문", "Q&A"].map((cat) => (
+                <li
+                  key={cat}
+                  // 현재 선택된 카테고리와 메뉴명이 일치하면 'active' 클래스 부여
+                  className={(category === cat || (category === "전체" && cat === "전체보기")) ? "active" : ""}
+                  onClick={() => handleCategoryChange(cat)}
+                >
+                  {cat}
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -144,23 +117,29 @@ export default function Board() {
             </div>
 
             <div className="post-section">
-              {currentPosts.map((p) => (
-                <div
-                  key={p.post_id}
-                  className="post-row"
-                  onClick={() => navigate(`/board/${p.post_id}`)}
-                >
-                  <div className="col-category">{p.category}</div>
-                  <div className="col-title">{p.title}</div>
-                  <div className="col-writer">{p.user?.name}</div>
-                  <div className="col-date">{p.created_at?.slice(0, 10)}</div>
-                  <div className="col-views">{p.views}</div>
+              {currentPosts.length > 0 ? (
+                currentPosts.map((p) => (
+                  <div
+                    key={p.post_id}
+                    className="post-row"
+                    onClick={() => navigate(`/board/${p.post_id}`)}
+                  >
+                    <div className="col-category">{p.category}</div>
+                    <div className="col-title">{p.title}</div>
+                    <div className="col-writer">{p.user?.name || "익명"}</div>
+                    <div className="col-date">{p.created_at?.slice(0, 10)}</div>
+                    <div className="col-views">{p.views || 0}</div>
+                  </div>
+                ))
+              ) : (
+                <div className="no-posts" style={{textAlign: "center", padding: "50px"}}>
+                  해당 카테고리에 게시글이 없습니다.
                 </div>
-              ))}
+              )}
             </div>
 
             <div className="pagination">
-              <span onClick={() => changePage(currentPage - 1)}>{"<"}</span>
+              <span onClick={() => changePage(currentPage - 1)} style={{cursor: "pointer"}}>{"<"}</span>
               {[...Array(totalPages)].map((_, i) => (
                 <span
                   key={i}
@@ -170,7 +149,8 @@ export default function Board() {
                   {i + 1}
                 </span>
               ))}
-              <span onClick={() => changePage(currentPage + 1)}>{">"}</span>
+              <span onClick={() => changePage(currentPage + 1)} style={{cursor: "pointer"}}>{">"}</span>
+
             </div>
 
             <button

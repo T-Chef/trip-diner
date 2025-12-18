@@ -10,176 +10,214 @@
   flex-direction: column;
   align-items: center;
   font-family: "Noto Sans KR", sans-serif;
+  background-color: #fff;
 }
 
-/* 배너 */
+/* 모든 핵심 요소 너비 고정 */
+.board-detail.board-wrapper,
+.detail-header,
+.detail-body,
+.cafe-comment-stats,
+.stats-separator,
+.comment-input-area,
+.comment-list {
+  width: 760px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box;
+}
+
+/* 2. 상단 배너 */
 .board-banner {
   width: 100%;
-  height: 300px;
+  height: 200px;
   background: #82b7ff;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 50px;
+  font-size: 40px;
   font-weight: bold;
   margin-bottom: 30px;
 }
 
-/* 본문 */
-.detail-content {
-  width: 760px;
-  margin-bottom: 20px;
-}
-
-.detail-title {
-  font-size: 26px;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-
-.detail-body {
-  font-size: 16px;
-  line-height: 1.7;
-  margin-bottom: 25px;
-}
-
-/* -------------------------------------
-   네이버 카페 스타일: 좋아요 & 댓글 통계 영역
-------------------------------------- */
-.cafe-comment-stats {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 10px 0;
-  font-size: 14px;
-  color: #666;
-  width: 760px;
-  margin-bottom: 5px;
-}
-
-.like-btn {
-  display: flex;
-  align-items: center;
-  border: none;
-  background: none;
-  cursor: pointer;
-  padding: 0;
-  font-size: 14px;
-  color: #666;
-  margin-right: 20px;
-  transition: transform 0.1s ease-in-out;
-}
-
-.like-icon {
-  font-size: 16px;
-  margin-right: 5px;
-  color: #ff5452;
-}
-
-.like-btn:active {
-  transform: scale(0.95);
-}
-
-.like-btn:hover {
-  color: #333;
-}
-
-.like-count {
-  min-width: 20px;
+/* 3. 제목 및 작성 정보 헤더 섹션 */
+.detail-header {
+  margin-top: 20px;
   text-align: left;
 }
 
-.comment-stats-count {
-  padding-left: 20px;
+.category-tag {
+  color: #00b454; /* 초록색 카테고리 태그 */
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.detail-title {
+  font-size: 30px !important;
+  font-weight: 800 !important;
+  color: #1a1a1a;
+  margin-bottom: 20px !important;
+  letter-spacing: -1px;
+  line-height: 1.3;
+}
+
+/* 프로필, 이름, 날짜, 조회수 그룹 */
+.post-meta {
+  display: flex;
+  align-items: center;
+  padding-bottom: 15px;
+  position: relative; /* 댓글 아이콘 우측 배치를 위해 */
+}
+
+.meta-profile-img {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  margin-right: 12px;
+  object-fit: cover;
+}
+
+.meta-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.meta-author {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+}
+
+.meta-bottom {
+  font-size: 12px;
+  color: #999;
+  display: flex;
+  gap: 10px;
+}
+
+/* 우측 댓글 아이콘 */
+.meta-comment-count {
+  position: absolute;
+  right: 0;
+  bottom: 15px;
+  font-size: 13px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* 4. 본문 영역 */
+.detail-body {
+  font-size: 17px;
+  line-height: 1.8;
+  color: #333;
+  min-height: 300px;
+  border-top: 1px solid #eeeeee; /* 제목 하단 구분선 */
+  padding-top: 30px;
+  margin-bottom: 40px;
+  white-space: pre-wrap;
+  text-align: left;
+}
+
+.detail-body img {
+  max-width: 100%;
+  height: auto;
+  margin: 20px 0;
+}
+
+/* 5. 좋아요 & 댓글 하단 통계 */
+.cafe-comment-stats {
+  display: flex;
+  align-items: center;
+  padding: 15px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.like-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 15px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.like-icon {
+  font-size: 18px;
 }
 
 .stats-separator {
-  width: 760px;
   border: 0;
   height: 1px;
-  background: #e5e5e5;
-  margin: 0 0 20px 0;
-}
-.detail-comments {
-  width: 760px;
+  background: #f0f0f0;
+  margin-bottom: 25px;
 }
 
-
-/* -------------------------------------
-   댓글 입력 영역
-------------------------------------- */
+/* 6. 댓글 입력 박스 */
 .comment-input-area {
-  width: 100%;
   display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  gap: 0;
+  gap: 10px;
   border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 5px;
-  margin-bottom: 20px;
+  border-radius: 6px;
+  padding: 12px;
+  background-color: #fff;
+  margin-bottom: 30px;
+  align-items: flex-end;
 }
 
 .comment-textarea {
-  flex-grow: 1;
+  flex: 1;
   min-height: 40px;
-  padding: 10px;
+  border: none !important;
+  outline: none !important;
   resize: none;
-  border: none;
-  border-radius: 0;
   font-size: 14px;
-  line-height: 1.6;
-  overflow: hidden;
+  padding: 5px;
 }
 
 .comment-submit-btn {
-  padding: 10px 15px;
-  background: #00877a;
+  width: 65px;
+  height: 40px;
+  background-color: #00877a;
   color: white;
   border: none;
   border-radius: 4px;
-  cursor: pointer;
   font-weight: bold;
-  height: 40px;
-  align-self: flex-end;
-  margin: 0 5px 5px 0;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
-.comment-submit-btn:hover {
-  background: #006f65;
-}
-
-/* -------------------------------------
-   댓글 리스트 스타일
-------------------------------------- */
-.comment-list {
-  margin-top: 0;
-}
-
+/* 7. 댓글 리스트 */
 .comment-item {
   display: flex;
-  gap: 12px;
-  padding: 15px 0;
-  border-bottom: 1px solid #f0f0f0;
+  gap: 15px;
+  padding: 20px 0;
+  border-bottom: 1px solid #f8f8f8;
+  align-items: flex-start;
 }
+
 .comment-profile {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 50% !important;
   object-fit: cover;
-  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .comment-body {
-  flex: 1;
-}
-
-.comment-meta {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 4px;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  text-align: left;
 }
 
 .comment-writer {
@@ -192,9 +230,14 @@
 .comment-content-text {
   font-size: 14px;
   line-height: 1.5;
-  margin-bottom: 10px;
+  color: #444;
+  word-break: break-all;
 }
 
+.comment-date {
+  font-size: 12px;
+  color: #bbb;
+}
 .comment-actions-bar {
   display: flex;
   align-items: center;

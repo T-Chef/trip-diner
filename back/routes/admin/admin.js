@@ -2,6 +2,7 @@ import express from "express";
 import prisma from "../../prisma/prismaClient.js";
 import { adminAuth } from "../../middleware/adminAuth.js"; // ✅ 경로 수정
 
+
 const router = express.Router();
 
 /* ==========================

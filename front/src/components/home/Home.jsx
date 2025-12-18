@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import "../../styles/page/home/HomeLayout.css";
-import { Footer, Hero, Section1, Section2, Section3 } from "../../components/home";
+import { Footer, Hero, Section1, Section2, Section3 } from ".";
 
 export default function Home() {
 

@@ -17,14 +17,6 @@
   z-index: 30;
 }
 
-/*************** Main Layout ***************/
-.result-layout {
-  display: grid;
-  grid-template-columns: 350px 1fr;
-  height: calc(100vh - 70px);
-  position: relative;
-}
-
 /*************** Side List ***************/
 .side-list {
   background: #f9f9f9;
@@ -57,6 +49,11 @@
   cursor: pointer;
   border: 1px solid transparent;
   transition: 0.15s;
+
+  /* 추가된 부분 */
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 
@@ -70,10 +67,43 @@
   font-weight: 700;
 }
 
+.list-thumb {
+  width: 45px;
+  height: 45px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #eee;
+}
+
+.place-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.place-tag {
+  background: #ff9500;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 11px;
+  color: white;
+  margin-top: 4px;
+  width: fit-content;
+}
+
 /*************** Map ***************/
 .map-area {
   width: 100%;
   height: 100%;
+  min-height: 500px; /* 지도 강제 높이 확보 */
+  position: relative;
+}
+
+.result-layout {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  height: calc(100vh - 70px);
+  position: relative;
+  overflow: hidden;
 }
 
 /*************** Slide Panel ***************/
@@ -154,4 +184,264 @@
 .btn-primary { background: #0078ff; }
 .btn-accent { background: #ff2f77; }
 .btn-dark { background: #333; }
+.delete-btn {
+  margin-left: auto;
+  font-size: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: red;
+}
 
+
+.btn-add {
+  width: 100%;
+  padding: 8px;
+  margin-top: 6px;
+  border: none;
+  background: #03c75a;
+  color: white;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* === Search Panel === */
+.search-item {
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #eee;
+  transition: 0.2s;
+}
+.search-item:hover {
+  background: #eef5ff;
+}
+.search-thumb {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-right: 10px;
+}
+.search-info {
+  display: flex;
+  flex-direction: column;
+}
+.search-title {
+  font-weight: 700;
+  font-size: 14px;
+}
+.search-address {
+  font-size: 12px;
+  color: #666;
+}
+.search-tag {
+  background: #0078ff;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 11px;
+  margin: 2px 0;
+}
+.search-item img {
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.search-thumb {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-right: 10px;
+}
+
+.search-panel {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 350px;
+  max-height: 70vh;
+  overflow-y: auto;
+
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0px 0px 12px rgba(0,0,0,0.15);
+  z-index: 50;
+}
+
+.place-rating {
+  font-size: 1rem;
+  margin: 6px 0;
+  color: #ffb400;
+  font-weight: bold;
+}
+
+.place-status {
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+.place-status {
+  color: #1ec800;
+}
+.place-status.closed {
+  color: #ff3b30;
+}
+.place-summary {
+  margin-top: 4px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #555;
+  line-height: 1.4;
+}
+.place-category {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ff6b6b;
+}
+
+/* ✅ 여행 요약 카드 */
+.trip-summary-card {
+  margin-bottom: 18px;
+  padding: 16px 18px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+  font-size: 13px;
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.summary-days {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.summary-people {
+  font-size: 12px;
+  color: #888;
+}
+
+.summary-stats {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px;
+}
+
+.summary-stats li {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.summary-stats .label {
+  color: #777;
+}
+
+.summary-stats strong {
+  font-weight: 600;
+}
+
+.summary-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.summary-tag {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #f4f6ff;
+  color: #4b6bff;
+  font-size: 11px;
+}
+
+/* ✅ 지도 일차 레전드 */
+.map-area {
+  position: relative;
+}
+
+.day-legend {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 10;
+  padding: 8px 14px;
+  background: #ffffff;
+  border-radius: 999px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* 1일차~5일차 색상 (AIScheduleMap dayColors와 맞춰야 함) */
+.legend-dot-0 { background: #0078ff; }
+.legend-line-0 { border-top: 2px solid #0078ff; }
+
+.legend-dot-1 { background: #1ec800; }
+.legend-line-1 { border-top: 2px solid #1ec800; }
+
+.legend-dot-2 { background: #ff3b30; }
+.legend-line-2 { border-top: 2px solid #ff3b30; }
+
+.legend-dot-3 { background: #ff9500; }
+.legend-line-3 { border-top: 2px solid #ff9500; }
+
+.legend-dot-4 { background: #9b59b6; }
+.legend-line-4 { border-top: 2px solid #9b59b6; }
+
+.legend-line {
+  width: 42px;
+  height: 0;
+  margin: 0 2px;
+}
+
+.legend-label {
+  font-size: 12px;
+}
+
+.summary-themes {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.summary-tag {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #f5f5f5;
+  color: #555;
+  border: 1px solid #eee;
+}
