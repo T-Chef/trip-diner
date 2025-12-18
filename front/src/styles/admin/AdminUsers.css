@@ -1,14 +1,28 @@
-.admin-container {
-  padding: 40px;
-  background: #f7f8fa;
-  min-height: 100vh;
+/* 전체 페이지 가운데 정렬 */
+.admin-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 0;
 }
 
+/* 제목 */
 .admin-title {
-  font-size: 24px;
   margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: 600;
 }
 
+/* 테이블 감싸는 카드 */
+.admin-table-wrapper {
+  width: 900px;              /* ← 여기서 크기 조절 */
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+}
+
+/* 테이블 */
 .admin-table {
   width: 100%;
   border-collapse: collapse;
@@ -17,84 +31,48 @@
 
 .admin-table th,
 .admin-table td {
-  padding: 12px 14px;
-  border-bottom: 1px solid #e5e5e5;
   text-align: center;
+  padding: 12px;
 }
 
-.admin-table th {
-  background: #f0f2f5;
+.admin-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.admin-container {
+  max-width: 1100px;      /* 테이블 폭 제한 */
+  margin: 80px auto 0;   /* 🔥 위에서 80px 내려오기 */
+  padding: 20px;
+}
+
+/* 상태 표시 */
+.status.active {
+  color: #2ecc71;
   font-weight: 600;
 }
 
-.user-disabled {
-  background-color: #fafafa;
-  color: #999;
-}
-
-.status {
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.status.active {
-  background: #e6f4ea;
-  color: #1e7f4f;
-}
-
 .status.disabled {
-  background: #fdecea;
-  color: #c62828;
+  color: #e74c3c;
+  font-weight: 600;
 }
 
+/* 버튼 */
+.activate-btn,
 .delete-btn {
   padding: 6px 12px;
+  border-radius: 6px;
   border: none;
-  border-radius: 4px;
-  background: #ff4d4f;
-  color: #fff;
   cursor: pointer;
-  font-size: 13px;
-}
-
-.delete-btn:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-.delete-btn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  background: #ff4d4f;
-  color: #fff;
-  cursor: pointer;
-  font-size: 13px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.delete-btn:disabled {
-  background: #ccc;
-  cursor: not-allowed;
+  font-size: 14px;
 }
 
 .activate-btn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  background: #3b82f6;
-  color: #fff;
-  cursor: pointer;
-  font-size: 13px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  background: #2ecc71;
+  color: white;
 }
 
-.activate-btn:hover {
-  background: #2563eb;
+.delete-btn {
+  background: #e74c3c;
+  color: white;
 }

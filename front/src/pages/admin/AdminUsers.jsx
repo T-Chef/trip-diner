@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import "../../styles/admin/AdminUsers.css";
 
 const API_BASE = "http://localhost:4000/api";
 
