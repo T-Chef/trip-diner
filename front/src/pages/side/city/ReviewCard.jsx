@@ -1,5 +1,5 @@
 import React from "react";
-import "../../styles/page/city/ReviewCard.css";
+import "../../styles/side/city/ReviewCard.css";
 
 export default function ReviewCard({ item }) {
   return (

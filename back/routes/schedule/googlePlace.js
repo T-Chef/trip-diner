@@ -1,8 +1,8 @@
 // back/routes/googlePlace.js
 import express from "express";
 import axios from "axios";
-import { searchPlaceByKeyword } from "../apis/tourApi.js";
-import { searchGoogleDetails } from "../apis/googlePlace.js";
+import { searchPlaceByKeyword } from "../../apis/tourApi.js";
+import { searchGoogleDetails } from "../../apis/googlePlace.js";
 
 const router = express.Router();
 

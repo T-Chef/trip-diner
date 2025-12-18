@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import "../../styles/page/city/CityListItem.css";
+import "../../../styles/side/city/CityListItem.css";
 
 const API_BASE =
   process.env.REACT_APP_API_BASE || "http://localhost:4000/api";

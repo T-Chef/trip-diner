@@ -1,6 +1,6 @@
 // back/routes/plan.js
 import express from "express";
-import prisma from "../prisma/prismaClient.js";
+import prisma from "../../prisma/prismaClient.js";
 import { requireAuth } from "./auth.js";
 
 const router = express.Router();

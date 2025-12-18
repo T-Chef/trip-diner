@@ -3,10 +3,10 @@ import React, { useEffect, useMemo, useRef, useState, useCallback } from "react"
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import Header from "../home/Header";
-import SideMenu from "../home/SideMenu";
+import Header from "../../../../components/home/Header.jsx";
+import SideMenu from "../../../../components/home/SideMenu.jsx";
 import EventDetailMap from "./EventDetailMap";
-import "../../styles/page/city/EventDetail.css";
+import "../../../../styles/side/city/event/EventDetail.css";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 

@@ -26,9 +26,9 @@ import AIScheduleSummary from "./pages/side/schedule/AIScheduleSummary.jsx";
 import TripCategory from "./pages/side/schedule/category/TripCategory.jsx";
 
 // City (진호)
-import CityMain from "./components/city/CityMain.jsx";
-import PlaceDetail from "./components/city/PlaceDetail.jsx";
-import EventDetail from "./components/city/EventDetail.jsx";
+import CityMain from "./pages/side/city/CityMain.jsx";
+import PlaceDetail from "./pages/side/city/place/PlaceDetail.jsx";
+import EventDetail from "./pages/side/city/event/EventDetail.jsx";
 
 // 게시판 (서희)
 import Board from "./pages/side/board/Board.jsx";

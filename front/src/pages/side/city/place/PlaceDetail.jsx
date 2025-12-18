@@ -3,11 +3,11 @@ import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import Header from "../home/Header";
-import SideMenu from "../home/SideMenu";
+import Header from "../../../../components/home/Header.jsx";
+import SideMenu from "../../../../components/home/SideMenu.jsx";
 import PlaceDetailMap from "./PlaceDetailMap";
 
-import "../../styles/page/city/PlaceDetail.css";
+import "../../../../styles/side/city/PlaceDetail.css";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 

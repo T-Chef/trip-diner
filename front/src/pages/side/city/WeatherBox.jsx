@@ -1,5 +1,5 @@
 import React from "react";
-import "../../styles/page/city/WeatherBox.css";
+import "../../../styles/side/city/WeatherBox.css";
 
 export default function WeatherBox({ weather, forecast }) {
   if (!weather)

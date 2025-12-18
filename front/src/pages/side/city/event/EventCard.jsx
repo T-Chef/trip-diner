@@ -1,7 +1,7 @@
 // front/src/components/city/EventCard.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import "../../styles/page/city/EventCard.css";
+import "../../../../styles/side/city/event/EventCard.css";
 
 export default function EventCard({ item }) {
   const navigate = useNavigate();

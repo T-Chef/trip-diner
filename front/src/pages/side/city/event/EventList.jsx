@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import EventCard from "./EventCard";
-import "../../styles/page/city/EventList.css";
+import "../../../../styles/side/city/event/EventList.css";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 

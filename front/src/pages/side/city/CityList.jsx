@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import CityListItem from "./CityListItem";
 import axios from "axios";
-import "../../styles/page/city/CityList.css";
+import "../../../styles/side/city/CityList.css";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 

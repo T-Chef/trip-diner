@@ -1,15 +1,15 @@
 // CityMain.jsx
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import Header from "../home/Header";
-import SideMenu from "../home/SideMenu";
+import Header from "../../../components/home/Header.jsx";
+import SideMenu from "../../../components/home/SideMenu.jsx";
 import { SearchBar, AIFilter, WeatherBox } from ".";
 import CityList from "./CityList";
-import EventList from "./EventList";
-import "../../styles/page/city/CityMain.css";
+import EventList from "./event/EventList.jsx";
+import "../../../styles/side/city/CityMain.css";
 import { useSearchParams } from "react-router-dom";
 
 // ✅ 추가
-import useCityWeather from "../../hooks/useCityWeather"; 
+import useCityWeather from "../../../hooks/useCityWeather.js"; 
 // ↑ 너 폴더 위치에 맞춰 경로 조정 필요
 // 예: CityMain이 front/src/pages/city/CityMain.jsx면 hooks는 front/src/hooks/.. 이므로
 // "../../hooks/useCityWeather" 가 맞는 경우가 많아

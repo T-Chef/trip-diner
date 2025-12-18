@@ -1,7 +1,7 @@
 // src/components/city/AIFilter.jsx
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import axios from "axios";
-import "../../styles/page/city/AIFilter.css";
+import "../../../styles/side/city/AIFilter.css";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 

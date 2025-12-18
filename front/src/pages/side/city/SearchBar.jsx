@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import "../../styles/page/city/SearchBar.css";
+import "../../../styles/side/city/SearchBar.css";
 
 export default function SearchBar({ onKeywordChange }) {
   const [text, setText] = useState("");
