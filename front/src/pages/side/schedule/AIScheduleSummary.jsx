@@ -36,9 +36,47 @@ export default function AIScheduleSummary() {
   const themes = aiPlan?.themes || location.state?.themes || [];
 
   const [activeDayIdx, setActiveDayIdx] = useState(0);   // 카드용
-  const [mapFilter, setMapFilter] = useState("ALL");     // 지도용: "ALL" | 1 | 2 ...
+  const [mapFilter, setMapFilter] = useState("ALL");   
+  const [saving, setSaving] = useState(false);
+  // 지도용: "ALL" | 1 | 2 ...
   
-  const handleSaveMyPlan = () => { alert("내 일정으로 담기 기능은 DB와 연동해서 저장할 예정입니다!");};
+  const handleSaveMyPlan = async () => {
+  try {
+    const token = localStorage.getItem("accessToken"); // ✅ 로그인에서 받은 accessToken 저장 키
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
+    setSaving(true);
+
+    const res = await fetch("http://localhost:4000/api/plan", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ aiPlan, themes }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      alert(data.message || "저장 실패");
+      return;
+    }
+
+    alert("✅ 내 일정에 저장 완료!");
+    // 원하면 저장 후 이동
+    // navigate("/mypage/plans");
+  } catch (e) {
+    console.error(e);
+    alert("저장 중 오류 발생");
+  } finally {
+    setSaving(false);
+  }
+};
+
   const handleBackEdit = () => { navigate("/trip/result", { state: { aiPlan, themes } }); };
   const handleSharePlan = () => { alert("공유하기 기능은 나중에 링크/이미지 공유로 연결할 예정입니다!"); };
 
@@ -181,9 +219,11 @@ export default function AIScheduleSummary() {
   </p>
 
   <div className="summary-footer-actions">
-    <button className="btn-save" onClick={handleSaveMyPlan} disabled>
-      내 일정으로 담기 📘 (DB 저장 연결 예정)
+    <button className="btn-save" onClick={handleSaveMyPlan} disabled={saving}>
+    {saving ? "저장 중..." : "내 일정으로 담기 📘"}
     </button>
+
+
 
     <button className="btn-back-edit" onClick={handleBackEdit}>
       다시 편집 화면으로 ✏️

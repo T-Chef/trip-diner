@@ -19,6 +19,8 @@ function Login({ setUser }) {
       });
 
       const user = res.data.user;
+      const accessToken = res.data.accessToken;
+      localStorage.setItem("accessToken", accessToken);
 
       toast.success(`환영합니다, ${user.name}님!`);
 

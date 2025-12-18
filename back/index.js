@@ -32,6 +32,7 @@ import tourRouter from "./routes/tour.js";
 import aiRouter from "./routes/ai.js";
 import profileRouter from "./routes/mypage/profile.js";
 import weatherRouter from "./routes/weather.js";
+import planRouter from "./routes/plan.js";
 
 // 게시판
 import postlikeRouter from "./routes/board/postlike.js";
@@ -136,6 +137,7 @@ app.use("/api/ai", aiRouter);
 ------------------------------------------------------- */
 app.use("/api", googlePlaceRouter);
 app.use("/api", naverSearchRouter);
+app.use("/api/plan", planRouter);
 
 /* -------------------------------------------------------
    서버 시작

@@ -164,7 +164,7 @@ router.post("/forgot-password", async (req, res) => {
   const token = jwt.sign(
     { user_id: user.user_id.toString() }, 
     process.env.JWT_SECRET || "secretkey",
-    { expiresIn: "1h" }
+    { expiresIn: "2h" }
   );
 
   // URL 인코딩

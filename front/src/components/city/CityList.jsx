@@ -111,7 +111,7 @@ function releasePlacesRequest(key) {
   }
 }
 
-export default function CityList({ areaCode, sigunguCode, keyword }) {
+export default function CityList({ areaCode, sigunguCode, keyword, userId }) {
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -217,13 +217,13 @@ export default function CityList({ areaCode, sigunguCode, keyword }) {
     <div className="city-list-grid">
       <div className="city-list-left">
         {places.slice(0, 5).map((p, idx) => (
-          <CityListItem key={p.contentId} index={idx + 1} item={p} />
+          <CityListItem key={p.contentId} index={idx + 1} item={p} userId={userId} />
         ))}
       </div>
 
       <div className="city-list-right">
         {places.slice(5, 10).map((p, idx) => (
-          <CityListItem key={p.contentId} index={idx + 6} item={p} />
+          <CityListItem key={p.contentId} index={idx + 6} item={p} userId={userId} />
         ))}
       </div>
     </div>

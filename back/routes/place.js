@@ -2,8 +2,6 @@
 import express from "express";
 import "dotenv/config";
 
-// import db from "../db/index.js"; // ✅ 좋아요 기능에 필요 (경로 맞게 유지)
-
 import { generateDescription } from "../utils/aiDescription.js";
 import { setCache, getCache } from "../utils/cache.js";
 import {
@@ -14,9 +12,16 @@ import {
 
 import { enhanceWithNaverLocal } from "../services/naverService.js";
 import { enhanceImage } from "../services/imageService.js";
+import { PrismaClient } from "@prisma/client";
+
 
 const router = express.Router();
 const TOUR_API_KEY = process.env.TOUR_API_KEY;
+const prisma = new PrismaClient();
+const toJsonSafe = (data) =>
+  JSON.parse(
+    JSON.stringify(data, (_, v) => (typeof v === "bigint" ? v.toString() : v))
+  );
 
 /* -------------------------------------------------------
    ✅ TourAPI quota 감지 + 전역 락 (중요)
@@ -439,29 +444,87 @@ router.get("/detail", async (req, res) => {
    3) 좋아요 기능
 ------------------------------------------------------- */
 router.post("/like", async (req, res) => {
-  const { contentId, liked, userId } = req.body;
+  const { contentId, liked, userId, title, address, image, lat, lng, category, cityId } = req.body;
 
   if (!contentId || !userId) {
     return res.status(400).json({ error: "contentId, userId 필요" });
   }
 
+  let uid, extId;
   try {
+    uid = BigInt(userId);
+    extId = BigInt(contentId); // ✅ 관광공사 contentid → BigInt로
+  } catch {
+    return res.status(400).json({ error: "userId/contentId 형식 오류" });
+  }
+
+  try {
+    // 1) 외부 contentId를 place.external_id로 저장/갱신해서 place_id 확보
+    const place = await prisma.place.upsert({
+      where: { external_id: extId },
+      update: {
+        name: title ?? undefined,
+        address: address ?? undefined,
+        image_url: image ?? undefined,
+        lat: lat != null ? Number(lat) : undefined,
+        lng: lng != null ? Number(lng) : undefined,
+        category: category ?? undefined,
+        city_id: cityId ? BigInt(cityId) : undefined,
+      },
+      create: {
+        external_id: extId,
+        name: title ?? null,
+        address: address ?? null,
+        image_url: image ?? null,
+        lat: lat != null ? Number(lat) : null,
+        lng: lng != null ? Number(lng) : null,
+        category: category ?? null,
+        city_id: cityId ? BigInt(cityId) : null,
+      },
+    });
+
+    // 2) 좋아요 on/off
     if (liked) {
-      await db.query(
-        "INSERT INTO likes (user_id, content_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE user_id=user_id",
-        [userId, contentId]
-      );
+      // @@unique([user_id, place_id]) 있어야 upsert 가능
+      await prisma.place_like.upsert({
+        where: {
+          user_id_place_id: { user_id: uid, place_id: place.place_id },
+        },
+        update: {},
+        create: { user_id: uid, place_id: place.place_id },
+      });
     } else {
-      await db.query("DELETE FROM likes WHERE user_id=? AND content_id=?", [
-        userId,
-        contentId,
-      ]);
+      // 없을 수도 있으니 deleteMany가 안전
+      await prisma.place_like.deleteMany({
+        where: { user_id: uid, place_id: place.place_id },
+      });
     }
-    res.json({ success: true });
+
+    return res.json({ success: true });
   } catch (err) {
     console.error("좋아요 저장 오류:", err);
-    res.status(500).json({ error: "Like 저장 실패" });
+    return res.status(500).json({ error: "Like 저장 실패" });
   }
+});
+
+// ✅ 여행지 좋아요 목록 조회 (placeRouter 내부)
+router.get("/like/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  let uid;
+  try {
+    uid = BigInt(userId);
+  } catch {
+    return res.status(400).json({ error: "잘못된 userId 형식" });
+  }
+
+  const result = await prisma.place_like.findMany({
+    where: { user_id: uid },
+    include: { place: true },
+    orderBy: { created_at: "desc" },
+  });
+
+  res.json(toJsonSafe(result));
 });
 
 export default router;

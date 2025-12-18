@@ -19,6 +19,7 @@ const DEFAULT_AREA_CODE = 6;
 export default function CityMain({ user, setUser }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const userId = user?.user_id ?? user?.id ?? user?.userId ?? null;
 
   const [filter, setFilter] = useState(() => {
     const areaParam = searchParams.get("area");
@@ -166,6 +167,7 @@ export default function CityMain({ user, setUser }) {
               areaCode={filter.areaCode}
               sigunguCode={filter.sigunguCode}
               keyword={filter.keyword}
+              userId={userId}
             />
           </div>
 

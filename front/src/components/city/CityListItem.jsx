@@ -9,6 +9,7 @@ const API_BASE =
 const DEFAULT_THUMB =
   process.env.PUBLIC_URL + "/assets/images/default-thumb.jpg";
 
+
 /**
  * entry 컴포넌트 – isSkeleton 여부에 따라 분기
  */
@@ -25,21 +26,23 @@ export default function CityListItem(props) {
 /* -------------------------------------------------------
    🔥 실제 카드 컴포넌트
 ------------------------------------------------------- */
-function CityListItemReal({ index, item }) {
+function CityListItemReal({ index, item, userId }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [liked, setLiked] = useState(false);
+  const key = `likedPlaces_${userId || "guest"}`;
 
   const thumbSrc = (item && item.image) || DEFAULT_THUMB;
 
-  // 초기 좋아요 로드
+  const contentId = item?.contentId;
+
   useEffect(() => {
-    if (!item || !item.contentId) return;
+  if (!contentId) return;
+  const saved = JSON.parse(localStorage.getItem(key) || "[]");
+  setLiked(saved.includes(contentId));
+  }, [contentId, key]);
 
-    const saved = JSON.parse(localStorage.getItem("likedPlaces") || "[]");
-    setLiked(saved.includes(item.contentId));
-  }, [item]);
-
+  
   if (!item) return null;
 
   /* -------------------------------------------------------
@@ -77,23 +80,34 @@ function CityListItemReal({ index, item }) {
     }
 
     // LOCAL 저장
-    const saved = JSON.parse(localStorage.getItem("likedPlaces") || "[]");
+    const saved = JSON.parse(localStorage.getItem(key) || "[]");
+
     const updated = newLiked
       ? [...saved, item.contentId]
       : saved.filter((id) => id !== item.contentId);
 
-    localStorage.setItem("likedPlaces", JSON.stringify(updated));
+    localStorage.setItem(key, JSON.stringify(updated));
+
+    if (!userId) return; // 로그인 안 했으면 로컬만 저장하거나, 로그인 유도
 
     // 서버 저장
     try {
       await axios.post(`${API_BASE}/place/like`, {
         contentId: item.contentId,
         liked: newLiked,
-        userId: 1, // TODO: 실제 로그인 아이디로 변경
+        userId,
+        title: item.title,
+        address: item.address,
+        image: item.image,        // 목록에 있는 image 필드
+        lat: item.latitude,       // places에서 내려주는 latitude
+        lng: item.longitude,      // places에서 내려주는 longitude
+        category: item.category,  // 없으면 빼도 됨
+        cityId: null              // cityId 없으면 생략 가능
       });
     } catch (err) {
       console.error("좋아요 저장 실패", err);
     }
+
   };
 
   // 개요 텍스트 정리(HTML 태그 제거 + 비어있으면 "설명 없음")
