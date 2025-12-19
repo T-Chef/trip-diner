@@ -116,7 +116,7 @@ export default function Board() {
               <div className="col-views">조회수</div>
             </div>
 
-            <div className="post-section">
+              <div className="post-section">
               {currentPosts.length > 0 ? (
                 currentPosts.map((p) => (
                   <div
@@ -125,7 +125,22 @@ export default function Board() {
                     onClick={() => navigate(`/board/${p.post_id}`)}
                   >
                     <div className="col-category">{p.category}</div>
-                    <div className="col-title">{p.title}</div>
+                    
+                    {/* ✅ 제목 영역에 댓글 수 추가 */}
+                    <div className="col-title">
+                      {p.title}
+                      {p._count?.comment > 0 && ( // 여기를 수정!
+                        <span style={{ 
+                          color: "#ff4d4f", 
+                          fontWeight: "bold", 
+                          marginLeft: "6px",
+                          fontSize: "0.95em"
+                        }}>
+                          [{p._count.comment}] {/* 여기도 수정! */}
+                        </span>
+                      )}
+                    </div>
+
                     <div className="col-writer">{p.user?.name || "익명"}</div>
                     <div className="col-date">{p.created_at?.slice(0, 10)}</div>
                     <div className="col-views">{p.views || 0}</div>

@@ -82,7 +82,7 @@ router.post("/", upload.single("image"), async (req, res) => {
 });
 
 /* ---------------------------------------------
-   3) 게시글 목록
+   3) 게시글 목록 (댓글 수 포함 & 에러 방지 버전)
 ---------------------------------------------- */
 router.get("/", async (req, res) => {
   try {
@@ -92,16 +92,26 @@ router.get("/", async (req, res) => {
         user: {
           select: { name: true },
         },
+        _count: {
+          select: { comment: true }
+        }
       },
     });
 
-    res.json(safeJson(posts));
+    // ✅ BigInt 에러 방지를 위한 수동 변환
+    const safePosts = posts.map(post => ({
+      ...post,
+      post_id: post.post_id.toString(),
+      user_id: post.user_id.toString(),
+      comment_count: post._count?.comment || 0 // 댓글 수 추출
+    }));
+
+    return res.json(safePosts);
   } catch (err) {
-    console.error("게시글 목록 오류:", err);
-    res.status(500).json({ error: "서버 오류" });
+    console.error("게시글 목록 로드 중 서버 에러:", err);
+    return res.status(500).json({ error: "서버 오류: 목록을 불러올 수 없습니다." });
   }
 });
-
 /* ---------------------------------------------
    4) 게시글 단일 조회 (조회수 1 증가 포함)
 ---------------------------------------------- */

@@ -156,20 +156,17 @@ model post {
   user_id    BigInt
   title      String?     @db.VarChar(255)
   content    String?     @db.Text
-
   category   String?     @db.VarChar(50)
   image_url  String?     @db.VarChar(500)
   views      Int         @default(0)
-  tags       String?     @db.VarChar(500) // 태그는 JSON 문자열로 저장 가능
-
-
+  tags       String?     @db.VarChar(500)
+  deleted     Int        @default(0)
   created_at DateTime?   @default(now()) @db.DateTime(0)
   updated_at DateTime?   @default(now()) @db.DateTime(0)
   comment    comment[]
   user       user        @relation(fields: [user_id], references: [user_id])
   post_like  post_like[]
   report     report[]
-
   @@index([user_id])
 }
 /* -------------------------------------------------------
@@ -269,10 +266,8 @@ model place_like {
   user_id    BigInt
   place_id   BigInt
   created_at DateTime?  @default(now()) @db.DateTime(0)
-
   place      place      @relation(fields: [place_id], references: [place_id], onDelete: Cascade)
   user       user       @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-
   @@unique([user_id, place_id])
   @@index([place_id])
   @@index([user_id])
