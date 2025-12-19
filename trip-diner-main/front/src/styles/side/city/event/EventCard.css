@@ -1,0 +1,66 @@
+/* ===========================
+   이벤트 카드
+=========================== */
+
+/* 카드 전체 */
+.event-card {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+  cursor: pointer;
+  display: flex;               /* 세로 플렉스 */
+  flex-direction: column;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  height: 100%;                /* grid 셀 꽉 채우기 */
+}
+
+.event-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.16);
+}
+
+/* 썸네일 영역 */
+.event-thumb-wrap img {
+  width: 100%;
+  height: 210px;               /* 조금 낮게 */
+  object-fit: cover;
+  display: block;
+}
+
+/* 내용 영역 */
+.event-info {
+  flex: 1;
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 제목 – 살짝 작게 + 2줄까지만 */
+.event-title {
+  font-size: 14px;            
+  font-weight: 600;
+  line-height: 1.45;
+  color: #222;
+  margin: 0 0 6px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 날짜 */
+.event-date {
+  font-size: 12px;
+  color: #666;
+  margin: 0 0 6px;
+}
+
+/* 주소 – 항상 카드 하단에 붙게 */
+.event-address {
+  font-size: 12px;
+  color: #888;
+  line-height: 1.5;
+  margin: 0;
+  margin-top: auto;            /* 위 요소들 위로 밀고, 본인은 바닥에 고정 */
+}

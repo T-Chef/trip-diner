@@ -1,0 +1,207 @@
+/* Trip-Diner 전용 배경 */
+.trip-wrapper {
+  width: 100vw;
+  height: 100vh;
+  background: #000; /* 기본 블랙 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Pretendard", sans-serif;
+  overflow: hidden;
+}
+
+/* 중앙 카드 */
+.trip-card {
+  background: #fff;
+  width: 450px;
+  min-height: 580px;
+  padding: 35px 30px;
+  border-radius: 24px;
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.25);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* 단계 표시 */
+.step-indicator {
+  font-size: 28px;
+  font-weight: 800;
+  color: #d32f2f;
+  position: absolute;
+  top: 18px;
+  right: 25px;
+}
+
+/* 제목 */
+h2 {
+  font-size: 22px;
+  text-align: center;
+  margin-bottom: 25px;
+  color: #000;
+}
+
+/* 버튼 그룹 */
+.btn-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+
+button {
+  background: #f1f1f1;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 0;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+  background: #e5e5e5;
+}
+
+button.active {
+  background: #d32f2f !important;
+  color: #fff !important;
+  font-weight: 700;
+  transform: scale(1.05);
+}
+
+/* 네비게이션 버튼 */
+.nav-buttons {
+  margin-top: 25px;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.nav-buttons button {
+  flex: 1;
+  margin: 0 5px;
+  border-radius: 14px;
+  padding: 14px 0;
+  font-weight: 700;
+}
+
+.nav-buttons .back {
+  background: #bdbdbd;
+  color: #000;
+}
+
+.nav-buttons .next {
+  background: #000;
+  color: #fff;
+}
+
+.nav-buttons .submit {
+  background: #d32f2f;
+  color: #fff;
+}
+
+/* 모바일 대응 */
+@media (max-width: 480px) {
+  .trip-card {
+    width: 90%;
+    min-height: 500px;
+    padding: 25px;
+  }
+
+  .btn-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+}
+
+/* === AI 계획 생성 로딩 오버레이 === */
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* 가장 위로 */
+}
+
+.loading-box {
+  width: 360px;
+  max-width: 90vw;
+  padding: 32px 28px;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+.loading-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  background: linear-gradient(135deg, #ff6b6b, #ff9f43);
+  color: #fff;
+}
+
+.loading-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+}
+
+.loading-sub {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #666;
+}
+
+.loading-dots {
+  margin-top: 20px;
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff6b6b;
+  animation: loading-bounce 1.2s infinite ease-in-out;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes loading-bounce {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}

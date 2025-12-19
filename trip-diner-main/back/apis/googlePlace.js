@@ -1,0 +1,29 @@
+// back/apis/googlePlace.js
+import axios from "axios";
+import "dotenv/config";
+
+// 좌표(lat, lng) + 이름으로 근처 Google Place 하나 찾아오기
+export async function searchGoogleDetails(lat, lng, name) {
+  try {
+    const API_KEY = process.env.GOOGLE_API_KEY;
+
+    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=500&keyword=${encodeURIComponent(
+      name
+    )}&language=ko&key=${API_KEY}`;
+
+    const res = await axios.get(url);
+    const place = res.data.results?.[0];
+
+    if (!place) return null;
+
+    return {
+      name: place.name,
+      address: place.vicinity,
+      photoRef: place.photos?.[0]?.photo_reference ?? null,
+      types: place.types ?? [],
+    };
+  } catch (err) {
+    console.error("Google Place Detail Error:", err);
+    return null;
+  }
+}

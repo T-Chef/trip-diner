@@ -1,0 +1,18 @@
+/* 리스트 컨테이너 */
+.city-list-container {
+  width: 100%;
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);  /* 두 컬럼 */
+  gap: 18px 24px;  /* 세로 18px / 가로 24px */
+  align-items: stretch;  /* 같은 줄 카드 높이 동일하게 */
+}
+
+/* 데이터 없음 상태 */
+.city-list-empty {
+  text-align: center;
+  color: #888;
+  padding: 40px 0;
+  font-size: 15px;
+}
+

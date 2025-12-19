@@ -1,0 +1,43 @@
+.profile-box {
+  padding: 25px 20px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  font-family: "Noto Sans KR", sans-serif;
+}
+
+.profile-img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #88b6ff;
+  margin-bottom: 10px;
+}
+
+.profile-name {
+  font-weight: bold;
+  font-size: 17px;
+  margin-bottom: 5px;
+}
+
+.welcome-text {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.mypage-btn {
+  width: 100%;
+  padding: 10px 0;
+  background: #82b7ff;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.mypage-btn:hover {
+  background: #6aa5ff;
+}
