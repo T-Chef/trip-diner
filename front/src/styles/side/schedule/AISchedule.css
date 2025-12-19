@@ -1,106 +1,123 @@
-.result-wrapper {
-  width: 100%;
+/* Trip-Diner 전용 배경 */
+.trip-wrapper {
+  width: 100vw;
   height: 100vh;
+  background: #000; /* 기본 블랙 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Pretendard", sans-serif;
+  overflow: hidden;
+}
+
+/* 중앙 카드 */
+.trip-card {
   background: #fff;
-}
-
-.result-title {
-  font-size: 26px;
-  font-weight: 800;
-  text-align: center;
-  padding: 16px 0;
-  background: #ffffff;
-  border-bottom: 1px solid #ddd;
-  margin: 0;
-  position: sticky;
-  top: 0;
-  z-index: 30;
-}
-
-/*************** Main Layout ***************/
-.result-layout {
-  display: grid;
-  grid-template-columns: 350px 1fr;
-  height: calc(100vh - 70px);
+  width: 450px;
+  min-height: 580px;
+  padding: 35px 30px;
+  border-radius: 24px;
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.25);
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-/*************** Side List ***************/
-.side-list {
-  background: #f9f9f9;
-  padding: 20px;
-  overflow-y: auto;
-  border-right: 1px solid #e6e6e6;
-}
-
-.plan-title {
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 16px;
-}
-
-.day-block {
-  margin-bottom: 20px;
-}
-
-.day-header {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 10px;
-}
-
-.place-item {
-  background: #fff;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 6px;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: 0.15s;
-}
-
-.place-item:hover {
-  background: #eef5ff;
-}
-
-.place-item.active {
-  background: #fff4c7;
-  border-color: #ffc72c;
-  font-weight: 700;
-}
-
-/*************** Map ***************/
-.map-area {
-  width: 100%;
-  height: 100%;
-}
-
-/*************** Slide Panel ***************/
-.slide-panel {
+/* 단계 표시 */
+.step-indicator {
+  font-size: 28px;
+  font-weight: 800;
+  color: #d32f2f;
   position: absolute;
-  right: -360px;
-  top: 0;
-  width: 360px;
-  height: 100%;
-  background: #fff;
-  transition: right 0.35s;
-  padding: 20px;
-  box-shadow: -3px 0 10px rgba(0,0,0,0.12);
-  z-index: 100;
-  overflow-y: auto;
+  top: 18px;
+  right: 25px;
 }
 
-.slide-panel.open {
-  right: 0;
-}
-
-.close-btn {
-  background: none;
-  border: none;
+/* 제목 */
+h2 {
   font-size: 22px;
+  text-align: center;
+  margin-bottom: 25px;
+  color: #000;
+}
+
+/* 버튼 그룹 */
+.btn-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+
+button {
+  background: #f1f1f1;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 0;
+  font-size: 16px;
   cursor: pointer;
-  float: right;
-  margin-bottom: 10px;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+  background: #e5e5e5;
+}
+
+button.active {
+  background: #d32f2f !important;
+  color: #fff !important;
+  font-weight: 700;
+  transform: scale(1.05);
+}
+
+/* 네비게이션 버튼 */
+.nav-buttons {
+  margin-top: 25px;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.nav-buttons button {
+  flex: 1;
+  margin: 0 5px;
+  border-radius: 14px;
+  padding: 14px 0;
+  font-weight: 700;
+}
+
+.nav-buttons .back {
+  background: #bdbdbd;
+  color: #000;
+}
+
+.nav-buttons .next {
+  background: #000;
+  color: #fff;
+}
+
+.nav-buttons .submit {
+  background: #d32f2f;
+  color: #fff;
+}
+
+/* 모바일 대응 */
+@media (max-width: 480px) {
+  .trip-card {
+    width: 90%;
+    min-height: 500px;
+    padding: 25px;
+  }
+
+  .btn-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  h2 {
+    font-size: 18px;
+  }
 }
 
 /* === AI 계획 생성 로딩 오버레이 === */

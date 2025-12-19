@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "nodemon index.js",
+    "dev": "nodemon --exec node --import dotenv/config index.js",
     "start": "node index.js"
   },
   "dependencies": {
@@ -27,7 +27,7 @@
     "nodemon": "^3.1.0",
     "prisma": "^6.19.0"
   },
-  "engines" : {
-    "node" : ">=20 <21"
+  "engines": {
+    "node": ">=20 <21"
   }
 }

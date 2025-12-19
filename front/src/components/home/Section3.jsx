@@ -2,102 +2,97 @@ import { useEffect, useRef } from "react";
 import "../../styles/page/home/Section3.css";
 
 export default function Section3({ sectionRef }) {
-  const paperBg = process.env.PUBLIC_URL + "/assets/images/cream-paper.jpg";
-  const cardRefs = useRef([]);
+  const paperBg = process.env.PUBLIC_URL + "/assets/textures/paper.jpg";
+
+  const fadeRefs = useRef([]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
+      entries => {
+        entries.forEach(e => {
           if (e.isIntersecting) e.target.classList.add("show");
         });
       },
-      { threshold: 0.3 }
+      { threshold: 0.25 }
     );
 
-    cardRefs.current.forEach((card) => card && observer.observe(card));
+    fadeRefs.current.forEach(el => el && observer.observe(el));
+
     return () => observer.disconnect();
   }, []);
 
   return (
     <section
-      className="section-box menu-layout"
+      className="section-box recommend-section"
       ref={sectionRef}
       style={{
-        backgroundImage: `
-          linear-gradient(to bottom, rgba(255,255,255,0.96), rgba(250,250,250,0.96)),
-          url(${paperBg})
-        `,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundImage: `url(${paperBg})`,
       }}
     >
-      {/* LEFT PAGE */}
-      <div className="menu-left">
-        <p className="intro-badge">여행 상품 · 추천</p>
+      <div className="recommend-grid">
+        {/* 왼쪽 컬럼*/}
+        <div className="left-col fade-item" ref={el => (fadeRefs.current[0] = el)}>
+          <h4 className="small-blue">여행 정보 · 상품</h4>
+          <h1 className="big-title">
+            나의 여행 취향 어디까지<br />알고 있나요?
+          </h1>
+          <p className="sub-desc">내 성향 기반 여행지 추천</p>
 
-        <h2 className="intro-title">
-          당신에게 맞는 여행 상품,
-          <br />한 번에 추천해드릴게요
-        </h2>
+          <div className="recommend-list">
 
-        <p className="intro-subtitle">취향 기반 추천 알고리즘</p>
+            <div className="item-card fade-item" ref={el => (fadeRefs.current[1] = el)}>
+              <img src="/assets/images/reco1.jpg" className="item-thumb" alt="랜드마크 사랑 여행자" />
+              <div className="item-info">
+                <h4>랜드마크 사랑 여행자</h4>
+                <p>유명한 곳은 다 가봐야지!</p>
+              </div>
+            </div>
 
-        <p className="intro-desc">
-          여행 스타일 분석을 바탕으로 <br />
-          당신만을 위한 상품을 큐레이션합니다.
-        </p>
+            <div className="item-card fade-item" ref={el => (fadeRefs.current[2] = el)}>
+              <img src="/assets/images/reco1.jpg" className="item-thumb" alt="모험가 여행자" />
+              <div className="item-info">
+                <h4>모험가 여행자</h4>
+                <p>여행의 묘미는 체험!</p>
+              </div>
+            </div>
 
-        <ul className="intro-list">
-          <li>✔ 인기 여행지 추천</li>
-          <li>✔ 테마별 맞춤 여행</li>
-          <li>✔ 후기 기반 신뢰도 높은 상품</li>
-          <li>✔ 가족 / 커플 / 혼자 모두 만족</li>
-        </ul>
-
-        <button className="intro-cta-btn">추천 상품 보기</button>
-      </div>
-
-      {/* RIGHT PAGE */}
-      <div className="menu-right">
-        <div className="intro-card" ref={(el) => (cardRefs.current[0] = el)}>
-          <span className="card-num">1</span>
-          <div className="card-info">
-            <h4>제주 힐링 코스</h4>
-            <p>자연과 함께하는 휴식 여행</p>
+            <div className="item-card fade-item" ref={el => (fadeRefs.current[3] = el)}>
+              <img src="/assets/images/reco1.jpg" className="item-thumb" alt="힐링 여행자" />
+              <div className="item-info">
+                <h4>힐링 여행자</h4>
+                <p>오늘만은 쉬고 싶어!</p>
+              </div>
+            </div>
           </div>
-          <img
-            src="/assets/images/plan1.jpg"
-            className="card-img"
-            alt="제주 힐링 코스"
-          />
         </div>
 
-        <div className="intro-card" ref={(el) => (cardRefs.current[1] = el)}>
-          <span className="card-num">2</span>
-          <div className="card-info">
-            <h4>강릉 감성 여행</h4>
-            <p>카페 · 바다 · 감성 충전</p>
-          </div>
-          <img
-            src="/assets/images/plan2.jpg"
-            className="card-img"
-            alt="강릉 여행"
-          />
-        </div>
+        {/* 오른쪽 컬럼 */}
+        <div className="right-col fade-item" ref={el => (fadeRefs.current[4] = el)}>
 
-        <div className="intro-card" ref={(el) => (cardRefs.current[2] = el)}>
-          <span className="card-num">3</span>
-          <div className="card-info">
-            <h4>부산 바다 패키지</h4>
-            <p>맛집 + 바다 + 숙소 올인원</p>
+          <div className="product-card">
+            <img src="/assets/images/product1.jpg" className="product-thumb" alt="전주 상품" />
+            <h3 className="p-title">전주에 왔다면 꼭 가야 하는 곳</h3>
+            <p className="p-sub">가이드 · 전주</p>
+            <div className="p-tag">#참고할 만한 가이드</div>
           </div>
-          <img
-            src="/assets/images/plan3.jpg"
-            className="card-img"
-            alt="부산 여행"
-          />
+
+          <div className="product-card">
+            <img src="/assets/images/product2.jpg" className="product-thumb" alt="부산 해운대" />
+            <h3 className="p-title">부산 해운대</h3>
+            <p className="p-sub">한국인들이 사랑하는 관광지</p>
+            <p className="p-meta">테마파크 · 어트랙션 · 부산</p>
+            <div className="p-tag">#일정에 담은 상품과 연관된 상품</div>
+          </div>
+
+          <div className="product-card">
+            <img src="/assets/images/product3.jpg" className="product-thumb" alt="여수 밤바다" />
+            <h3 className="p-title">여수 밤바다</h3>
+            <p className="p-sub">3성급 · 여수</p>
+            <div className="p-tag">#여수와 함께 많이 찾는 다리</div>
+          </div>
+
         </div>
+        
       </div>
     </section>
   );
