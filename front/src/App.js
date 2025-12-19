@@ -28,18 +28,15 @@ import AIScheduleResult from "./pages/side/schedule/AIScheduleResult.jsx";
 import AIScheduleSummary from "./pages/side/schedule/AIScheduleSummary.jsx";
 import TripCategory from "./pages/side/schedule/category/TripCategory.jsx";
 
-// City
-import CityMain from "./components/city/CityMain.jsx";
-import PlaceDetail from "./components/city/PlaceDetail.jsx";
-import EventDetail from "./components/city/EventDetail.jsx";
+// City 
+import CityMain from "./pages/side/city/CityMain.jsx";
+import PlaceDetail from "./pages/side/city/place/PlaceDetail.jsx";
+import EventDetail from "./pages/side/city/event/EventDetail.jsx";
 
-// 게시판
+// 게시판 
 import Board from "./pages/side/board/Board.jsx";
 import BoardWrite from "./pages/side/board/BoardWrite.jsx";
 import BoardDetail from "./pages/side/board/BoardDetail.jsx";
-
-// 기타
-import Contract from "./pages/side/Contract.jsx";
 
 // =======================
 // 관리자
@@ -51,7 +48,7 @@ import AdminUsers from "./pages/admin/AdminUsers.jsx";
 import AdminPosts from "./pages/admin/AdminPosts.jsx";
 import AdminInquiries from "./pages/admin/AdminInquiries.jsx";
 
-// 비밀번호
+// 비밀번호 재설정
 import ForgotPassword from "./pages/pw/ForgotPassword";
 import ResetPassword from "./pages/pw/ResetPassword";
 
@@ -71,7 +68,7 @@ export default function App() {
     if (user) localStorage.setItem("user", JSON.stringify(user));
   }, [user]);
 
-  return (
+   return (
     <Router>
       <Toaster position="top-center" />
 
@@ -80,11 +77,8 @@ export default function App() {
             관리자
         ========================= */}
         <Route path="/admin/login" element={<AdminLogin />} />
-
-        {/* 관리자 메인 (메인 페이지 스타일 그대로 쓸 예정) */}
         <Route path="/admin" element={<AdminHome />} />
 
-        {/* 관리자 관리 영역 */}
         <Route path="/admin/*" element={<AdminLayout />}>
           <Route path="users" element={<AdminUsers />} />
           <Route path="posts" element={<AdminPosts />} />
@@ -99,14 +93,15 @@ export default function App() {
           element={
             <Layout user={user} setUser={setUser}>
               <Routes>
-                 {/* 홈 */}
+                {/* 홈 */}
                 <Route path="/" element={<Home user={user} setUser={setUser} />} />
-                
+
                 {/* 로그인/회원가입 */}
                 <Route path="/login" element={<Login setUser={setUser} />} />
                 <Route path="/signup" element={<Signup />} />
 
-                 {/* 마이페이지 */}
+
+                {/* 마이페이지 */}
                 <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
                 <Route path="/profile/edit" element={<ProfileEdit user={user} setUser={setUser} />} />
 
@@ -117,16 +112,20 @@ export default function App() {
                 <Route path="/withdraw" element={<Unsubscribe user={user} />} />
                 <Route path="/calendar" element={<Calendar user={user} />} />
 
-                {/* Trip-Diner (AI 여행 계획) */}
-                <Route path="/trip" element={<AISchedule user={user} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />} />
+                {/* Trip-Diner */}
+                <Route
+                  path="/trip"
+                  element={<AISchedule user={user} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />}
+                />
                 <Route path="/trip/category" element={<TripCategory />} />
                 <Route path="/trip/result" element={<AIScheduleResult user={user} />} />
                 <Route path="/trip/summary" element={<AIScheduleSummary />} />
 
+                {/* 구 경로 리다이렉트 */}
                 <Route path="/schedule" element={<Navigate to="/trip" replace />} />
                 <Route path="/schedule/result" element={<Navigate to="/trip/result" replace />} />
 
-                 {/* City 페이지 */}
+                {/* City */}
                 <Route path="/city" element={<CityMain user={user} setUser={setUser} />} />
                 <Route path="/place/:id" element={<PlaceDetail user={user} setUser={setUser} />} />
                 <Route path="/event/:id" element={<EventDetail user={user} setUser={setUser} />} />
@@ -135,21 +134,18 @@ export default function App() {
                 <Route path="/board/write" element={<BoardWrite />} />
                 <Route path="/board/write/:id" element={<BoardWrite />} />
                 <Route path="/board/:id" element={<BoardDetail />} />
-
                 <Route path="/board/list" element={<Board />} />
                 <Route path="/board/list/:category" element={<Board />} />
                 <Route path="/board" element={<Board />} />
 
-                {/* Dashboard */}
+                {/* 기타 */}
                 <Route path="/dashboard" element={<Dashboard user={user} />} />
-                <Route path="/city" element={<CityMain user={user} setUser={setUser} />} />
 
-                <Route path="/contract" element={<Contract user={user} />} />
-
-
+                {/* 비밀번호 */}
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
 
+                {/* 404 */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Layout>

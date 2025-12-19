@@ -106,12 +106,30 @@ router.get("/", async (req, res) => {
    4) 게시글 단일 조회 (조회수 1 증가 포함)
 ---------------------------------------------- */
 router.get("/:id", async (req, res) => {
-  const post = await prisma.post.findUnique({
-    where: { post_id: Number(req.params.id) },
-    include: { user: { select: { name: true, profile_img: true } } },
-  });
-  if (!post) return res.status(404).json({ error: "게시글 없음" });
-  res.json(safeJson(post));
+  try {
+    const postId = Number(req.params.id);
+
+    // [수정된 부분] 조회수(views)를 1 증가시키면서 동시에 데이터를 가져옵니다.
+    const post = await prisma.post.update({
+      where: { post_id: postId },
+      data: {
+        views: { increment: 1 } // 기존 값에서 1 증가
+      },
+      include: { 
+        user: { 
+          select: { name: true, profile_img: true } 
+        } 
+      },
+    });
+
+    if (!post) return res.status(404).json({ error: "게시글 없음" });
+    
+    res.json(safeJson(post));
+  } catch (err) {
+    console.error("게시글 상세 조회 오류:", err);
+    // 만약 게시글이 없어서 에러가 난 경우 처리
+    res.status(404).json({ error: "게시글을 찾을 수 없습니다." });
+  }
 });
 
 export default router;

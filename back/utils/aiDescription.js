@@ -3,12 +3,18 @@ import OpenAI from "openai";
 console.log("OPENAI KEY:", process.env.OPENAI_API_KEY ? "LOADED" : "NOT LOADED");
 console.log("OPENAI_KEY LOADED:", process.env.OPENAI_API_KEY?.slice(0, 10));
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 // 줄바꿈/공백 제거
 const cleanText = (text) => text?.replace(/\n/g, " ").trim() ?? "";
+
+function getClient() {
+  if (client) return client;
+
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error("OPENAI_API_KEY is missing");
+
+  client = new OpenAI({ apiKey });
+  return client;
+}
 
 export async function generateDescription(title, address) {
   try {
@@ -29,15 +35,14 @@ export async function generateDescription(title, address) {
 장소 정보: ${title}, ${safeAddress}
     `;
 
-    const completion = await client.chat.completions.create({
+    const completion = await getClient().chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.6,
-      max_tokens: 50
+      max_tokens: 50,
     });
 
     return completion.choices[0].message.content.trim();
-
   } catch (err) {
     console.error("AI 설명 생성 오류:", err);
     return "";
