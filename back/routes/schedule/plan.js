@@ -2,12 +2,11 @@
 import express from "express";
 import prisma from "../../prisma/prismaClient.js";
 import { requireAuth } from "./auth.js";
-import auth from "../../middlewares/auth.js";
 
 const router = express.Router();
 
 // ✅ 내 일정 목록 (달력 표시용)
-router.get("/my", auth, async (req, res) => {
+router.get("/my", requireAuth, async (req, res) => {
   try {
     // auth 미들웨어에서 req.user.user_id 넣는다고 가정
     const userId = req.user.user_id; // BigInt일 수도 있음
