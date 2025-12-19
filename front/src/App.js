@@ -21,12 +21,14 @@ import Likeposts from "./pages/side/mypage/Likeposts.jsx";
 import Likeplaces from "./pages/side/mypage/Likeplaces.jsx";
 import Unsubscribe from "./pages/side/mypage/Unsubscribe.jsx";
 import Calendar from "./pages/side/mypage/Calendar.jsx";
+import MyTrips from "./pages/side/mypage/MyTrips.jsx";
 
 // AI / 여행
 import AISchedule from "./pages/side/schedule/AISchedule.jsx";
 import AIScheduleResult from "./pages/side/schedule/AIScheduleResult.jsx";
 import AIScheduleSummary from "./pages/side/schedule/AIScheduleSummary.jsx";
 import TripCategory from "./pages/side/schedule/category/TripCategory.jsx";
+import PickStartDatePage from "./pages/side/schedule/PickStartDatePage.jsx";
 
 // City 
 import CityMain from "./pages/side/city/CityMain.jsx";
@@ -100,10 +102,10 @@ export default function App() {
                 <Route path="/login" element={<Login setUser={setUser} />} />
                 <Route path="/signup" element={<Signup />} />
 
-
                 {/* 마이페이지 */}
                 <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
                 <Route path="/profile/edit" element={<ProfileEdit user={user} setUser={setUser} />} />
+                <Route path="/my-trips" element={<MyTrips user={user} />} />
 
                 {/* 좋아요 */}
                 <Route path="/like/posts" element={<Likeposts userId={user?.user_id} />} />
@@ -124,6 +126,8 @@ export default function App() {
                 {/* 구 경로 리다이렉트 */}
                 <Route path="/schedule" element={<Navigate to="/trip" replace />} />
                 <Route path="/schedule/result" element={<Navigate to="/trip/result" replace />} />
+
+                <Route path="/schedule/pick-start-date" element={<PickStartDatePage />} />
 
                 {/* City */}
                 <Route path="/city" element={<CityMain user={user} setUser={setUser} />} />

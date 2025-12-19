@@ -13,7 +13,6 @@ export default function Layout({ children, user, setUser }) {
     setMenuOpen(false);
   }, [location.pathname]);
 
-
   // ✅ 마이페이지 계열: 헤더 숨김
   const hideHeaderPaths = ["/profile", "/like", "/calendar", "/withdraw"];
   const hideHeader = hideHeaderPaths.some((p) =>
@@ -28,7 +27,6 @@ export default function Layout({ children, user, setUser }) {
       )}
 
       {/* ✅ SideMenu는 항상 렌더 */}
-
       <SideMenu
         menuOpen={menuOpen}
         setMenuOpen={setMenuOpen}

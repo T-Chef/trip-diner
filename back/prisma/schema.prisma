@@ -14,7 +14,11 @@ model admin {
   password     String      @db.VarChar(255)
   name         String?     @db.VarChar(100)
   profile_img  String?     @db.VarChar(255)
+<<<<<<< HEAD
   role         admin_role  @default(SUPER)
+=======
+  role         admin_role? @default(MANAGER)
+>>>>>>> origin/juhan
   created_at   DateTime    @default(now())
   updated_at   DateTime    @updatedAt
   last_login   DateTime?
@@ -61,6 +65,10 @@ model place {
   lng          Float?
   description  String?      @db.Text
   image_url    String?      @db.VarChar(2000)
+<<<<<<< HEAD
+=======
+  content_id   String?      @unique @db.VarChar(50)
+>>>>>>> origin/juhan
   city         city?        @relation(fields: [city_id], references: [city_id])
   place_like   place_like[]
   plan_item    plan_item[]
@@ -279,6 +287,9 @@ model post_like {
   created_at DateTime?  @default(now()) @db.DateTime(0)
   post       post       @relation(fields: [post_id], references: [post_id], onDelete: Cascade)
   user       user       @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  
+  @@unique([user_id, post_id])
+
   @@index([post_id])
   @@index([user_id])
 }
@@ -287,12 +298,13 @@ model post_like {
 ------------------------------------------------------- */
 enum admin_role {
   SUPER
+  MANAGER
 }
 enum admin_status {
   ACTIVE
   DISABLED
 }
 enum qna_status {
-  WAITING
-  DONE
+  WAITING @map("대기")
+  DONE    @map("완료")
 }

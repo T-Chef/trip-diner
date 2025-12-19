@@ -8,7 +8,6 @@ import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
-
 // ------------------------------
 //  ESModule용 __dirname
 // ------------------------------
@@ -26,8 +25,11 @@ import cityRouter from "./routes/city/city.js";
 import categoryRouter from "./routes/schedule/category.js";
 import placeRouter from "./routes/city/place.js";
 import eventRouter from "./routes/city/event.js";
+
+import reviewRouter from "./routes/review.js";
 import tripRouter from "./routes/schedule/trip.js";
-import usersRouter from "./routes/mypage/users.js";
+import usersRouter from "./routes/users.js";
+
 import tourRouter from "./routes/schedule/tour.js";
 import aiRouter from "./routes/schedule/ai.js";
 import profileRouter from "./routes/mypage/profile.js";
@@ -51,6 +53,14 @@ import adminRouter from "./routes/admin/admin.js";
 import adminLoginRouter from "./routes/admin/adminLogin.js";
 
 const app = express();
+
+app.set("json replacer", (key, value) =>
+  typeof value === "bigint" ? value.toString() : value
+);
+// ✅ BigInt -> string 으로 JSON 직렬화 가능하게
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
 
 /* -------------------------------------------------------
    보안/공통 미들웨어
@@ -130,7 +140,8 @@ app.use("/api/place", placeRouter);
 app.use("/api/event", eventRouter);
 app.use("/api/weather", weatherRouter);
 
-// 일정
+// 리뷰 / 일정
+app.use("/api/review", reviewRouter);
 app.use("/api/trip", tripRouter);
 
 // 게시판
@@ -158,4 +169,3 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-

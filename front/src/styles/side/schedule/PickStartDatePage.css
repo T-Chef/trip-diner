@@ -1,0 +1,103 @@
+.td-pick-wrap{
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 28px 16px;
+  text-align: center;
+}
+.td-title{ font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+.td-sub{ color:#666; margin-bottom: 18px; }
+
+.td-cal{
+  display: flex;
+  justify-content: center;
+  margin: 10px 0 18px;
+}
+
+/* react-calendar 기본 폭 */
+.react-calendar{
+  border: none;
+  width: 720px;
+  max-width: 100%;
+}
+
+/* 날짜 박스 */
+.td-dates{
+  display:flex;
+  justify-content:center;
+  gap: 28px;
+  margin: 10px 0 18px;
+}
+.td-datebox{ text-align:left; }
+.td-label{ font-weight: 800; margin-bottom: 6px; }
+.td-value{ color:#222; }
+
+/* 버튼 */
+.td-btn{
+  width: 100%;
+  max-width: 820px;
+  height: 52px;
+  border: 0;
+  border-radius: 14px;
+  background: #2f7cff;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* ✅ 범위 하이라이트 */
+.td-range-start abbr,
+.td-range-end abbr,
+.td-range-mid abbr { color:#fff; }
+
+.td-range-mid{
+  background: rgba(47,124,255,0.35) !important;
+  border-radius: 999px !important;
+}
+
+.td-range-start,
+.td-range-end{
+  background: #2f7cff !important;
+  border-radius: 999px !important;
+}
+
+.td-btn-row{
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* 공통 버튼 */
+.td-btn{
+  height: 52px;
+  border: 0;
+  border-radius: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* 취소 버튼 */
+.td-btn-cancel{
+  width: 160px;
+  background: #e9eefc;
+  color: #2f7cff;
+}
+
+/* 선택완료 버튼 */
+.td-btn-confirm{
+  width: 640px;
+  max-width: calc(100vw - 220px);
+  background: #2f7cff;
+  color: #fff;
+}
+
+.td-saved-dot {
+  font-size: 18px;
+  line-height: 10px;
+  text-align: center;
+  margin-top: 2px;
+}
+
+.td-has-saved abbr {
+  font-weight: 700;
+}
