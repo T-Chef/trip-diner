@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import "../../styles/admin/AdminDashboard.css";
 
-const API_BASE = "http://localhost:4000/api";
+const API_BASE = "/api";
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState([]);

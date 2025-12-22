@@ -14,7 +14,8 @@ export const resetPassword = (token, password) => {
 };
 
 // 이메일 중복 체크
-export const checkEmailDuplicate = (email) =>
-  axios.get(`${API}/check-email`, { params: { email } });
+export const checkEmailDuplicate = (email) => {
+  return axios.get(`${API}/check-email`, { params: { email } });
+};
 
 

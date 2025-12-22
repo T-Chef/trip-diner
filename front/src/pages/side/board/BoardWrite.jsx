@@ -91,14 +91,14 @@ export default function BoardWrite() {
 
     try {
       if (isEdit) {
-        await axios.put(`http://localhost:4000/api/posts/${id}`, formData, {
+        await axios.put(`/api/posts/${id}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         Swal.fire({ icon: "success", title: "수정 완료" }).then(() =>
           navigate("/board")
         );
       } else {
-        await axios.post("http://localhost:4000/api/posts", formData, {
+        await axios.post("/api/posts", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         Swal.fire({ icon: "success", title: "등록 완료" }).then(() =>

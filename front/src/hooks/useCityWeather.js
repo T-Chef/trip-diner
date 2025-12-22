@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
+const API_BASE = process.env.REACT_APP_API_BASE || "/api";
 
 // 캐시/중복요청 방지
 const _wxInflight = new Map(); // key -> Promise

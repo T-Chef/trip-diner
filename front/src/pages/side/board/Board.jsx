@@ -12,7 +12,7 @@ export default function Board() {
   const [user] = useState(storedUser);
 
   // ⭐ 프로필 이미지 URL 생성
-  const PROFILE_BASE_URL = "http://localhost:4000";
+  const PROFILE_BASE_URL = "http://localhost:8080";
   const profileSrc = user?.profile_img
     ? (user.profile_img.startsWith(PROFILE_BASE_URL)
         ? user.profile_img
@@ -28,7 +28,7 @@ export default function Board() {
   /* 게시글 전체 로드 */
   useEffect(() => {
     axios
-      .get("http://localhost:4000/api/posts")
+      .get("/api/posts")
       .then((res) => setPosts(res.data))
       .catch((err) => console.error("글 불러오기 오류:", err));
   }, []);

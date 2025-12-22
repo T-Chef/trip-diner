@@ -4,7 +4,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import "../../../styles/side/board/BoardDetail.css";
 
-const API_BASE = "http://localhost:4000/api";
+const API_BASE = "/api";
 
 export default function BoardDetail() {
   const { id } = useParams();

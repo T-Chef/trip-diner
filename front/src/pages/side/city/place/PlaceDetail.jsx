@@ -9,7 +9,7 @@ import PlaceDetailMap from "./PlaceDetailMap";
 
 import "../../../../styles/side/city/PlaceDetail.css";
 
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
+const API_BASE = process.env.REACT_APP_API_BASE || "/api";
 
 
 export default function PlaceDetail({ user, setUser }) {

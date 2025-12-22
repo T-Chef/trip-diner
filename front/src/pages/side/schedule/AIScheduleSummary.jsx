@@ -50,7 +50,7 @@ export default function AIScheduleSummary() {
 
     setSaving(true);
 
-    const res = await fetch("http://localhost:4000/api/plan", {
+    const res = await fetch("/api/plan", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
+const API_BASE = process.env.REACT_APP_API_BASE || "/api";
 const NAVER_KEY = process.env.REACT_APP_NAVER_MAP_KEY || "1o7cfked5o";
 
 // ✅ 스크립트 1번만 로드되게 전역 Promise 캐시

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import "../../styles/page/home/Section2.css";
+import "../../styles/page/home/MenuBookTheme.css";
 
 export default function Section2({ sectionRef }) {
   const paperBg = process.env.PUBLIC_URL + "/assets/textures/paper.jpg";

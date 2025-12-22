@@ -45,7 +45,7 @@ export default function Profile({ user, setUser }) {
     formData.append("profile", file);
     formData.append("userId", user.user_id);
 
-    const res = await fetch("http://localhost:4000/api/profile/upload", {
+    const res = await fetch("/api/profile/upload", {
       method: "POST",
       body: formData,
     });
@@ -81,7 +81,7 @@ export default function Profile({ user, setUser }) {
         {/* 프로필 */}
         <div className="profile-photo-box" onClick={handleProfileClick}>
           <img
-            src={profileImg || "http://localhost:4000/profile.png"}
+            src={profileImg || "http://localhost:8080/profile.png"}
             className="profile-photo"
             alt="profile"
           />

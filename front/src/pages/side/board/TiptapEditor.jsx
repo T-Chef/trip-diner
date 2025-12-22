@@ -53,7 +53,7 @@ export default function TiptapEditor({ setContent }) {
 
     try {
       const res = await axios.post(
-        "http://localhost:4000/api/posts/upload",
+        "/api/posts/upload",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

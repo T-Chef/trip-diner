@@ -5,7 +5,7 @@ import axios from "axios";
 import "../../../styles/side/city/CityListItem.css";
 
 const API_BASE =
-  process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
+  process.env.REACT_APP_API_BASE || "/api";
 const DEFAULT_THUMB =
   process.env.PUBLIC_URL + "/assets/images/default-thumb.jpg";
 

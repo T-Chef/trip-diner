@@ -4,7 +4,7 @@ import CityListItem from "./CityListItem";
 import axios from "axios";
 import "../../../styles/side/city/CityList.css";
 
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
+const API_BASE = process.env.REACT_APP_API_BASE || "/api";
 
 // ✅ TTL cache
 const _placeCache = new Map(); // key -> { v, exp }

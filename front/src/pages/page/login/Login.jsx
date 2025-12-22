@@ -1,52 +1,39 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
-import axios from "axios";
+import { login } from "../../../api/authApi";
+import { setAuth } from "../../../utils/authStorage";
 import "../../../styles/page/Login.css";
 
 function Login({ setUser }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const navigate = useNavigate();
+  const location = useLocation(); 
+
+  const from = location.state?.from || "/";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:4000/api/auth/login", {
-        email,
-        password,
-      });
-
+      const res = await login(email, password);
       const user = res.data.user;
       const accessToken = res.data.accessToken;
-      localStorage.setItem("accessToken", accessToken);
 
-      // 🔹 profile_img를 절대경로로 정리 (백엔드에서 /uploads/xxx.jpg 보내준다고 가정)
-      const normalizedUser = {
-        ...user,
-        profile_img: user?.profile_img
-          ? `http://localhost:4000${user.profile_img}`
-          : null,
-      };
+      setUser(user);
+      setAuth({ accessToken, user });
 
-      toast.success(`환영합니다, ${normalizedUser.name}님!`);
+      toast.success(res.data.message || "로그인 성공");
 
-      // 🔹 전역 상태 + 로컬스토리지에 같은 형태로 저장
-      setUser(normalizedUser);
-      localStorage.setItem("user", JSON.stringify(normalizedUser));
-
-      if (normalizedUser.email === "admin@gmail.com") {
-        navigate("/admin", { state: { justLoggedIn: true } });
-      } else {
-        navigate("/", { state: { justLoggedIn: true } });
-      }
+      navigate(from, { replace: true });
     } catch (err) {
-      if (err.response) {
-        toast.error(err.response.data.message);
-      } else {
-        toast.error("로그인 중 오류가 발생했습니다.");
-      }
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        "로그인 중 오류가 발생했습니다.";
+      toast.error(msg);
     }
   };
 
