@@ -187,7 +187,7 @@ export default function AIScheduleResult() {
 
             try {
               const imgRes = await fetch(
-                `http://localhost:4000/api/place-details?lat=${p.lat}&lng=${p.lng}&name=${encodeURIComponent(
+                `http://localhost:8080/api/place-details?lat=${p.lat}&lng=${p.lng}&name=${encodeURIComponent(
                   p.name
                 )}`
               );
@@ -285,7 +285,7 @@ export default function AIScheduleResult() {
     }
     const delay = setTimeout(async () => {
       const res = await fetch(
-        `http://localhost:4000/api/place-search?keyword=${encodeURIComponent(
+        `http://localhost:8080/api/place-search?keyword=${encodeURIComponent(
           searchQuery
         )}`
       );

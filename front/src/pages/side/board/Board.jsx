@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // 🚨 useParams 추가
-import axios from "axios";
+import api from "../../../api/axiosInstance";
 import "../../../styles/side/board/Board.css";
 
 export default function Board() {
@@ -27,11 +27,10 @@ export default function Board() {
 
   /* 게시글 전체 로드 */
   useEffect(() => {
-    axios
-      .get("/api/posts")
-      .then((res) => setPosts(res.data))
-      .catch((err) => console.error("글 불러오기 오류:", err));
-  }, []);
+  api.get("/api/posts") 
+    .then((res) => setPosts(res.data))
+    .catch((err) => console.error("글 불러오기 오류:", err));
+}, []);
 
   // ************************************************************
   // 🚨 [추가된 핵심 로직] URL 파라미터 변경 시 카테고리 상태 동기화

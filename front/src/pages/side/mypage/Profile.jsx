@@ -26,7 +26,7 @@ export default function Profile({ user, setUser }) {
 
     const finalUrl = user.profile_img.startsWith("http")
       ? user.profile_img
-      : `http://localhost:4000${user.profile_img}`;
+      : `http://localhost:8080${user.profile_img}`;
 
     setProfileImg(finalUrl);
   }, [user]);
@@ -58,7 +58,7 @@ export default function Profile({ user, setUser }) {
     }
 
     // 서버가 주는 값: /uploads/파일명
-    const fullUrl = `http://localhost:4000${data.imageUrl}`;
+    const fullUrl = `http://localhost:8080${data.imageUrl}`;
 
     // 프론트 표시 이미지 교체
     setProfileImg(fullUrl);

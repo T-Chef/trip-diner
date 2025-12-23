@@ -1,0 +1,46 @@
+.mytrips-wrap{ padding:24px; max-width:1200px; margin:0 auto; }
+.mytrips-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.mytrips-grid{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.trip-card{ position:relative; background:#fff; border-radius:16px; box-shadow:0 6px 20px rgba(0,0,0,.08); overflow:hidden; display:flex; }
+.trip-hero{ width:320px; flex:0 0 320px; background:#eee; }
+.trip-hero img{ width:100%; height:100%; object-fit:cover; display:block; }
+.trip-body{ padding:16px 16px 12px; flex:1; }
+.badge{ display:inline-block; background:#2f6fff; color:#fff; padding:4px 10px; border-radius:10px; font-size:12px; margin-bottom:8px; }
+.title{ margin:0 0 6px; font-size:18px; }
+.sub,.meta{ font-size:13px; opacity:.7; margin-bottom:6px; }
+.tags span{ display:inline-block; margin-right:6px; font-size:12px; opacity:.8; }
+.thumbs{ display:flex; gap:8px; margin-top:10px; align-items:center; }
+.thumbs img{ width:56px; height:56px; border-radius:10px; object-fit:cover; }
+.more{ margin-left:auto; border:none; padding:10px 12px; border-radius:10px; background:#111; color:#fff; cursor:pointer; }
+
+.xbtn{
+  position: absolute;
+  top: 14px;
+  right: 14px;
+
+  width: 36px;
+  height: 36px;
+
+  background: transparent;
+  border: none;
+  padding: 0;
+
+  color: #000;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  z-index: 5;
+}
+
+.xbtn:hover{
+  opacity: 0.6;
+}
+
+.danger{ border:none; background:transparent; cursor:pointer; }
+.empty{ padding:40px; text-align:center; opacity:.7; }

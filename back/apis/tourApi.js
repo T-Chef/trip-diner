@@ -1,39 +1,95 @@
 // back/apis/tourApi.js
 import fetch from "node-fetch";
 import "dotenv/config";
+import https from "https";
 
 const SERVICE_KEY = process.env.TOUR_API_KEY;
 const BASE_URL = "https://apis.data.go.kr/B551011/KorService2";
 
+// ✅ 연결 안정화(keepAlive)
+const httpsAgent = new https.Agent({ keepAlive: true });
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 /**
- * 공통 fetch + 안전 파서
+ * 공통 fetch + 안전 파서 + 타임아웃 + 재시도(ECONNRESET 대응)
  */
-async function callTourAPI(path, params) {
-  const query =
-    Object.entries(params)
-      .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
-      .join("&");
+async function callTourAPI(path, params, opts = {}) {
+  const retry = opts.retry ?? 3; // 기본 3회
+  const timeoutMs = opts.timeoutMs ?? 12000; // 기본 12초
+
+  const query = Object.entries(params)
+    .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+    .join("&");
 
   const url = `${BASE_URL}${path}?serviceKey=${SERVICE_KEY}&${query}`;
 
-  const res = await fetch(url);
-  const text = await res.text();
+  for (let attempt = 1; attempt <= retry; attempt++) {
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), timeoutMs);
 
-  if (text.startsWith("Unauthorized") || text.includes("SERVICE ERROR")) {
-  console.error("TourAPI Unauthorized or Service Error RAW:", text);
+    try {
+      const res = await fetch(url, {
+        method: "GET",
+        agent: httpsAgent,
+        signal: controller.signal,
+        headers: {
+          "User-Agent": "TripDiner/1.0",
+          Accept: "application/json",
+        },
+      });
+
+      const text = await res.text();
+      clearTimeout(t);
+
+      // ✅ 5xx는 재시도 가치
+      if (!res.ok) {
+        const err = new Error(`TourAPI HTTP ${res.status}`);
+        err.httpStatus = res.status;
+        err.raw = text?.slice(0, 120);
+        throw err;
+      }
+
+      if (text.startsWith("Unauthorized") || text.includes("SERVICE ERROR")) {
+        console.error("TourAPI Unauthorized or Service Error RAW:", text);
+        return [];
+      }
+
+      let json;
+      try {
+        json = JSON.parse(text);
+      } catch (e) {
+        console.error("JSON 파싱 실패 RAW:", text);
+        return [];
+      }
+
+      return json.response?.body?.items?.item || [];
+    } catch (err) {
+      clearTimeout(t);
+
+      const isNetwork =
+        err?.name === "AbortError" ||
+        err?.code === "ECONNRESET" ||
+        err?.code === "ETIMEDOUT" ||
+        err?.code === "ECONNREFUSED";
+
+      const isRetryableHttp = err?.httpStatus >= 500;
+
+      if (attempt < retry && (isNetwork || isRetryableHttp)) {
+        console.warn(
+          `[TourAPI retry ${attempt}/${retry}]`,
+          err.code || err.name || err.message,
+          err.httpStatus || ""
+        );
+        await sleep(300 * attempt);
+        continue;
+      }
+
+      console.error("TourAPI call failed (give up):", err.code || err.name, err.message);
+      return [];
+    }
+  }
+
   return [];
-}
-
-  let json;
-try {
-  json = JSON.parse(text);
-} catch (e) {
-  console.error("JSON 파싱 실패 RAW:", text);
-  // 504 같은 경우에는 그냥 "결과 없음"으로 처리
-  return [];   // 🔥 throw e 대신 이걸로!
-}
-
-return json.response?.body?.items?.item || [];
 }
 
 /**
@@ -103,7 +159,6 @@ export async function getPlaces({ areaCode, sigunguCode, contentTypeId, numOfRow
 
 /**
  * ⭐ 4) 키워드 검색 후 가장 잘 맞는 장소 1개 반환 (searchKeyword2)
- * AI가 준 place.name 과 cityName을 바탕으로 관광공사에서 정확한 장소 1개 찾아줌
  */
 export async function searchPlaceByKeyword(keyword, cityName) {
   const items = await callTourAPI("/searchKeyword2", {
@@ -117,10 +172,10 @@ export async function searchPlaceByKeyword(keyword, cityName) {
 
   if (!items || items.length === 0) return null;
 
-  // ① cityName이 주소에 들어가면 우선 선택
+  // ① cityName이 주소에 들어가면 우선
   let best = items.find((i) => i.addr1 && cityName && i.addr1.includes(cityName));
 
-  // ② 없으면 첫 번째 항목 선택
+  // ② 없으면 첫번째
   if (!best) best = items[0];
 
   return {
@@ -133,3 +188,4 @@ export async function searchPlaceByKeyword(keyword, cityName) {
     homepage: best.homepage ?? null,
   };
 }
+

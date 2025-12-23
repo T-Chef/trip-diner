@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import api from "../../../api/axiosInstance";
 import axios from "axios";
 import Swal from "sweetalert2";
 import "../../../styles/side/board/BoardDetail.css";
@@ -22,6 +23,14 @@ export default function BoardDetail() {
   const [likeCount, setLikeCount] = useState(0);
 
   const textRef = useRef(null);
+
+  const PROFILE_BASE = "http://localhost:8080";
+  const profileSrc = post?.user?.profile_img
+  ? (post.user.profile_img.startsWith("http")
+      ? post.user.profile_img
+      : `${PROFILE_BASE}${post.user.profile_img.startsWith("/") ? "" : "/"}${post.user.profile_img}`)
+  : "/default_profile.png";
+
 
   // 댓글 입력창 자동 높이 조절
   const autoResize = () => {
@@ -46,10 +55,10 @@ export default function BoardDetail() {
    */
   useEffect(() => {
     if (id) {
-      axios.get(`${API_BASE}/posts/${id}`)
-        .then((res) => {
-          setPost(res.data);
-        })
+    api.get(`/api/posts/${id}`)
+      .then((res) => {
+        setPost(res.data.post); // ✅ 여기!!
+      })
         .catch((err) => {
           console.error("게시글 로드 실패:", err);
           Swal.fire("오류", "게시글을 찾을 수 없습니다.", "error");
@@ -127,7 +136,7 @@ export default function BoardDetail() {
           
           <div className="post-meta">
             <img 
-              src={post.user?.profile_img ? `http://localhost:4000${post.user.profile_img}` : "/default_profile.png"} 
+              src={profileSrc} 
               className="meta-profile-img" 
               alt="프로필" 
             />
@@ -176,7 +185,7 @@ export default function BoardDetail() {
         <div className="comment-list">
           {comments.map((c) => (
             <div key={c.comment_id} className="comment-item">
-              <img src={c.user?.profile_img ? `http://localhost:4000${c.user.profile_img}` : "/default_profile.png"} className="comment-profile" alt="P" />
+              <img src={c.user?.profile_img ? `http://localhost:8080${c.user.profile_img}` : "/default_profile.png"} className="comment-profile" alt="P" />
               <div className="comment-body">
                 <span className="comment-writer">{c.user?.name}</span>
                 <div className="comment-content-text">{c.content}</div>

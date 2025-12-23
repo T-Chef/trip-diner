@@ -25,9 +25,11 @@ import cityRouter from "./routes/city/city.js";
 import categoryRouter from "./routes/schedule/category.js";
 import placeRouter from "./routes/city/place.js";
 import eventRouter from "./routes/city/event.js";
+
 import reviewRouter from "./routes/review.js";
 import tripRouter from "./routes/schedule/trip.js";
 import usersRouter from "./routes/users.js";
+
 import tourRouter from "./routes/schedule/tour.js";
 import aiRouter from "./routes/schedule/ai.js";
 import profileRouter from "./routes/mypage/profile.js";
@@ -35,7 +37,6 @@ import weatherRouter from "./routes/city/weather.js";
 import planRouter from "./routes/schedule/plan.js";
 
 // 게시판
-import postlikeRouter from "./routes/board/postlike.js";
 import postRouter from "./routes/board/post.js";
 import commentRouter from "./routes/board/comment.js";
 
@@ -52,6 +53,14 @@ import adminRouter from "./routes/admin/admin.js";
 import adminLoginRouter from "./routes/admin/adminLogin.js";
 
 const app = express();
+
+app.set("json replacer", (key, value) =>
+  typeof value === "bigint" ? value.toString() : value
+);
+// ✅ BigInt -> string 으로 JSON 직렬화 가능하게
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
 
 /* -------------------------------------------------------
    보안/공통 미들웨어
@@ -71,7 +80,7 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: "http://localhost:3000",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })
 );

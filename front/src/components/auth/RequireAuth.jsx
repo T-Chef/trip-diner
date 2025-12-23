@@ -1,16 +1,20 @@
+// src/components/auth/RequireAuth.jsx
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { getToken, getUser } from "../../utils/authStorage";
+import { getToken } from "../../utils/authStorage";
 
-export default function RequireAuth({ children }) {
+export default function RequireAuth({ user, authLoading, children }) {
   const location = useLocation();
 
-  const authed = !!getToken() && !!getUser();
+  if (authLoading) return null;
 
-  if (!authed) {
-    const from = `${location.pathname}${location.search}${location.hash}`;
+  const token = getToken();
+  const isAuthed = !!user && !!token;
 
-    return <Navigate to="/login" replace state={{ from }} />;
+  if (!isAuthed) {
+    const full = location.pathname + location.search + location.hash;
+    sessionStorage.setItem("auth:from", full);
+    return <Navigate to="/login" replace state={{ from: full }} />;
   }
 
   return children;

@@ -8,9 +8,10 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "@prisma/client": "^6.19.0",
+    "@prisma/client": "^6.19.1",
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
+    "calendar": "^0.1.1",
     "cheerio": "^1.1.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -25,7 +26,7 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.0",
-    "prisma": "^6.19.0"
+    "prisma": "^6.19.1"
   },
   "engines": {
     "node": ">=20 <21"

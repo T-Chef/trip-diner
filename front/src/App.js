@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { me } from "./api/authApi";
@@ -7,7 +7,6 @@ import { me } from "./api/authApi";
 import Layout from "./components/layout/Layout.jsx";
 import RequireAuth from "./components/auth/RequireAuth";
 
-// ✅ authStorage 사용
 import { getToken, getUser, clearAuth, setAuth } from "./utils/authStorage";
 
 // 기본 페이지
@@ -60,6 +59,28 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
 
+  const userRef = useRef(user);
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+
+  const forceLogoutAndGoLogin = useCallback(() => {
+    const fullPath =
+      window.location.pathname + window.location.search + window.location.hash;
+
+    sessionStorage.setItem("auth:from", fullPath);
+
+    clearAuth();
+    setUser(null);
+    setAuthLoading(false);
+
+    window.dispatchEvent(new Event("auth:logout"));
+
+    if (!window.location.pathname.startsWith("/login")) {
+      window.location.replace(`/login?from=${encodeURIComponent(fullPath)}`);
+    }
+  }, []);
+
   const authRequired = (element) => (
     <RequireAuth user={user} authLoading={authLoading}>
       {element}
@@ -81,50 +102,55 @@ export default function App() {
 
     me()
     .then((res) => {
-      const u = res.data?.user;
-      if (u) {
-        setUser(u);
-        setAuth({ accessToken: token, user: u });
-      } else {
-        clearAuth();
-        setUser(null);
-      }
-    })
-    .catch(() => {
-      clearAuth();
-      setUser(null);
-    })
-    .finally(() => setAuthLoading(false));
-}, []);
+        const u = res.data?.user;
+        if (u) {
+          setUser(u);
+          setAuth({ accessToken: token, user: u });
+        } else {
+          forceLogoutAndGoLogin();
+        }
+      })
+      .catch(() => {
+        forceLogoutAndGoLogin();
+      })
+      .finally(() => setAuthLoading(false));
+  }, [forceLogoutAndGoLogin]);
 
 useEffect(() => {
   const syncAuthNow = () => {
     const token = getToken();
     const storedUser = getUser();
 
-    if ((!token || !storedUser) && user) {
-      clearAuth();      // 이벤트까지 쏴짐
-      setUser(null);
-      return;
+    if (userRef.current && (!token || !storedUser)) {
+      forceLogoutAndGoLogin();
     }
-
   };
 
   const onStorage = (e) => {
     if (e.key === "accessToken" || e.key === "user") syncAuthNow();
   };
+
+  const onFocus = () => syncAuthNow();
+
+  const onVisibility = () => {
+    if (document.visibilityState === "visible") syncAuthNow();
+  };
+
   window.addEventListener("storage", onStorage);
+  window.addEventListener("focus", onFocus);
+  document.addEventListener("visibilitychange", onVisibility); 
 
-  const intervalId = setInterval(syncAuthNow, 500); // 0.5초 간격 (원하면 1000으로)
-
-  window.addEventListener("focus", syncAuthNow);
+  const intervalId = setInterval(() => {
+    if (document.visibilityState === "visible") syncAuthNow();
+  }, 1000);
 
   return () => {
     window.removeEventListener("storage", onStorage);
-    window.removeEventListener("focus", syncAuthNow);
+    window.removeEventListener("focus", onFocus);
+    document.removeEventListener("visibilitychange", onVisibility);
     clearInterval(intervalId);
   };
-}, [user, setUser]);
+}, [forceLogoutAndGoLogin]);
 
   useEffect(() => {
     const onLogout = () => {

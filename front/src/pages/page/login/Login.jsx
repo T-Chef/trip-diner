@@ -1,3 +1,4 @@
+// src/pages/page/login/Login.jsx
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -10,9 +11,12 @@ function Login({ setUser }) {
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
-  const location = useLocation(); 
+  const location = useLocation();
 
-  const from = location.state?.from || "/";
+  const fromState = location.state?.from;
+  const fromQuery = new URLSearchParams(location.search).get("from");
+  const fromSession = sessionStorage.getItem("auth:from");
+  const from = decodeURIComponent(fromState || fromQuery || fromSession || "/");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,8 +29,9 @@ function Login({ setUser }) {
       setUser(user);
       setAuth({ accessToken, user });
 
-      toast.success(res.data.message || "로그인 성공");
+      sessionStorage.removeItem("auth:from");
 
+      toast.success(res.data.message || "로그인 성공");
       navigate(from, { replace: true });
     } catch (err) {
       const msg =

@@ -9,7 +9,7 @@ export default function BoardProfile({ user, setUser }) {
   // 초기 유저 사진 불러오기
   useEffect(() => {
     if (user?.profile_img) {
-      const fullUrl = `http://localhost:4000${user.profile_img}`;
+      const fullUrl = `http://localhost:8080${user.profile_img}`;
       setProfileImg(fullUrl);
     }
   }, [user]);

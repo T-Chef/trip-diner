@@ -1,28 +1,31 @@
 // src/utils/authStorage.js
-export const clearAuth = () => {
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("user");
+const TOKEN_KEY = "accessToken";
+const USER_KEY = "user";
 
-  Object.keys(localStorage).forEach((k) => {
-    if (k.startsWith("likedPlaces")) localStorage.removeItem(k);
-  });
+export const getToken = () => localStorage.getItem(TOKEN_KEY);
 
-  window.dispatchEvent(new Event("auth:logout"));
+export const getUser = () => {
+  const raw = localStorage.getItem(USER_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    localStorage.removeItem(USER_KEY);
+    return null;
+  }
 };
 
 export const setAuth = ({ accessToken, user }) => {
-  localStorage.setItem("accessToken", accessToken);
-  localStorage.setItem("user", JSON.stringify(user));
+  if (accessToken) localStorage.setItem(TOKEN_KEY, accessToken);
+  if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
 };
 
-export const getToken = () => localStorage.getItem("accessToken");
+export const clearAuth = () => {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
 
-export const getUser = () => {
-  const u = localStorage.getItem("user");
-  if (!u) return null;
-  try {
-    return JSON.parse(u);
-  } catch {
-    return null;
-  }
+  // (선택) 유저별 캐시 정리
+  Object.keys(localStorage).forEach((k) => {
+    if (k.startsWith("likedPlaces")) localStorage.removeItem(k);
+  });
 };
