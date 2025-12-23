@@ -10,9 +10,6 @@ import Color from "@tiptap/extension-color";
 import axios from "axios";
 import Swal from "sweetalert2";
 
-/* ---------------------------------------
-   ⭐ 이미지 자동 가운데 정렬 CustomImage
----------------------------------------- */
 const CustomImage = Image.extend({
   addAttributes() {
     return {
@@ -33,7 +30,7 @@ export default function TiptapEditor({ setContent }) {
       StarterKit.configure({ TextStyle: false }),
       TextStyle,
       Color,
-      CustomImage, // ⭐ 자동 가운데 정렬 적용된 이미지 확장
+      CustomImage, 
       Link.configure({ openOnClick: true }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
@@ -46,7 +43,6 @@ export default function TiptapEditor({ setContent }) {
 
   if (!editor) return null;
 
-  /* 이미지 업로드 실행 함수 */
   const handleUploadImage = async (file) => {
     const formData = new FormData();
     formData.append("image", file);
@@ -72,12 +68,10 @@ export default function TiptapEditor({ setContent }) {
     }
   };
 
-  /* 파일 열기 */
   const openFileDialog = () => {
     fileInputRef.current.click();
   };
 
-  /* 파일 선택 → 자동 업로드 */
   const onFileChange = (e) => {
     const file = e.target.files[0];
     if (file) handleUploadImage(file);
@@ -85,7 +79,6 @@ export default function TiptapEditor({ setContent }) {
 
   return (
     <div className="tiptap-wrap">
-      {/* 숨겨진 파일 input */}
       <input
         type="file"
         accept="image/*"
@@ -94,7 +87,6 @@ export default function TiptapEditor({ setContent }) {
         onChange={onFileChange}
       />
 
-      {/* 툴바 */}
       <div className="tiptap-toolbar">
         <button onClick={() => editor.chain().focus().toggleBold().run()}>
           <b>B</b>
@@ -116,10 +108,8 @@ export default function TiptapEditor({ setContent }) {
           ☰
         </button>
 
-        {/* 이미지 업로드 버튼 */}
         <button onClick={openFileDialog}>📷</button>
 
-        {/* 색상 선택 */}
         <label className="color-picker">
           <div
             className="color-preview"
@@ -137,7 +127,6 @@ export default function TiptapEditor({ setContent }) {
         </label>
       </div>
 
-      {/* 실제 에디터 */}
       <EditorContent editor={editor} className="tiptap-editor" />
     </div>
   );

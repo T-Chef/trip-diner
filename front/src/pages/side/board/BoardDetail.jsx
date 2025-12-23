@@ -10,11 +10,9 @@ export default function BoardDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   
-  // 로그인 유저 정보
   const user = JSON.parse(localStorage.getItem("user"));
   const user_id = user?.user_id;
 
-  // 상태 관리
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
@@ -23,14 +21,12 @@ export default function BoardDetail() {
 
   const textRef = useRef(null);
 
-  // 댓글 입력창 자동 높이 조절
   const autoResize = () => {
     if (!textRef.current) return;
     textRef.current.style.height = "auto";
     textRef.current.style.height = textRef.current.scrollHeight + "px";
   };
 
-  // 댓글 목록 가져오기 함수 (useCallback으로 최적화)
   const fetchComments = useCallback(async () => {
     try {
       const res = await axios.get(`${API_BASE}/comment/${id}`);
@@ -40,10 +36,6 @@ export default function BoardDetail() {
     }
   }, [id]);
 
-  /** * [핵심 수정 1] 게시글 상세 정보 및 조회수 증가 
-   * 의존성 배열에서 user_id와 fetchComments를 제거하여 
-   * 페이지 진입 시(id 변경 시) 딱 한 번만 실행되도록 함
-   */
   useEffect(() => {
     if (id) {
       axios.get(`${API_BASE}/posts/${id}`)
@@ -57,10 +49,6 @@ export default function BoardDetail() {
     }
   }, [id]); 
 
-  /**
-   * [핵심 수정 2] 부수적인 데이터(댓글, 좋아요 상태) 로드
-   * 좋아요 여부는 user_id가 확인된 시점에 한 번 더 실행될 수 있도록 분리
-   */
   useEffect(() => {
     if (id) {
       fetchComments();
@@ -76,7 +64,6 @@ export default function BoardDetail() {
     }
   }, [id, user_id, fetchComments]);
 
-  // 좋아요 토글
   const toggleLike = async () => {
     if (!user_id) return Swal.fire("로그인 필요", "로그인 후 가능합니다.", "warning");
     try {
@@ -88,7 +75,6 @@ export default function BoardDetail() {
     }
   };
 
-  // 댓글 등록
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
     if (!user_id) return Swal.fire("로그인 필요", "댓글을 작성하려면 로그인하세요.", "warning");
@@ -97,13 +83,12 @@ export default function BoardDetail() {
       await axios.post(`${API_BASE}/comment`, { post_id: id, user_id, content: newComment });
       setNewComment("");
       if (textRef.current) textRef.current.style.height = "40px";
-      fetchComments(); // 댓글 목록 새로고침
+      fetchComments();
     } catch {
       Swal.fire("오류", "댓글 저장에 실패했습니다.", "error");
     }
   };
 
-  // 날짜 포맷 함수
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const d = new Date(dateString);
@@ -117,7 +102,6 @@ export default function BoardDetail() {
       <div className="board-banner">Trip-Diner</div>
 
       <div className="board-detail board-wrapper">
-        {/* 상단 헤더 섹션 */}
         <div className="detail-header">
           <div className="category-tag" onClick={() => navigate(`/board/list/${post.category}`)} style={{ cursor: 'pointer' }}>
             {post.category} 게시판 &gt;
@@ -135,7 +119,6 @@ export default function BoardDetail() {
               <span className="meta-author">{post.user?.name || "익명"}</span>
               <div className="meta-bottom">
                 <span className="meta-date">{formatDate(post.created_at)}</span>
-                {/* [중요] DB 스키마에 정의된 views 필드 사용 */}
                 <span className="meta-views">조회 {post.views || 0}</span>
               </div>
             </div>
@@ -147,10 +130,8 @@ export default function BoardDetail() {
           </div>
         </div>
 
-        {/* 본문 섹션 */}
-        <div className="detail-body" dangerouslySetInnerHTML={{ __html: post.content }} />
+         <div className="detail-body" dangerouslySetInnerHTML={{ __html: post.content }} style={{ minHeight: "200px", padding: "20px 0" }} />
 
-        {/* 좋아요 버튼 섹션 */}
         <div className="cafe-comment-stats">
           <button className="like-btn" onClick={toggleLike}>
             <span className="like-icon">{liked ? "❤️" : "🤍"}</span>
@@ -158,9 +139,19 @@ export default function BoardDetail() {
           </button>
           <span>댓글 {comments.length}</span>
         </div>
+
+        {post.tags && Array.isArray(post.tags) && post.tags.length > 0 && (
+          <div className="post-tags-container">
+            {post.tags.map((tag, index) => (
+              <span key={index} className="post-tag-item">
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
+
         <hr className="stats-separator" />
 
-        {/* 댓글 입력창 */}
         <div className="comment-input-area">
           <textarea 
             ref={textRef} 
@@ -172,7 +163,6 @@ export default function BoardDetail() {
           <button className="comment-submit-btn" onClick={handleAddComment}>등록</button>
         </div>
 
-        {/* 댓글 리스트 */}
         <div className="comment-list">
           {comments.map((c) => (
             <div key={c.comment_id} className="comment-item">
@@ -184,7 +174,6 @@ export default function BoardDetail() {
               </div>
             </div>
           ))}
-
         </div>
       </div>
     </div>

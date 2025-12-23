@@ -136,12 +136,10 @@ export default function BoardWrite() {
             />
           </div>
 
-          {/* ⭐ 에디터 박스 추가 */}
           <div className="editor-box">
             <TiptapEditor setContent={setContent} initialContent={content} />
           </div>
 
-          {/* 태그 입력 */}
           <div className="tag-box">
             <div className="tag-list">
               {tags.map((tag) => (
@@ -165,7 +163,6 @@ export default function BoardWrite() {
           </div>
         </div>
 
-        {/* 오른쪽 사이드바 */}
         <div className="write-sidebar">
           <div className="sidebar-section">
             <strong>공개 설정</strong>

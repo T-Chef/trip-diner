@@ -4,7 +4,6 @@ import { userAuth } from "../../middleware/userAuth.js";
 
 const router = express.Router();
 
-// BigInt 변환을 위한 안전한 JSON 처리 함수
 const safeJson = (obj) =>
   JSON.parse(
     JSON.stringify(obj, (_, v) =>
@@ -12,9 +11,6 @@ const safeJson = (obj) =>
     )
   );
 
-/* ---------------------------------------------
-   1) 댓글 목록 가져오기
----------------------------------------------- */
 router.get("/:postId", async (req, res) => {
   try {
     const comments = await prisma.comment.findMany({
@@ -33,12 +29,8 @@ router.get("/:postId", async (req, res) => {
   }
 });
 
-/* ---------------------------------------------
-   2) 댓글 작성 (누구나 작성 가능하도록 인증 완화)
----------------------------------------------- */
 router.post("/", async (req, res) => {
   try {
-    // 프론트엔드 BoardDetail.jsx에서 보내주는 데이터를 직접 받습니다.
     const { post_id, content, parent_id, user_id } = req.body;
 
     if (!user_id) {
@@ -61,9 +53,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-/* ---------------------------------------------
-   3) 댓글 수정 (본인 확인을 위해 userAuth 유지 가능하나, 필요시 제거)
----------------------------------------------- */
 router.put("/:id", async (req, res) => {
   try {
     const { content, user_id } = req.body;
@@ -89,12 +78,8 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-/* ---------------------------------------------
-   4) 댓글 삭제
----------------------------------------------- */
 router.delete("/:id", async (req, res) => {
   try {
-    // 쿼리 스트링이나 바디로 user_id를 받아와서 확인
     const user_id = Number(req.query.user_id); 
     const commentId = Number(req.params.id);
 

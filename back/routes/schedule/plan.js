@@ -5,15 +5,66 @@ import { requireAuth } from "./auth.js";
 
 const router = express.Router();
 
-/**
- * POST /api/plan
- * body: { aiPlan, themes? }
- * aiPlan 구조: { title, cityName, peopleType, themes, days:[{day, places:[...]}] }
- */
+// ✅ 내 일정 목록 (달력 표시용)
+router.get("/my", requireAuth, async (req, res) => {
+  try {
+    // auth 미들웨어에서 req.user.user_id 넣는다고 가정
+    const userId = req.user.user_id; // BigInt일 수도 있음
+
+    const plans = await prisma.plan.findMany({
+      where: { user_id: userId },
+      select: { plan_id: true, title: true, start_date: true, end_date: true },
+      orderBy: { created_at: "desc" },
+    });
+
+    // BigInt JSON 안전 변환
+    const safe = plans.map(p => ({
+      ...p,
+      plan_id: p.plan_id.toString(),
+    }));
+
+    res.json({ success: true, plans: safe });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ success: false, message: "조회 실패" });
+  }
+});
+
+function toSafePlan(p) {
+  return {
+    ...p,
+    plan_id: p.plan_id.toString(),
+    user_id: p.user_id.toString(),
+    city_id: p.city_id ? p.city_id.toString() : null,
+    plan_day: (p.plan_day || []).map((d) => ({
+      ...d,
+      plan_day_id: d.plan_day_id.toString(),
+      plan_id: d.plan_id.toString(),
+      plan_item: (d.plan_item || []).map((it) => ({
+        ...it,
+        plan_item_id: it.plan_item_id.toString(),
+        plan_day_id: it.plan_day_id.toString(),
+        place_id: it.place_id ? it.place_id.toString() : null,
+        place: it.place
+          ? {
+              ...it.place,
+              place_id: it.place.place_id.toString(),
+              city_id: it.place.city_id ? it.place.city_id.toString() : null,
+              external_id: it.place.external_id
+                ? it.place.external_id.toString()
+                : null,
+            }
+          : null,
+      })),
+    })),
+  };
+}
+
+/** POST /api/plan (저장) */
 router.post("/", requireAuth, async (req, res) => {
   try {
     const userId = req.user.user_id;
-    const { aiPlan, themes } = req.body;
+    const { aiPlan, themes, startDate } = req.body;
 
     if (!aiPlan?.days?.length) {
       return res.status(400).json({ success: false, message: "aiPlan 데이터 없음" });
@@ -21,55 +72,63 @@ router.post("/", requireAuth, async (req, res) => {
 
     const cityName = aiPlan.cityName || "";
     const title = aiPlan.title || "여행 일정";
+
+    // ✅ 달력에서 넘어온 시작일 적용
+let start = null;
+let end = null;
+
+if (startDate) {
+  start = new Date(startDate);
+  if (!Number.isNaN(start.getTime())) {
+    end = new Date(start);
+    end.setDate(end.getDate() + (aiPlan.days.length - 1));
+  } else {
+    start = null;
+    end = null;
+  }
+}
+
     const peopleType = aiPlan.peopleType || null;
     const finalThemes = aiPlan.themes || themes || [];
 
     const saved = await prisma.$transaction(async (tx) => {
-      // 1) city 찾거나 생성
+
       let city = null;
       if (cityName.trim()) {
         city = await tx.city.findFirst({ where: { name: cityName.trim() } });
-        if (!city) {
-          city = await tx.city.create({ data: { name: cityName.trim() } });
-        }
+        if (!city) city = await tx.city.create({ data: { name: cityName.trim() } });
       }
 
-      // 2) plan 생성 (기존 plan 컬럼에 맞춰 저장)
       const plan = await tx.plan.create({
         data: {
           user_id: userId,
           city_id: city?.city_id ?? null,
           title,
-          start_date: null,
-          end_date: null,
-          // memo에 메타를 JSON 문자열로 저장 (스키마 수정 없이 가능)
-          memo: JSON.stringify({
-            peopleType,
-            themes: finalThemes,
-            cityName,
-          }),
+          start_date: start,
+          end_date: end,
+          memo: JSON.stringify({ peopleType, themes: finalThemes, cityName }),
         },
       });
 
-      // 3) plan_day + plan_item 저장
       for (let d = 0; d < aiPlan.days.length; d++) {
         const dayObj = aiPlan.days[d];
         const dayIndex = Number(dayObj.day ?? d + 1);
         const places = dayObj.places || [];
 
-        const planDay = await tx.plan_day.create({
-          data: {
-            plan_id: plan.plan_id,
-            day_index: dayIndex,
-            date: null,
-          },
-        });
+         let dayDate = null;
+if (start) {
+  dayDate = new Date(start);
+  // dayIndex가 1부터라면 -1 해줘야 함
+  dayDate.setDate(dayDate.getDate() + (dayIndex - 1));
+}
+
+const planDay = await tx.plan_day.create({
+  data: { plan_id: plan.plan_id, day_index: dayIndex, date: dayDate },
+});
 
         for (let i = 0; i < places.length; i++) {
           const p = places[i];
 
-          // place 재사용 기준: (city_id, name, lat, lng) 비슷한 걸로 찾기
-          // (현재 place에 google placeId 같은 고유 string 컬럼이 없어서 이 방식이 제일 안전함)
           let placeRow = await tx.place.findFirst({
             where: {
               city_id: city?.city_id ?? null,
@@ -92,19 +151,6 @@ router.post("/", requireAuth, async (req, res) => {
                 description: p.description ?? null,
               },
             });
-          } else {
-            // 이미지/주소가 비어있으면 최신값으로 보강 (선택)
-            const needUpdate =
-              (!placeRow.image_url && p.image) || (!placeRow.address && p.address);
-            if (needUpdate) {
-              placeRow = await tx.place.update({
-                where: { place_id: placeRow.place_id },
-                data: {
-                  image_url: placeRow.image_url ?? (p.image ?? null),
-                  address: placeRow.address ?? (p.address ?? null),
-                },
-              });
-            }
           }
 
           const timeStr =
@@ -128,19 +174,12 @@ router.post("/", requireAuth, async (req, res) => {
 
     return res.json({ success: true, plan_id: saved.plan_id.toString() });
   } catch (err) {
-  console.error("Plan Save Error:", err.code, err.meta, err.message);
-
-  return res.status(500).json({
-    success: false,
-    message: "일정 저장 실패",
-    code: err.code,
-    meta: err.meta,     // ✅ 여기 중요 (column_name 나옴)
-    detail: err.message,
-  });
-}
+    console.error("Plan Save Error:", err);
+    return res.status(500).json({ success: false, message: "일정 저장 실패" });
+  }
 });
 
-/** GET /api/plan (내 일정 목록) */
+/** ✅ GET /api/plan (내 일정 목록) */
 router.get("/", requireAuth, async (req, res) => {
   try {
     const userId = req.user.user_id;
@@ -162,37 +201,73 @@ router.get("/", requireAuth, async (req, res) => {
       },
     });
 
-    // BigInt JSON 처리
-    const safe = plans.map((p) => ({
-      ...p,
-      plan_id: p.plan_id.toString(),
-      user_id: p.user_id.toString(),
-      city_id: p.city_id ? p.city_id.toString() : null,
-      plan_day: p.plan_day.map((d) => ({
-        ...d,
-        plan_day_id: d.plan_day_id.toString(),
-        plan_id: d.plan_id.toString(),
-        plan_item: d.plan_item.map((it) => ({
-          ...it,
-          plan_item_id: it.plan_item_id.toString(),
-          plan_day_id: it.plan_day_id.toString(),
-          place_id: it.place_id ? it.place_id.toString() : null,
-          place: it.place
-            ? {
-                ...it.place,
-                place_id: it.place.place_id.toString(),
-                city_id: it.place.city_id ? it.place.city_id.toString() : null,
-                external_id: it.place.external_id ? it.place.external_id.toString() : null,
-              }
-            : null,
-        })),
-      })),
-    }));
-
-    res.json({ success: true, plans: safe });
+    res.json({ success: true, plans: plans.map(toSafePlan) });
   } catch (err) {
     console.error("Plan List Error:", err);
     res.status(500).json({ success: false, message: "목록 조회 실패" });
+  }
+});
+
+/** ✅ GET /api/plan/:id (상세 1개) */
+router.get("/:id", requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.user_id;
+
+    let planId;
+    try {
+      planId = BigInt(req.params.id);
+    } catch {
+      return res.status(400).json({ success: false, message: "잘못된 plan id" });
+    }
+
+    const plan = await prisma.plan.findFirst({
+      where: { plan_id: planId, user_id: userId },
+      include: {
+        city: true,
+        plan_day: {
+          orderBy: { day_index: "asc" },
+          include: {
+            plan_item: {
+              orderBy: { order_index: "asc" },
+              include: { place: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!plan) return res.status(404).json({ success: false, message: "일정을 찾을 수 없음" });
+
+    res.json({ success: true, plan: toSafePlan(plan) });
+  } catch (err) {
+    console.error("Plan Detail Error:", err);
+    res.status(500).json({ success: false, message: "상세 조회 실패" });
+  }
+});
+
+router.delete("/:id", requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.user_id;
+    const planId = BigInt(req.params.id);
+
+    // 내 일정만 삭제
+    const plan = await prisma.plan.findFirst({ where: { plan_id: planId, user_id: userId } });
+    if (!plan) return res.status(404).json({ success: false, message: "일정 없음" });
+
+    // 관계 테이블 삭제(스키마에 맞게 조정)
+    await prisma.$transaction(async (tx) => {
+      const days = await tx.plan_day.findMany({ where: { plan_id: planId }, select: { plan_day_id: true } });
+      const dayIds = days.map(d => d.plan_day_id);
+
+      if (dayIds.length) await tx.plan_item.deleteMany({ where: { plan_day_id: { in: dayIds } } });
+      await tx.plan_day.deleteMany({ where: { plan_id: planId } });
+      await tx.plan.delete({ where: { plan_id: planId } });
+    });
+
+    res.json({ success: true });
+  } catch (e) {
+    console.error("Plan Delete Error:", e);
+    res.status(500).json({ success: false, message: "삭제 실패" });
   }
 });
 

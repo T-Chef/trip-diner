@@ -1,4 +1,4 @@
-/* 전체 화면 */
+
 .login-container {
   width: 100%;
   min-height: calc(100vh - 80px);
@@ -9,7 +9,6 @@
   padding: 40px 0;
 }
 
-/* 로그인 박스 */
 .login-box {
   width: 420px;
   background: #ffffff;
@@ -21,7 +20,6 @@
   gap: 22px;
 }
 
-/* 제목 */
 .login-title {
   font-size: 26px;
   font-weight: 700;
@@ -30,7 +28,6 @@
   margin-bottom: 10px;
 }
 
-/* 입력 그룹 */
 .input-group {
   display: flex;
   flex-direction: column;
@@ -58,7 +55,6 @@
   outline: none;
 }
 
-/* 로그인 버튼 */
 .login-btn {
   width: 100%;
   padding: 14px 0;
@@ -77,11 +73,10 @@
   background-color: #3a68db;
 }
 
-/* 회원가입 링크 */
 .login-footer {
   font-size: 14px;
   text-align: center;
-  color: #000; /* 🔥 검정색으로 변경됨 */
+  color: #000; 
 }
 
 .login-footer .link {
@@ -94,7 +89,6 @@
   text-decoration: underline;
 }
 
-/* 비밀번호 찾기 영역 */
 .forgot-area {
   width: 100%;
   text-align: right;
@@ -102,7 +96,6 @@
   margin-bottom: 5px;
 }
 
-/* 링크 스타일 */
 .forgot-link {
   font-size: 14px;
   color: #6b7280;
@@ -115,7 +108,6 @@
 }
 
 
-/* 반응형 */
 @media (max-width: 480px) {
   .login-box {
     width: 88%;

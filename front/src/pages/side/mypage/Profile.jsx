@@ -117,7 +117,7 @@ export default function Profile({ user, setUser }) {
             <span>홈으로</span>
           </div>
 
-          <div className="menu-box" onClick={() => navigate("/schedule")}>
+          <div className="menu-box" onClick={() => navigate("/my-trips")}>
             <FaCalendarCheck className="menu-icon" />
             <span>내 일정</span>
           </div>
