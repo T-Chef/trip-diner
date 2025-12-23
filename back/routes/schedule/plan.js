@@ -61,7 +61,6 @@ router.post("/", requireAuth, async (req, res) => {
     const userId = req.user.user_id;
     const { aiPlan, themes, startDate } = req.body;
 
-
     if (!aiPlan?.days?.length) {
       return res.status(400).json({ success: false, message: "aiPlan 데이터 없음" });
     }
@@ -86,6 +85,7 @@ if (startDate) {
     const finalThemes = aiPlan.themes || themes || [];
 
     const saved = await prisma.$transaction(async (tx) => {
+
       let city = null;
       if (cityName.trim()) {
         city = await tx.city.findFirst({ where: { name: cityName.trim() } });
@@ -117,7 +117,6 @@ if (start) {
 const planDay = await tx.plan_day.create({
   data: { plan_id: plan.plan_id, day_index: dayIndex, date: dayDate },
 });
-
 
         for (let i = 0; i < places.length; i++) {
           const p = places[i];

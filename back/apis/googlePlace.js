@@ -4,7 +4,6 @@ import "dotenv/config";
 export async function searchGoogleDetails(lat, lng, name) {
   try {
     const API_KEY = process.env.GOOGLE_API_KEY;
-
     const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=500&keyword=${encodeURIComponent(
       name
     )}&language=ko&key=${API_KEY}`;

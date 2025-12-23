@@ -25,8 +25,10 @@ import cityRouter from "./routes/city/city.js";
 import categoryRouter from "./routes/schedule/category.js";
 import placeRouter from "./routes/city/place.js";
 import eventRouter from "./routes/city/event.js";
+import reviewRouter from "./routes/review.js";
 import tripRouter from "./routes/schedule/trip.js";
 import usersRouter from "./routes/users.js";
+
 import tourRouter from "./routes/schedule/tour.js";
 import aiRouter from "./routes/schedule/ai.js";
 import profileRouter from "./routes/mypage/profile.js";
@@ -50,6 +52,7 @@ import adminRouter from "./routes/admin/admin.js";
 import adminLoginRouter from "./routes/admin/adminLogin.js";
 
 const app = express();
+
 app.set("json replacer", (key, value) =>
   typeof value === "bigint" ? value.toString() : value
 );
@@ -76,7 +79,7 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: "http://localhost:3000",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })
 );

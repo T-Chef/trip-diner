@@ -200,3 +200,4 @@ export async function searchPlaceByKeyword(keyword, cityName) {
     homepage: best.homepage ?? null,
   };
 }
+

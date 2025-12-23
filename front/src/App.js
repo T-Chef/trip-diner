@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
@@ -125,6 +126,7 @@ export default function App() {
                 {/* 구 경로 리다이렉트 */}
                 <Route path="/schedule" element={<Navigate to="/trip" replace />} />
                 <Route path="/schedule/result" element={<Navigate to="/trip/result" replace />} />
+
                 <Route path="/schedule/pick-start-date" element={<PickStartDatePage />} />
 
                 {/* City */}
@@ -157,3 +159,4 @@ export default function App() {
     </Router>
   );
 }
+

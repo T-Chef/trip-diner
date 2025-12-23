@@ -96,6 +96,7 @@ function buildAiPlanFromDb(plan) {
 export default function AIScheduleSummary() {
   const location = useLocation();
   const navigate = useNavigate();
+
   const [searchParams] = useSearchParams();
 
   const planId = searchParams.get("planId"); // ✅ /trip/summary?planId=123
