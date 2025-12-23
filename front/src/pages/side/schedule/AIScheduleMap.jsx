@@ -1,61 +1,48 @@
-// front/src/pages/.../AIScheduleMap.jsx
 import React, { useEffect, useRef, useState, useCallback } from "react";
 
-const AIScheduleMap = ({
-  aiPlan,
-  onSelectPlace,
-  activePlace,
-  selectedDayExternal,   
-}) => {
+const DAY_COLORS = ["#0078ff", "#1ec800", "#ff3b30", "#ff9500", "#9b59b6"];
+const AIScheduleMap = ({ aiPlan, onSelectPlace, activePlace, selectedDayExternal }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const markersRef = useRef([]);
   const polylinesRef = useRef([]);
   const [selectedDay, setSelectedDay] = useState("ALL");
-  // ★ 요약 페이지에서 넘겨준 Day 필터 반영
-  React.useEffect(() => {
-    if (!selectedDayExternal) return; // undefined면 무시
 
-    if (selectedDayExternal === "ALL") {
-      setSelectedDay("ALL");
-    } else {
-      setSelectedDay(selectedDayExternal); // 1,2,3 같은 숫자(day)
-    }
+  useEffect(() => {
+    if (!selectedDayExternal) return;
+    if (selectedDayExternal === "ALL") setSelectedDay("ALL");
+    else setSelectedDay(selectedDayExternal);
   }, [selectedDayExternal]);
 
-  const dayColors = ["#0078ff", "#1ec800", "#ff3b30", "#ff9500", "#9b59b6"];
-
-  const resizeMap = () => {
+  // ✅ resizeMap: useCallback으로 고정 (이벤트리스너 add/remove 정확히 동일 참조)
+  const resizeMap = useCallback(() => {
     if (mapInstance.current && mapRef.current) {
       const mapDiv = mapRef.current;
       mapInstance.current.setSize(
         new window.naver.maps.Size(mapDiv.clientWidth, mapDiv.clientHeight)
       );
     }
-  };
+  }, []);
 
-  // 🔥 첫 장소 좌표 찾는 함수
-  const getFirstPlaceLatLng = () => {
+  // ✅ 첫 장소 좌표: useCallback으로 고정 (aiPlan 변경될 때만 변경)
+  const getFirstPlaceLatLng = useCallback(() => {
     if (!aiPlan?.days) return null;
     for (const day of aiPlan.days) {
       for (const p of day.places || []) {
-        if (p.lat && p.lng) {
-          return { lat: p.lat, lng: p.lng };
-        }
+        if (p.lat && p.lng) return { lat: p.lat, lng: p.lng };
       }
     }
     return null;
-  };
+  }, [aiPlan]);
 
   const initMap = useCallback(() => {
     if (!mapRef.current || !window.naver || !aiPlan?.days) return;
 
-    // 🗺 최초 한 번만 지도 생성 + 중심을 첫 장소로 설정
     if (!mapInstance.current) {
       const first = getFirstPlaceLatLng();
       const centerLatLng = first
         ? new window.naver.maps.LatLng(first.lat, first.lng)
-        : new window.naver.maps.LatLng(37.5665, 126.9780); // fallback
+        : new window.naver.maps.LatLng(37.5665, 126.9780);
 
       mapInstance.current = new window.naver.maps.Map(mapRef.current, {
         zoom: 11,
@@ -78,7 +65,7 @@ const AIScheduleMap = ({
       if (!dayPlan?.places) return;
       if (selectedDay !== "ALL" && selectedDay !== dayIndex + 1) return;
 
-      const color = dayColors[dayIndex % dayColors.length];
+      const color = DAY_COLORS[dayIndex % DAY_COLORS.length];
       let path = [];
       let markerNumber = 1;
 
@@ -137,21 +124,19 @@ const AIScheduleMap = ({
       }
     });
 
-    // 지도 크기 먼저 맞춤
     resizeMap();
 
-    // activePlace 있을 때는 fitBounds 실행 금지
+    // ✅ activePlace 썼으니 deps에도 포함해야 함
     if (!activePlace) {
       if (hasAnyPoint) {
         mapInstance.current.fitBounds(bounds);
       } else {
-        mapInstance.current.setCenter(
-          new window.naver.maps.LatLng(37.5665, 126.9780)
-        );
+        mapInstance.current.setCenter(new window.naver.maps.LatLng(37.5665, 126.9780));
         mapInstance.current.setZoom(11);
       }
     }
-  }, [aiPlan, selectedDay, onSelectPlace]); // activePlace는 여기서 안 씀
+  }, [aiPlan, selectedDay, onSelectPlace, activePlace, getFirstPlaceLatLng, resizeMap]);
+
 
   useEffect(() => {
     console.log("🧪 지도에 전달된 aiPlan:", aiPlan);
@@ -175,7 +160,7 @@ const AIScheduleMap = ({
         polylinesRef.current = [];
       }
     };
-  }, [aiPlan, selectedDay, initMap]);
+}, [initMap, resizeMap, aiPlan]);
 
   // 🔍 리스트에서 장소 클릭했을 때 해당 마커로 이동
   useEffect(() => {

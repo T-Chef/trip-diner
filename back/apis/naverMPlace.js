@@ -1,4 +1,3 @@
-// back/apis/naverMPlace.js
 import fetch from "node-fetch";
 
 export async function getNaverPlaceDetail(placeId) {
@@ -17,7 +16,7 @@ export async function getNaverPlaceDetail(placeId) {
       rating: data?.rating,
       reviewCount: data?.reviewCount,
       bizhour: data?.businessHours ?? [],
-      photos: data?.thumUrlList ?? [], // 대표사진
+      photos: data?.thumUrlList ?? [], 
     };
   } catch (err) {
     console.error("📌 상세정보 수집 실패:", err);

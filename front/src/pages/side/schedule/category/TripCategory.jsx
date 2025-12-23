@@ -7,6 +7,7 @@ import StepCompanion from "./StepCompanion";
 import StepThemeSelect from "./StepThemeSelect";
 import CategoryHeader from "./CategoryHeader";
 import CategoryFooter from "./CategoryFooter";
+import "../../../../styles/side/schedule/TripCategory.css";
 
 const TripCategory = () => {
   const [step, setStep] = useState(1);

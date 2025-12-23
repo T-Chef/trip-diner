@@ -25,7 +25,6 @@ import cityRouter from "./routes/city/city.js";
 import categoryRouter from "./routes/schedule/category.js";
 import placeRouter from "./routes/city/place.js";
 import eventRouter from "./routes/city/event.js";
-import reviewRouter from "./routes/review.js";
 import tripRouter from "./routes/schedule/trip.js";
 import usersRouter from "./routes/users.js";
 import tourRouter from "./routes/schedule/tour.js";
@@ -35,7 +34,6 @@ import weatherRouter from "./routes/city/weather.js";
 import planRouter from "./routes/schedule/plan.js";
 
 // 게시판
-import postlikeRouter from "./routes/board/postlike.js";
 import postRouter from "./routes/board/post.js";
 import commentRouter from "./routes/board/comment.js";
 

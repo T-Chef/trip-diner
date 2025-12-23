@@ -38,7 +38,7 @@ const StepThemeSelect = ({
         days: selectedDays,
         peopleType: selectedCompanion,
         themes: selectedThemes,
-        contentTypeIds: [12, 39], // 관광지+음식점 (임시)
+        contentTypeIds: [12, 39], 
       });
 
       navigate("/trip/result", { state: { aiPlan: res.data.aiPlan } });

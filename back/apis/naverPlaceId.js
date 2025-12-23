@@ -1,4 +1,3 @@
-// back/apis/naverPlaceId.js
 import fetch from "node-fetch";
 
 export async function getPlaceIdFromSearchUrl(searchUrl) {

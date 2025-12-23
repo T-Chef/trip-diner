@@ -1,21 +1,21 @@
-// back/apis/tourApi.js
 import fetch from "node-fetch";
 import "dotenv/config";
 import https from "https";
 
 const SERVICE_KEY = process.env.TOUR_API_KEY;
 const BASE_URL = "https://apis.data.go.kr/B551011/KorService2";
-
-// ✅ 연결 안정화(keepAlive)
 const httpsAgent = new https.Agent({ keepAlive: true });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+let queue = Promise.resolve();
+function enqueueTourApi(fn) {
+  const next = queue.then(fn, fn);
+  queue = next.catch(() => {}); // 큐 끊기 방지
+  return next;
+}
 
-/**
- * 공통 fetch + 안전 파서 + 타임아웃 + 재시도(ECONNRESET 대응)
- */
 async function callTourAPI(path, params, opts = {}) {
-  const retry = opts.retry ?? 3; // 기본 3회
-  const timeoutMs = opts.timeoutMs ?? 12000; // 기본 12초
+  const retry = opts.retry ?? 5;          // ✅ 3 → 5 정도로
+  const timeoutMs = opts.timeoutMs ?? 12000;
 
   const query = Object.entries(params)
     .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
@@ -41,7 +41,24 @@ async function callTourAPI(path, params, opts = {}) {
       const text = await res.text();
       clearTimeout(t);
 
-      // ✅ 5xx는 재시도 가치
+      // ✅ 429면 더 길게 쉬었다가 재시도
+      if (res.status === 429) {
+        // Retry-After 헤더가 있으면 그걸 우선 사용(초 단위인 경우가 많음)
+        const ra = res.headers.get("retry-after");
+        const retryAfterMs = ra ? Number(ra) * 1000 : null;
+
+        // 없으면 지수 백오프(500ms, 1000ms, 2000ms...) + 약간 랜덤
+        const backoff =
+          retryAfterMs ??
+          Math.min(8000, 500 * 2 ** (attempt - 1)) + Math.floor(Math.random() * 200);
+
+        if (attempt < retry) {
+          console.warn(`[TourAPI 429] wait ${backoff}ms then retry ${attempt}/${retry}`);
+          await sleep(backoff);
+          continue;
+        }
+      }
+
       if (!res.ok) {
         const err = new Error(`TourAPI HTTP ${res.status}`);
         err.httpStatus = res.status;
@@ -72,15 +89,20 @@ async function callTourAPI(path, params, opts = {}) {
         err?.code === "ETIMEDOUT" ||
         err?.code === "ECONNREFUSED";
 
-      const isRetryableHttp = err?.httpStatus >= 500;
+      // ✅ 429도 재시도 대상으로 포함 + 503 같은 것도 포함
+      const isRetryableHttp =
+        err?.httpStatus === 429 ||
+        err?.httpStatus === 503 ||
+        err?.httpStatus >= 500;
 
       if (attempt < retry && (isNetwork || isRetryableHttp)) {
+        const backoff = Math.min(8000, 400 * 2 ** (attempt - 1)) + Math.floor(Math.random() * 200);
         console.warn(
-          `[TourAPI retry ${attempt}/${retry}]`,
+          `[TourAPI retry ${attempt}/${retry}] wait ${backoff}ms`,
           err.code || err.name || err.message,
           err.httpStatus || ""
         );
-        await sleep(300 * attempt);
+        await sleep(backoff);
         continue;
       }
 
@@ -92,9 +114,10 @@ async function callTourAPI(path, params, opts = {}) {
   return [];
 }
 
-/**
- * 1) 시/도 리스트 (areaCode2)
- */
+async function callTourAPI(path, params, opts = {}) {
+  return enqueueTourApi(() => _callTourAPI(path, params, opts));
+}
+
 export async function getCities() {
   const items = await callTourAPI("/areaCode2", {
     numOfRows: 50,
@@ -110,9 +133,6 @@ export async function getCities() {
   }));
 }
 
-/**
- * 2) 시/도 내 구/군 리스트 (areaCode2 + areaCode)
- */
 export async function getDistricts(areaCode) {
   const items = await callTourAPI("/areaCode2", {
     numOfRows: 100,
@@ -129,9 +149,6 @@ export async function getDistricts(areaCode) {
   }));
 }
 
-/**
- * 3) 특정 시/도 + 구/군 + 카테고리(contentTypeId) 장소 리스트 (areaBasedList2)
- */
 export async function getPlaces({ areaCode, sigunguCode, contentTypeId, numOfRows = 50 }) {
   const items = await callTourAPI("/areaBasedList2", {
     numOfRows,
@@ -157,9 +174,6 @@ export async function getPlaces({ areaCode, sigunguCode, contentTypeId, numOfRow
   }));
 }
 
-/**
- * ⭐ 4) 키워드 검색 후 가장 잘 맞는 장소 1개 반환 (searchKeyword2)
- */
 export async function searchPlaceByKeyword(keyword, cityName) {
   const items = await callTourAPI("/searchKeyword2", {
     keyword,
@@ -172,10 +186,8 @@ export async function searchPlaceByKeyword(keyword, cityName) {
 
   if (!items || items.length === 0) return null;
 
-  // ① cityName이 주소에 들어가면 우선
   let best = items.find((i) => i.addr1 && cityName && i.addr1.includes(cityName));
 
-  // ② 없으면 첫번째
   if (!best) best = items[0];
 
   return {

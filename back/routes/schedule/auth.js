@@ -1,4 +1,3 @@
-// back/routes/auth.js
 import jwt from "jsonwebtoken";
 
 export function requireAuth(req, res, next) {
@@ -11,7 +10,6 @@ export function requireAuth(req, res, next) {
     const token = auth.split(" ")[1];
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
-    // users.js에서 payload가 { user_id: "..." }
     req.user = { user_id: BigInt(decoded.user_id) };
     next();
   } catch (e) {
