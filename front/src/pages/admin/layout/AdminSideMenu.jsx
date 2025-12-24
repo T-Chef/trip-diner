@@ -61,7 +61,7 @@ export default function AdminSideMenu({ menuOpen, setMenuOpen }) {
 
           <li className="menu-item">
             <Link
-              to="/admin/inquiries"
+              to="/admin/qna"
               className="menu-link"
               onClick={() => setMenuOpen(false)}
             >

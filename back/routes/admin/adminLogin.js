@@ -23,14 +23,14 @@ router.post("/login", async (req, res) => {
     }
 
     const payload = {
-      admin_id: admin.admin_id.toString(), // BigInt 제거
+      admin_id: admin.admin_id.toString(),
       role: "ADMIN",
       email: admin.email,
     };
 
     const token = jwt.sign(
       payload,
-      process.env.ADMIN_JWT_SECRET, // 🔥 여기
+      process.env.ADMIN_JWT_SECRET,
       { expiresIn: "2h" }
     );
 

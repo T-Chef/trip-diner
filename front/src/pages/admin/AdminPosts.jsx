@@ -34,67 +34,75 @@ export default function AdminPosts() {
     setSelectedPost(res.data);
   };
 
+  const closeModal = () => {
+    setSelectedPost(null);
+  };
+
   return (
-    <div className="admin-posts-container">
-      <h1>관리자 게시글 관리</h1>
+    <div className="admin-posts-page">
+      <h1 className="admin-title">관리자 게시글 관리</h1>
 
-      <table className="admin-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>제목</th>
-            <th>카테고리</th>
-            <th>상태</th>
-            <th>작성일</th>
-            <th>관리</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {posts.map((post) => (
-            <tr
-              key={post.post_id}
-              className={post.deleted === 1 ? "deleted-row" : ""}
-            >
-              <td>{post.post_id}</td>
-
-              <td
-                className="post-title-link"
-                onClick={() => openPostDetail(post.post_id)}
-              >
-                {post.title}
-              </td>
-
-              <td>{post.category}</td>
-              <td>{post.deleted === 1 ? "삭제됨" : "정상"}</td>
-              <td>{post.created_at?.slice(0, 10)}</td>
-              <td>
-                {post.deleted === 0 ? (
-                  <button
-                    className="danger-btn"
-                    onClick={() => handleDelete(post.post_id)}
-                  >
-                    삭제
-                  </button>
-                ) : (
-                  <button
-                    className="success-btn"
-                    onClick={() => handleRestore(post.post_id)}
-                  >
-                    복구
-                  </button>
-                )}
-              </td>
+      <div className="admin-card">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>제목</th>
+              <th>카테고리</th>
+              <th>상태</th>
+              <th>작성일</th>
+              <th>관리</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {posts.map((post) => (
+              <tr
+                key={post.post_id}
+                className={post.deleted === 1 ? "deleted-row" : ""}
+              >
+                <td>{post.post_id}</td>
+                <td
+                  className="post-title-link"
+                  onClick={() => {
+                    if (post.deleted === 1) {
+                      alert("임시 삭제된 게시글은 내용을 확인할 수 없습니다.");
+                      return;
+                    }
+                    openPostDetail(post.post_id);
+                  }}
+                >
+                  {post.title}
+                </td>
+                <td>{post.category}</td>
+                <td>{post.deleted === 1 ? "삭제됨" : "정상"}</td>
+                <td>{post.created_at?.slice(0, 10)}</td>
+                <td>
+                  {post.deleted === 0 ? (
+                    <button
+                      className="danger-btn"
+                      onClick={() => handleDelete(post.post_id)}
+                    >
+                      삭제
+                    </button>
+                  ) : (
+                    <button
+                      className="success-btn"
+                      onClick={() => handleRestore(post.post_id)}
+                    >
+                      복구
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      {/* 게시글 상세 모달 */}
       {selectedPost && (
-        <div className="modal-overlay" onClick={() => setSelectedPost(null)}>
+        <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h2>{selectedPost.title}</h2>
+            <h2 className="modal-title">{selectedPost.title}</h2>
 
             <div className="modal-meta">
               <span>카테고리: {selectedPost.category}</span>
@@ -112,12 +120,16 @@ export default function AdminPosts() {
 
             <div
               className="modal-content"
-              dangerouslySetInnerHTML={{ __html: selectedPost.content }}
+              dangerouslySetInnerHTML={{
+                __html: selectedPost.content,
+              }}
             />
 
-            <button className="close-btn" onClick={() => setSelectedPost(null)}>
-              닫기
-            </button>
+            <div className="modal-actions">
+              <button className="close-btn" onClick={closeModal}>
+                닫기
+              </button>
+            </div>
           </div>
         </div>
       )}

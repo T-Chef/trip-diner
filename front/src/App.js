@@ -48,7 +48,7 @@ import AdminLayout from "./pages/admin/layout/AdminLayout.jsx";
 import AdminHome from "./pages/admin/AdminHome.jsx";
 import AdminUsers from "./pages/admin/AdminUsers.jsx";
 import AdminPosts from "./pages/admin/AdminPosts.jsx";
-import AdminInquiries from "./pages/admin/AdminInquiries.jsx";
+import AdminQnA from "./pages/admin/AdminQnA.jsx";
 
 // 비밀번호 재설정
 import ForgotPassword from "./pages/pw/ForgotPassword";
@@ -84,7 +84,7 @@ export default function App() {
         <Route path="/admin/*" element={<AdminLayout />}>
           <Route path="users" element={<AdminUsers />} />
           <Route path="posts" element={<AdminPosts />} />
-          <Route path="inquiries" element={<AdminInquiries />} />
+          <Route path="QnA" element={<AdminQnA />} />
         </Route>
 
         {/* =========================

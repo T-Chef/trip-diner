@@ -18,7 +18,7 @@ model admin {
   created_at   DateTime    @default(now())
   updated_at   DateTime    @updatedAt
   last_login   DateTime?
-  qna_answers  qna_answer[]
+  answers      qna_answer[]
 }
 /* -------------------------------------------------------
    CITY
@@ -51,21 +51,28 @@ model event {
    PLACE
 ------------------------------------------------------- */
 model place {
-  place_id     BigInt       @id @default(autoincrement())
-  external_id  BigInt?      @unique
-  city_id      BigInt?
-  name         String?      @db.VarChar(255)
-  category     String?      @db.VarChar(255)
-  address      String?      @db.VarChar(500)
-  lat          Float?
-  lng          Float?
-  description  String?      @db.Text
-  image_url    String?      @db.VarChar(2000)
-  city         city?        @relation(fields: [city_id], references: [city_id])
-  place_like   place_like[]
-  plan_item    plan_item[]
-  review_place review_place[]
-  @@index([city_id])
+  place_id        BigInt  @id @default(autoincrement())
+  external_id     BigInt? @unique
+  name            String? @db.VarChar(255)
+  address         String? @db.VarChar(500)
+  category        String? @db.VarChar(255)
+  description     String? @db.Text
+  image_url       String? @db.VarChar(2000)
+  content_type_id Int?
+
+  plan_items    plan_item[]
+  review_places review_place[]
+
+  // 좌표 (OpenWeather / 지도)
+  lat Float?
+  lng Float?
+
+  // City FK (없으면 null)
+  city_id BigInt?
+  city    city?   @relation(fields: [city_id], references: [city_id])
+
+  // Likes
+  place_like place_like[]
 }
 /* -------------------------------------------------------
    AI HISTORY & KEYWORD
@@ -161,7 +168,6 @@ model post {
   views      Int         @default(0)
   tags       String?     @db.VarChar(500)
   deleted    Int         @default(0)
-  blocked    Int         @default(0)
   created_at DateTime?   @default(now()) @db.DateTime(0)
   updated_at DateTime?   @default(now()) @db.DateTime(0)
   comment    comment[]
@@ -171,27 +177,34 @@ model post {
   @@index([user_id])
 }
 /* -------------------------------------------------------
-   QNA & ANSWER
+   QNA
 ------------------------------------------------------- */
 model qna {
   qna_id     BigInt       @id @default(autoincrement())
   user_id    BigInt
   title      String?      @db.VarChar(255)
   content    String?      @db.Text
-  created_at DateTime?    @default(now()) @db.DateTime(0)
+  created_at DateTime     @default(now()) @db.DateTime(0)
   status     qna_status   @default(WAITING)
+
   user       user         @relation(fields: [user_id], references: [user_id])
-  qna_answer qna_answer[]
+  answers    qna_answer[]
+
   @@index([user_id])
 }
+/* -------------------------------------------------------
+   QNA ANSWER
+------------------------------------------------------- */
 model qna_answer {
-  answer_id  BigInt     @id @default(autoincrement())
+  answer_id  BigInt      @id @default(autoincrement())
   qna_id     BigInt
   admin_id   BigInt
-  content    String?    @db.Text
-  created_at DateTime?  @default(now()) @db.DateTime(0)
-  qna        qna        @relation(fields: [qna_id], references: [qna_id])
-  admin      admin      @relation(fields: [admin_id], references: [admin_id])
+  content    String?     @db.Text
+  created_at DateTime    @default(now()) @db.DateTime(0)
+
+  qna        qna         @relation(fields: [qna_id], references: [qna_id], onDelete: Cascade)
+  admin      admin       @relation(fields: [admin_id], references: [admin_id])
+
   @@index([qna_id])
   @@index([admin_id])
 }
@@ -236,7 +249,6 @@ model user {
   provider     String       @default("LOCAL") @db.VarChar(50)
   created_at   DateTime?    @default(now()) @db.DateTime(0)
   deleted      Int?         @default(0)
-  blocked      Int          @default(0)
   ai_history   ai_history[]
   comment      comment[]
   place_like   place_like[]
@@ -264,12 +276,13 @@ model weather {
    PLACE LIKE / POST LIKE
 ------------------------------------------------------- */
 model place_like {
-  like_id    BigInt     @id @default(autoincrement())
+  like_id    BigInt    @id @default(autoincrement())
   user_id    BigInt
   place_id   BigInt
-  created_at DateTime?  @default(now()) @db.DateTime(0)
-  place      place      @relation(fields: [place_id], references: [place_id], onDelete: Cascade)
-  user       user       @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  place      place     @relation(fields: [place_id], references: [place_id], onDelete: Cascade)
+  user       user      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
   @@unique([user_id, place_id])
   @@index([place_id])
   @@index([user_id])

@@ -17,7 +17,7 @@ export default function AdminLogin() {
         password,
       });
 
-      // 관리자 토큰 저장시키기(사이드 메뉴 추가했으니)
+      // 관리자 토큰 저장시키기(사이드 메뉴 추가했으니 문제 X)
       localStorage.setItem("adminToken", res.data.token);
 
       toast.success("관리자 로그인 성공");

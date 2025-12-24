@@ -47,6 +47,7 @@ import naverSearchRouter from "./routes/schedule/naverSearch.js";
 // 관리자
 import adminRouter from "./routes/admin/admin.js";
 import adminLoginRouter from "./routes/admin/adminLogin.js";
+import adminQnaRouter from "./routes/admin/adminQnA.js";
 
 const app = express();
 
