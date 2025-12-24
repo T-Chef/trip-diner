@@ -25,6 +25,7 @@ import eventRouter from "./routes/city/event.js";
 
 import tripRouter from "./routes/schedule/trip.js";
 import usersRouter from "./routes/users.js";
+import qnaRouter from "./routes/mypage/qna.js";
 
 import tourRouter from "./routes/schedule/tour.js";
 import aiRouter from "./routes/schedule/ai.js";
@@ -179,6 +180,7 @@ app.use("/api/profile", profileRouter);
 // 관리자
 app.use("/api/admin", adminLoginRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/admin/qna", adminQnaRouter);
 
 // 도시
 app.use("/api/city", cityRouter);
@@ -208,6 +210,9 @@ app.use("/api", naverSearchRouter);
 
 // plan
 app.use("/api/plan", planRouter);
+
+// QnA
+app.use("/api/qna", qnaRouter);
 
 /* -------------------------------------------------------
    서버 시작

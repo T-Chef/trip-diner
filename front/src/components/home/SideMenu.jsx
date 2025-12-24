@@ -11,7 +11,6 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
   };
   return (
     <div className="layout-wrapper">
-      {/* SIDE MENU */}
       <div className={`side-menu ${menuOpen ? "open" : ""}`}>
         <button className="close-btn" onClick={() => setMenuOpen(false)}>
           X
@@ -76,18 +75,8 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
               게시판
             </Link>
           </li>
-          <li className="menu-item">
-            <Link
-              to="/contract"
-              className="menu-link"
-              onClick={() => setMenuOpen(false)}
-            >
-              문의하기
-            </Link>
-          </li>
         </ul>
       </div>
-      {/* OVERLAY — 메뉴 열릴 때 쇼 클래스 추가 */}
       <div
         className={`overlay ${menuOpen ? "show" : ""}`}
         onClick={() => setMenuOpen(false)}

@@ -22,6 +22,7 @@ import Likeplaces from "./pages/side/mypage/Likeplaces.jsx";
 import Unsubscribe from "./pages/side/mypage/Unsubscribe.jsx";
 import Calendar from "./pages/side/mypage/Calendar.jsx";
 import MyTrips from "./pages/side/mypage/MyTrips.jsx";
+import QnAWrite from "./pages/side/mypage/UserQnA";
 
 // AI / 여행
 import AISchedule from "./pages/side/schedule/AISchedule.jsx";
@@ -82,9 +83,9 @@ export default function App() {
         <Route path="/admin" element={<AdminHome />} />
 
         <Route path="/admin/*" element={<AdminLayout />}>
-          <Route path="users" element={<AdminUsers />} />
-          <Route path="posts" element={<AdminPosts />} />
-          <Route path="QnA" element={<AdminQnA />} />
+          <Route path="users"  element={<AdminUsers />} />
+          <Route path="posts"  element={<AdminPosts />} />
+          <Route path="QnA"    element={<AdminQnA />} />
         </Route>
 
         {/* =========================
@@ -106,6 +107,7 @@ export default function App() {
                 <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
                 <Route path="/profile/edit" element={<ProfileEdit user={user} setUser={setUser} />} />
                 <Route path="/my-trips" element={<MyTrips user={user} />} />
+                <Route path="/qna/write" element={<QnAWrite user={user} />} />
 
                 {/* 좋아요 */}
                 <Route path="/like/posts" element={<Likeposts userId={user?.user_id} />} />

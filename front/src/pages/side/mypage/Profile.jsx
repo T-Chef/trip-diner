@@ -122,7 +122,7 @@ export default function Profile({ user, setUser }) {
             <span>내 일정</span>
           </div>
 
-          <div className="menu-box" onClick={() => navigate("/contract")}>
+          <div className="menu-box" onClick={() => navigate("/qna/write")}>
             <FaHeadset className="menu-icon" />
             <span>문의하기</span>
           </div>
