@@ -26,7 +26,7 @@ export default function Profile({ user, setUser }) {
 
     const finalUrl = user.profile_img.startsWith("http")
       ? user.profile_img
-      : `http://localhost:8080${user.profile_img}`;
+      : `http://localhost:4000${user.profile_img}`;
 
     setProfileImg(finalUrl);
   }, [user]);
@@ -45,7 +45,7 @@ export default function Profile({ user, setUser }) {
     formData.append("profile", file);
     formData.append("userId", user.user_id);
 
-    const res = await fetch("/api/profile/upload", {
+    const res = await fetch("http://localhost:4000/api/profile/upload", {
       method: "POST",
       body: formData,
     });
@@ -58,7 +58,7 @@ export default function Profile({ user, setUser }) {
     }
 
     // 서버가 주는 값: /uploads/파일명
-    const fullUrl = `http://localhost:8080${data.imageUrl}`;
+    const fullUrl = `http://localhost:4000${data.imageUrl}`;
 
     // 프론트 표시 이미지 교체
     setProfileImg(fullUrl);
@@ -81,7 +81,7 @@ export default function Profile({ user, setUser }) {
         {/* 프로필 */}
         <div className="profile-photo-box" onClick={handleProfileClick}>
           <img
-            src={profileImg || "http://localhost:8080/profile.png"}
+            src={profileImg || "http://localhost:4000/profile.png"}
             className="profile-photo"
             alt="profile"
           />
@@ -117,7 +117,7 @@ export default function Profile({ user, setUser }) {
             <span>홈으로</span>
           </div>
 
-          <div className="menu-box" onClick={() => navigate("/schedule")}>
+          <div className="menu-box" onClick={() => navigate("/my-trips")}>
             <FaCalendarCheck className="menu-icon" />
             <span>내 일정</span>
           </div>

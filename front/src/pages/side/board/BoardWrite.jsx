@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import TiptapEditor from "./TiptapEditor";
-import api from "../../../api/axiosInstance";
+import axios from "axios";
 import Swal from "sweetalert2";
 import "../../../styles/side/board/BoardWrite.css";
 
 export default function BoardWrite() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const storedUser = JSON.parse(localStorage.getItem("user"));
 
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("자유");
@@ -15,8 +16,6 @@ export default function BoardWrite() {
 
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState("");
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isEdit = Boolean(id);
 
@@ -56,14 +55,14 @@ export default function BoardWrite() {
   useEffect(() => {
     if (!isEdit) return;
 
-    api
-      .get(`/api/posts/${id}`)
+    axios
+      .get(`http://localhost:4000/api/posts/${id}`)
       .then((res) => {
-        const p = res.data.post;
-        setTitle(p?.title ?? "");
-        setCategory(p?.category ?? "자유");
-        setContent(p?.content ?? "");
-        setTags(p?.tags ?? []);
+        const p = res.data;
+        setTitle(p.title);
+        setCategory(p.category);
+        setContent(p.content);
+        setTags(p.tags || []);
       })
       .catch(() =>
         Swal.fire({
@@ -75,8 +74,6 @@ export default function BoardWrite() {
   }, [isEdit, id]);
 
   const handleSubmit = async () => {
-    if (isSubmitting) return;
-
     if (!title.trim() || !content.trim()) {
       return Swal.fire({
         icon: "warning",
@@ -85,31 +82,31 @@ export default function BoardWrite() {
       });
     }
 
-    setIsSubmitting(true);
-
-    const payload = {
-      title,
-      category,
-      content,
-      image_url: null,
-      // tags는 백엔드 준비되면 같이 붙이면 됨:
-      // tags: JSON.stringify(tags),
-    };
+    const formData = new FormData();
+    formData.append("user_id", storedUser.user_id);
+    formData.append("title", title);
+    formData.append("category", category);
+    formData.append("content", content);
+    formData.append("tags", JSON.stringify(tags));
 
     try {
       if (isEdit) {
-        await api.put(`/api/posts/${id}`, payload);
-        await Swal.fire({ icon: "success", title: "수정 완료" });
+        await axios.put(`http://localhost:4000/api/posts/${id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        Swal.fire({ icon: "success", title: "수정 완료" }).then(() =>
+          navigate("/board")
+        );
       } else {
-        await api.post("/api/posts", payload);
-        await Swal.fire({ icon: "success", title: "등록 완료" });
+        await axios.post("http://localhost:4000/api/posts", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        Swal.fire({ icon: "success", title: "등록 완료" }).then(() =>
+          navigate("/board")
+        );
       }
-      navigate("/board");
     } catch (err) {
-      console.error(err);
       Swal.fire({ icon: "error", title: "저장 실패" });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -139,7 +136,7 @@ export default function BoardWrite() {
             />
           </div>
 
-          {/* ⭐ 에디터 박스 */}
+          {/* ⭐ 에디터 박스 추가 */}
           <div className="editor-box">
             <TiptapEditor setContent={setContent} initialContent={content} />
           </div>
@@ -199,8 +196,8 @@ export default function BoardWrite() {
       </div>
 
       <div className="write-buttons">
-        <button className="submit-btn" onClick={handleSubmit} disabled={isSubmitting}>
-          {isSubmitting ? "처리 중..." : isEdit ? "수정 완료" : "등록"}
+        <button className="submit-btn" onClick={handleSubmit}>
+          {isEdit ? "수정 완료" : "등록"}
         </button>
       </div>
     </div>

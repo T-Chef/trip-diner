@@ -16,12 +16,14 @@ export async function fetchPlaceList({
   contentTypeId,
   numOfRows,
   pageNo,
+  arrange,
 }) {
   const url = buildTourUrl(LIST_URL, {
     ...BASE_PARAMS,
     numOfRows: String(numOfRows ?? 50),
     pageNo: String(pageNo ?? 1),
     areaCode: String(areaCode),
+    arrange: String(arrange ?? "B"),
     ...(sigunguCode ? { sigunguCode: String(sigunguCode) } : {}),
     ...(contentTypeId ? { contentTypeId: String(contentTypeId) } : {}),
   });

@@ -1,15 +1,12 @@
-// back/routes/plan.js
 import express from "express";
 import prisma from "../../prisma/prismaClient.js";
 import { requireAuth } from "./auth.js";
 
 const router = express.Router();
 
-// ✅ 내 일정 목록 (달력 표시용)
 router.get("/my", requireAuth, async (req, res) => {
   try {
-    // auth 미들웨어에서 req.user.user_id 넣는다고 가정
-    const userId = req.user.user_id; // BigInt일 수도 있음
+    const userId = req.user.user_id; 
 
     const plans = await prisma.plan.findMany({
       where: { user_id: userId },
@@ -17,7 +14,6 @@ router.get("/my", requireAuth, async (req, res) => {
       orderBy: { created_at: "desc" },
     });
 
-    // BigInt JSON 안전 변환
     const safe = plans.map(p => ({
       ...p,
       plan_id: p.plan_id.toString(),
@@ -60,7 +56,6 @@ function toSafePlan(p) {
   };
 }
 
-/** POST /api/plan (저장) */
 router.post("/", requireAuth, async (req, res) => {
   try {
     const userId = req.user.user_id;
@@ -72,8 +67,6 @@ router.post("/", requireAuth, async (req, res) => {
 
     const cityName = aiPlan.cityName || "";
     const title = aiPlan.title || "여행 일정";
-
-    // ✅ 달력에서 넘어온 시작일 적용
 let start = null;
 let end = null;
 
@@ -118,7 +111,6 @@ if (startDate) {
          let dayDate = null;
 if (start) {
   dayDate = new Date(start);
-  // dayIndex가 1부터라면 -1 해줘야 함
   dayDate.setDate(dayDate.getDate() + (dayIndex - 1));
 }
 
@@ -179,7 +171,6 @@ const planDay = await tx.plan_day.create({
   }
 });
 
-/** ✅ GET /api/plan (내 일정 목록) */
 router.get("/", requireAuth, async (req, res) => {
   try {
     const userId = req.user.user_id;
@@ -208,7 +199,6 @@ router.get("/", requireAuth, async (req, res) => {
   }
 });
 
-/** ✅ GET /api/plan/:id (상세 1개) */
 router.get("/:id", requireAuth, async (req, res) => {
   try {
     const userId = req.user.user_id;
@@ -250,11 +240,9 @@ router.delete("/:id", requireAuth, async (req, res) => {
     const userId = req.user.user_id;
     const planId = BigInt(req.params.id);
 
-    // 내 일정만 삭제
     const plan = await prisma.plan.findFirst({ where: { plan_id: planId, user_id: userId } });
     if (!plan) return res.status(404).json({ success: false, message: "일정 없음" });
 
-    // 관계 테이블 삭제(스키마에 맞게 조정)
     await prisma.$transaction(async (tx) => {
       const days = await tx.plan_day.findMany({ where: { plan_id: planId }, select: { plan_day_id: true } });
       const dayIds = days.map(d => d.plan_day_id);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // 🚨 useParams 추가
-import api from "../../../api/axiosInstance";
+import axios from "axios";
 import "../../../styles/side/board/Board.css";
 
 export default function Board() {
@@ -12,7 +12,7 @@ export default function Board() {
   const [user] = useState(storedUser);
 
   // ⭐ 프로필 이미지 URL 생성
-  const PROFILE_BASE_URL = "http://localhost:8080";
+  const PROFILE_BASE_URL = "http://localhost:4000";
   const profileSrc = user?.profile_img
     ? (user.profile_img.startsWith(PROFILE_BASE_URL)
         ? user.profile_img
@@ -27,10 +27,11 @@ export default function Board() {
 
   /* 게시글 전체 로드 */
   useEffect(() => {
-  api.get("/api/posts") 
-    .then((res) => setPosts(res.data))
-    .catch((err) => console.error("글 불러오기 오류:", err));
-}, []);
+    axios
+      .get("http://localhost:4000/api/posts")
+      .then((res) => setPosts(res.data))
+      .catch((err) => console.error("글 불러오기 오류:", err));
+  }, []);
 
   // ************************************************************
   // 🚨 [추가된 핵심 로직] URL 파라미터 변경 시 카테고리 상태 동기화
@@ -115,7 +116,7 @@ export default function Board() {
               <div className="col-views">조회수</div>
             </div>
 
-            <div className="post-section">
+              <div className="post-section">
               {currentPosts.length > 0 ? (
                 currentPosts.map((p) => (
                   <div
@@ -124,7 +125,22 @@ export default function Board() {
                     onClick={() => navigate(`/board/${p.post_id}`)}
                   >
                     <div className="col-category">{p.category}</div>
-                    <div className="col-title">{p.title}</div>
+                    
+                    {/* ✅ 제목 영역에 댓글 수 추가 */}
+                    <div className="col-title">
+                      {p.title}
+                      {p._count?.comment > 0 && ( // 여기를 수정!
+                        <span style={{ 
+                          color: "#ff4d4f", 
+                          fontWeight: "bold", 
+                          marginLeft: "6px",
+                          fontSize: "0.95em"
+                        }}>
+                          [{p._count.comment}] {/* 여기도 수정! */}
+                        </span>
+                      )}
+                    </div>
+
                     <div className="col-writer">{p.user?.name || "익명"}</div>
                     <div className="col-date">{p.created_at?.slice(0, 10)}</div>
                     <div className="col-views">{p.views || 0}</div>

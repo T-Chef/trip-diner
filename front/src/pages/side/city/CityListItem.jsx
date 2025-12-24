@@ -1,11 +1,9 @@
 // front/src/components/city/CityListItem.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
+import { placeLikesApi } from "../../../api/placeLikesApi";
 import "../../../styles/side/city/CityListItem.css";
 
-const API_BASE =
-  process.env.REACT_APP_API_BASE || "/api";
 const DEFAULT_THUMB =
   process.env.PUBLIC_URL + "/assets/images/default-thumb.jpg";
 
@@ -38,9 +36,17 @@ function CityListItemReal({ index, item, userId }) {
 
   useEffect(() => {
   if (!contentId) return;
-  const saved = JSON.parse(localStorage.getItem(key) || "[]");
-  setLiked(saved.includes(contentId));
-  }, [contentId, key]);
+
+  const refresh = () => {
+    const saved = JSON.parse(localStorage.getItem(key) || "[]").map(String);
+    setLiked(saved.includes(String(contentId)));
+  };
+
+  refresh(); 
+
+  window.addEventListener("placeLikesChanged", refresh);
+  return () => window.removeEventListener("placeLikesChanged", refresh);
+}, [contentId, key]);
 
   
   if (!item) return null;
@@ -69,46 +75,48 @@ function CityListItemReal({ index, item, userId }) {
      🔥 좋아요 토글
   ------------------------------------------------------- */
   const toggleLike = async (e) => {
-    e.stopPropagation();
+  e.stopPropagation();
 
-    const newLiked = !liked;
-    setLiked(newLiked);
+  const newLiked = !liked;
+  setLiked(newLiked);
 
-    if (newLiked) {
-      // 좋아요 ON일 때만 파티클
-      createParticles(e.currentTarget);
-    }
+  if (newLiked) createParticles(e.currentTarget);
 
-    // LOCAL 저장
-    const saved = JSON.parse(localStorage.getItem(key) || "[]");
-
+  // 로그인 안 했으면: 로컬만 저장 + 이벤트 발사 (api파일 안 거치니까)
+  if (!userId) {
+    const key = `likedPlaces_guest`;
+    const saved = JSON.parse(localStorage.getItem(key) || "[]").map(String);
+    const cid = String(item.contentId);
     const updated = newLiked
-      ? [...saved, item.contentId]
-      : saved.filter((id) => id !== item.contentId);
+      ? Array.from(new Set([...saved, cid]))
+      : saved.filter((id) => id !== cid);
 
     localStorage.setItem(key, JSON.stringify(updated));
+    window.dispatchEvent(new CustomEvent("placeLikesChanged", { detail: { userId: "guest" } }));
+    return;
+  }
 
-    if (!userId) return; // 로그인 안 했으면 로컬만 저장하거나, 로그인 유도
-
-    // 서버 저장
-    try {
-      await axios.post(`${API_BASE}/place/like`, {
-        contentId: item.contentId,
-        liked: newLiked,
-        userId,
-        title: item.title,
-        address: item.address,
-        image: item.image,        // 목록에 있는 image 필드
-        lat: item.latitude,       // places에서 내려주는 latitude
-        lng: item.longitude,      // places에서 내려주는 longitude
-        category: item.category,  // 없으면 빼도 됨
-        cityId: null              // cityId 없으면 생략 가능
-      });
-    } catch (err) {
-      console.error("좋아요 저장 실패", err);
-    }
-
-  };
+  // 로그인 상태면: 서버 + 로컬 + 이벤트는 placeLikesApi가 다 처리
+  try {
+    await placeLikesApi.toggle({
+      contentId: item.contentId,
+      liked: newLiked,
+      userId,
+      title: item.title,
+      address: item.address,
+      image: item.image,
+      lat: item.latitude,
+      lng: item.longitude,
+      category: item.category,
+      cityId: null,
+      contentTypeId: item.contentTypeId,
+    });
+  } catch (err) {
+    console.error("좋아요 저장 실패", err);
+    // 실패 롤백
+    setLiked(!newLiked);
+  }
+};
 
   // 개요 텍스트 정리(HTML 태그 제거 + 비어있으면 "설명 없음")
   const cleanOverview = (() => {

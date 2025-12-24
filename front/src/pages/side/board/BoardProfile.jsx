@@ -9,7 +9,7 @@ export default function BoardProfile({ user, setUser }) {
   // 초기 유저 사진 불러오기
   useEffect(() => {
     if (user?.profile_img) {
-      const fullUrl = `http://localhost:8080${user.profile_img}`;
+      const fullUrl = `http://localhost:4000${user.profile_img}`;
       setProfileImg(fullUrl);
     }
   }, [user]);
@@ -28,7 +28,7 @@ export default function BoardProfile({ user, setUser }) {
     formData.append("profile", file);
     formData.append("userId", user.user_id);
 
-    const res = await fetch("/api/profile/upload", {
+    const res = await fetch("http://localhost:4000/api/profile/upload", {
       method: "POST",
       body: formData,
     });
@@ -39,7 +39,7 @@ export default function BoardProfile({ user, setUser }) {
       return;
     }
 
-    const fullUrl = `http://localhost:8080${data.imageUrl}`;
+    const fullUrl = `http://localhost:4000${data.imageUrl}`;
     setProfileImg(fullUrl);
 
     const updatedUser = { ...user, profile_img: data.imageUrl };
@@ -50,7 +50,7 @@ export default function BoardProfile({ user, setUser }) {
   return (
     <div className="profile-box" onClick={handleProfileClick}>
       <img
-        src={profileImg || "http://localhost:8080/profile.png"}
+        src={profileImg || "http://localhost:4000/profile.png"}
         alt="profile"
         className="profile-img"
       />

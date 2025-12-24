@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import "../../../styles/side/mypage/Likeposts.css";
 
-const API_BASE = "/api";
+const API_BASE = "http://localhost:4000/api";
 
 export default function LikePosts({ userId }) {
   const [posts, setPosts] = useState([]);

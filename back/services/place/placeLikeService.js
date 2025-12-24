@@ -1,12 +1,27 @@
+// back/services/place/placeLikeService.js
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 const toJsonSafe = (data) =>
-  JSON.parse(JSON.stringify(data, (_, v) => (typeof v === "bigint" ? v.toString() : v)));
+  JSON.parse(
+    JSON.stringify(data, (_, v) => (typeof v === "bigint" ? v.toString() : v))
+  );
 
 export async function toggleLike(body) {
-  const { contentId, liked, userId, title, address, image, lat, lng, category, cityId } = body;
+  const {
+    contentId,
+    liked,
+    userId,
+    title,
+    address,
+    image,
+    lat,
+    lng,
+    category,
+    cityId,
+    contentTypeId,
+  } = body || {};
 
   if (!contentId || !userId) {
     const err = new Error("contentId, userId 필요");
@@ -24,6 +39,8 @@ export async function toggleLike(body) {
     throw err;
   }
 
+  const ct = contentTypeId != null ? Number(contentTypeId) : undefined;
+
   const place = await prisma.place.upsert({
     where: { external_id: extId },
     update: {
@@ -34,6 +51,7 @@ export async function toggleLike(body) {
       lng: lng != null ? Number(lng) : undefined,
       category: category ?? undefined,
       city_id: cityId ? BigInt(cityId) : undefined,
+      content_type_id: Number.isFinite(ct) ? ct : undefined,
     },
     create: {
       external_id: extId,
@@ -44,6 +62,7 @@ export async function toggleLike(body) {
       lng: lng != null ? Number(lng) : null,
       category: category ?? null,
       city_id: cityId ? BigInt(cityId) : null,
+      content_type_id: Number.isFinite(ct) ? ct : null,
     },
   });
 
@@ -59,7 +78,7 @@ export async function toggleLike(body) {
     });
   }
 
-  return { success: true };
+  return toJsonSafe({ ok: true });
 }
 
 export async function getLikedPlaces(userIdParam) {
@@ -79,4 +98,75 @@ export async function getLikedPlaces(userIdParam) {
   });
 
   return toJsonSafe(result);
+}
+
+export async function getLikeMeta(query) {
+  const { contentId, userId } = query || {};
+
+  if (!contentId) {
+    const err = new Error("contentId 필요");
+    err.status = 400;
+    throw err;
+  }
+
+  let extId;
+  try {
+    extId = BigInt(contentId);
+  } catch {
+    const err = new Error("contentId 형식 오류");
+    err.status = 400;
+    throw err;
+  }
+
+  const place = await prisma.place.findUnique({
+    where: { external_id: extId },
+    select: { place_id: true, content_type_id: true },
+  });
+
+  if (!place) {
+    return toJsonSafe({ likesCount: 0, liked: false, contentTypeId: null });
+  }
+
+  const likesCount = await prisma.place_like.count({
+    where: { place_id: place.place_id },
+  });
+
+  let liked = false;
+  if (userId) {
+    try {
+      const uid = BigInt(userId);
+      const exists = await prisma.place_like.findUnique({
+        where: { user_id_place_id: { user_id: uid, place_id: place.place_id } },
+        select: { like_id: true },
+      });
+      liked = !!exists;
+    } catch {
+      liked = false;
+    }
+  }
+
+  return toJsonSafe({
+    likesCount,
+    liked,
+    contentTypeId: place.content_type_id ?? null,
+  });
+}
+
+
+export async function clearUserLikes(userIdParam) {
+  let uid;
+  try {
+    uid = BigInt(userIdParam);
+  } catch {
+    const err = new Error("잘못된 userId 형식");
+    err.status = 400;
+    throw err;
+  }
+
+  const deleted = await prisma.$transaction(async (tx) => {
+    const r = await tx.place_like.deleteMany({ where: { user_id: uid } });
+    return r.count;
+  });
+
+  return toJsonSafe({ ok: true, deleted });
 }

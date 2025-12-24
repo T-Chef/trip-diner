@@ -5,7 +5,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "../../../styles/side/schedule/PickStartDatePage.css";
 
-const API_BASE = "/api";
+const API_BASE = "http://localhost:4000/api";
 
 function addDays(date, n) {
   const d = new Date(date);

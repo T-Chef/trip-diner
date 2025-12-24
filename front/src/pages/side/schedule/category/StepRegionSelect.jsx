@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 
-const API_BASE = "/api";
+const API_BASE = "http://localhost:4000/api";
 
 const StepRegionSelect = ({ selectedCity, setSelectedCity, goNext }) => {
   const [cities, setCities] = useState([]);

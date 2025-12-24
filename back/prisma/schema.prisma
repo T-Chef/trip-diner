@@ -1,76 +1,99 @@
 generator client {
   provider = "prisma-client-js"
 }
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
-/* -------------------------------------------------------
-   ADMIN
-------------------------------------------------------- */
+
+/**
+ * -------------------------------------------------------
+ * ADMIN
+ * -------------------------------------------------------
+ */
 model admin {
-  admin_id     BigInt      @id @default(autoincrement())
-  email        String      @unique @db.VarChar(255)
-  password     String      @db.VarChar(255)
-  name         String?     @db.VarChar(100)
-  profile_img  String?     @db.VarChar(255)
-  role         admin_role? @default(MANAGER)
-  created_at   DateTime    @default(now())
-  updated_at   DateTime    @updatedAt
-  last_login   DateTime?
-  qna_answers  qna_answer[]
+  admin_id    BigInt       @id @default(autoincrement())
+  email       String       @unique @db.VarChar(255)
+  password    String       @db.VarChar(255)
+  name        String?      @db.VarChar(100)
+  profile_img String?      @db.VarChar(255)
+  role        admin_role   @default(MANAGER)
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  last_login  DateTime?
+  qna_answers qna_answer[]
 }
-/* -------------------------------------------------------
-   CITY
-------------------------------------------------------- */
+
+/**
+ * -------------------------------------------------------
+ * CITY
+ * -------------------------------------------------------
+ */
 model city {
-  city_id     BigInt     @id @default(autoincrement())
-  name        String      @db.VarChar(100)
-  country     String?     @db.VarChar(100)
-  description String?     @db.Text
-  image_url   String?     @db.VarChar(500)
+  city_id     BigInt    @id @default(autoincrement())
+  name        String    @db.VarChar(100)
+  country     String?   @db.VarChar(100)
+  description String?   @db.Text
+  image_url   String?   @db.VarChar(500)
   event       event[]
   place       place[]
   plan        plan[]
   weather     weather[]
 }
-/* -------------------------------------------------------
-   EVENT
-------------------------------------------------------- */
+
+/**
+ * -------------------------------------------------------
+ * EVENT
+ * -------------------------------------------------------
+ */
 model event {
-  event_id    BigInt     @id @default(autoincrement())
+  event_id    BigInt    @id @default(autoincrement())
   city_id     BigInt
-  title       String?    @db.VarChar(255)
-  description String?    @db.Text
-  start_date  DateTime?  @db.Date
-  end_date    DateTime?  @db.Date
-  city        city       @relation(fields: [city_id], references: [city_id])
+  title       String?   @db.VarChar(255)
+  description String?   @db.Text
+  start_date  DateTime? @db.Date
+  end_date    DateTime? @db.Date
+  city        city      @relation(fields: [city_id], references: [city_id])
+
   @@index([city_id])
 }
-/* -------------------------------------------------------
-   PLACE
-------------------------------------------------------- */
+
+/**
+ * -------------------------------------------------------
+ * PLACE
+ * -------------------------------------------------------
+ */
 model place {
-  place_id     BigInt       @id @default(autoincrement())
-  external_id  BigInt?      @unique
-  city_id      BigInt?
-  name         String?      @db.VarChar(255)
-  category     String?      @db.VarChar(255)
-  address      String?      @db.VarChar(500)
-  lat          Float?
-  lng          Float?
-  description  String?      @db.Text
-  image_url    String?      @db.VarChar(2000)
-  content_id   String?      @unique @db.VarChar(50)
-  city         city?        @relation(fields: [city_id], references: [city_id])
-  place_like   place_like[]
-  plan_item    plan_item[]
-  review_place review_place[]
-  @@index([city_id])
+  place_id        BigInt  @id @default(autoincrement())
+  external_id     BigInt? @unique
+  name            String? @db.VarChar(255)
+  address         String? @db.VarChar(500)
+  category        String? @db.VarChar(255)
+  description     String? @db.Text
+  image_url       String? @db.VarChar(2000)
+  content_type_id Int?
+
+  plan_items    plan_item[]
+  review_places review_place[]
+
+  // 좌표 (OpenWeather / 지도)
+  lat Float?
+  lng Float?
+
+  // City FK (없으면 null)
+  city_id BigInt?
+  city    city?   @relation(fields: [city_id], references: [city_id])
+
+  // Likes
+  place_like place_like[]
 }
-/* -------------------------------------------------------
-   AI HISTORY & KEYWORD
-------------------------------------------------------- */
+
+/**
+ * -------------------------------------------------------
+ * AI HISTORY & KEYWORD
+ * -------------------------------------------------------
+ */
 model ai_history {
   ai_id      BigInt      @id @default(autoincrement())
   user_id    BigInt?
@@ -80,37 +103,46 @@ model ai_history {
   user       user?       @relation(fields: [user_id], references: [user_id])
   ai_keyword ai_keyword? @relation(fields: [keyword_id], references: [keyword_id])
   plan       plan?       @relation(fields: [plan_id], references: [plan_id])
+
   @@index([user_id])
   @@index([keyword_id])
   @@index([plan_id])
 }
+
 model ai_keyword {
   keyword_id  BigInt       @id @default(autoincrement())
   keyword     String?      @db.VarChar(100)
   description String?      @db.VarChar(255)
   ai_history  ai_history[]
 }
-/* -------------------------------------------------------
-   COMMENT (댓글)
-------------------------------------------------------- */
+
+/**
+ * -------------------------------------------------------
+ * COMMENT (댓글)
+ * -------------------------------------------------------
+ */
 model comment {
-  comment_id    BigInt     @id @default(autoincrement())
+  comment_id    BigInt    @id @default(autoincrement())
   post_id       BigInt
   user_id       BigInt
   parent_id     BigInt?
-  content       String?    @db.Text
-  created_at    DateTime?  @default(now()) @db.DateTime(0)
-  post          post       @relation(fields: [post_id], references: [post_id])
-  user          user       @relation(fields: [user_id], references: [user_id])
-  comment       comment?   @relation("commentTocomment", fields: [parent_id], references: [comment_id])
-  other_comment comment[]  @relation("commentTocomment")
+  content       String?   @db.Text
+  created_at    DateTime? @default(now()) @db.DateTime(0)
+  post          post      @relation(fields: [post_id], references: [post_id])
+  user          user      @relation(fields: [user_id], references: [user_id])
+  comment       comment?  @relation("commentTocomment", fields: [parent_id], references: [comment_id])
+  other_comment comment[] @relation("commentTocomment")
+
   @@index([post_id])
   @@index([user_id])
   @@index([parent_id])
 }
-/* -------------------------------------------------------
-   PLAN / PLAN DAY / PLAN ITEM
-------------------------------------------------------- */
+
+/**
+ * -------------------------------------------------------
+ * PLAN / PLAN DAY / PLAN ITEM
+ * -------------------------------------------------------
+ */
 model plan {
   plan_id    BigInt       @id @default(autoincrement())
   user_id    BigInt
@@ -125,9 +157,11 @@ model plan {
   user       user         @relation(fields: [user_id], references: [user_id])
   city       city?        @relation(fields: [city_id], references: [city_id])
   plan_day   plan_day[]
+
   @@index([user_id])
   @@index([city_id])
 }
+
 model plan_day {
   plan_day_id BigInt      @id @default(autoincrement())
   plan_id     BigInt
@@ -135,8 +169,10 @@ model plan_day {
   date        DateTime?   @db.Date
   plan        plan        @relation(fields: [plan_id], references: [plan_id])
   plan_item   plan_item[]
+
   @@index([plan_id])
 }
+
 model plan_item {
   plan_item_id BigInt   @id @default(autoincrement())
   plan_day_id  BigInt
@@ -146,12 +182,16 @@ model plan_item {
   time         String?  @db.VarChar(100)
   plan_day     plan_day @relation(fields: [plan_day_id], references: [plan_day_id])
   place        place?   @relation(fields: [place_id], references: [place_id])
+
   @@index([plan_day_id])
   @@index([place_id])
 }
-/* -------------------------------------------------------
-   POST
-------------------------------------------------------- */
+
+/**
+ * -------------------------------------------------------
+ * POST
+ * -------------------------------------------------------
+ */
 model post {
   post_id    BigInt      @id @default(autoincrement())
   user_id    BigInt
@@ -161,18 +201,22 @@ model post {
   image_url  String?     @db.VarChar(500)
   views      Int         @default(0)
   tags       String?     @db.VarChar(500)
-  deleted     Int        @default(0)
+  deleted    Int         @default(0)
   created_at DateTime?   @default(now()) @db.DateTime(0)
   updated_at DateTime?   @default(now()) @db.DateTime(0)
   comment    comment[]
   user       user        @relation(fields: [user_id], references: [user_id])
   post_like  post_like[]
   report     report[]
+
   @@index([user_id])
 }
-/* -------------------------------------------------------
-   QNA & ANSWER
-------------------------------------------------------- */
+
+/**
+ * -------------------------------------------------------
+ * QNA & ANSWER
+ * -------------------------------------------------------
+ */
 model qna {
   qna_id     BigInt       @id @default(autoincrement())
   user_id    BigInt
@@ -182,60 +226,74 @@ model qna {
   status     qna_status   @default(WAITING)
   user       user         @relation(fields: [user_id], references: [user_id])
   qna_answer qna_answer[]
+
   @@index([user_id])
 }
+
 model qna_answer {
-  answer_id  BigInt     @id @default(autoincrement())
+  answer_id  BigInt    @id @default(autoincrement())
   qna_id     BigInt
   admin_id   BigInt
-  content    String?    @db.Text
-  created_at DateTime?  @default(now()) @db.DateTime(0)
-  qna        qna        @relation(fields: [qna_id], references: [qna_id])
-  admin      admin      @relation(fields: [admin_id], references: [admin_id])
+  content    String?   @db.Text
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  qna        qna       @relation(fields: [qna_id], references: [qna_id])
+  admin      admin     @relation(fields: [admin_id], references: [admin_id])
+
   @@index([qna_id])
   @@index([admin_id])
 }
-/* -------------------------------------------------------
-   REPORT
-------------------------------------------------------- */
+
+/**
+ * -------------------------------------------------------
+ * REPORT
+ * -------------------------------------------------------
+ */
 model report {
-  report_id  BigInt     @id @default(autoincrement())
+  report_id  BigInt    @id @default(autoincrement())
   post_id    BigInt
   user_id    BigInt
-  content    String?    @db.VarChar(500)
-  created_at DateTime?  @default(now()) @db.DateTime(0)
-  post       post       @relation(fields: [post_id], references: [post_id])
-  user       user       @relation(fields: [user_id], references: [user_id])
+  content    String?   @db.VarChar(500)
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  post       post      @relation(fields: [post_id], references: [post_id])
+  user       user      @relation(fields: [user_id], references: [user_id])
+
   @@index([post_id])
   @@index([user_id])
 }
-/* -------------------------------------------------------
-   REVIEW PLACE
-------------------------------------------------------- */
+
+/**
+ * -------------------------------------------------------
+ * REVIEW PLACE
+ * -------------------------------------------------------
+ */
 model review_place {
-  review_id  BigInt     @id @default(autoincrement())
+  review_id  BigInt    @id @default(autoincrement())
   place_id   BigInt
   user_id    BigInt
   rating     Int?
-  content    String?    @db.Text
-  created_at DateTime?  @default(now()) @db.DateTime(0)
-  place      place      @relation(fields: [place_id], references: [place_id])
-  user       user       @relation(fields: [user_id], references: [user_id])
+  content    String?   @db.Text
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  place      place     @relation(fields: [place_id], references: [place_id])
+  user       user      @relation(fields: [user_id], references: [user_id])
+
   @@index([place_id])
   @@index([user_id])
 }
-/* -------------------------------------------------------
-   USER  (provider → String)
-------------------------------------------------------- */
+
+/**
+ * -------------------------------------------------------
+ * USER  (provider → String)
+ * -------------------------------------------------------
+ */
 model user {
-  user_id      BigInt      @id @default(autoincrement())
-  email        String       @unique @db.VarChar(255)
-  password     String       @db.VarChar(255)
-  name         String?      @db.VarChar(100)
-  profile_img  String?      @db.VarChar(500)
-  provider     String       @default("LOCAL") @db.VarChar(50)
-  created_at   DateTime?    @default(now()) @db.DateTime(0)
-  deleted      Int?         @default(0)
+  user_id      BigInt         @id @default(autoincrement())
+  email        String         @unique @db.VarChar(255)
+  password     String         @db.VarChar(255)
+  name         String?        @db.VarChar(100)
+  profile_img  String?        @db.VarChar(500)
+  provider     String         @default("LOCAL") @db.VarChar(50)
+  created_at   DateTime?      @default(now()) @db.DateTime(0)
+  deleted      Int?           @default(0)
   ai_history   ai_history[]
   comment      comment[]
   place_like   place_like[]
@@ -246,57 +304,70 @@ model user {
   report       report[]
   review_place review_place[]
 }
-/* -------------------------------------------------------
-   WEATHER
-------------------------------------------------------- */
+
+/**
+ * -------------------------------------------------------
+ * WEATHER
+ * -------------------------------------------------------
+ */
 model weather {
-  weather_id  BigInt     @id @default(autoincrement())
+  weather_id  BigInt    @id @default(autoincrement())
   city_id     BigInt
-  date        DateTime?  @db.Date
+  date        DateTime? @db.Date
   temperature Float?
-  status      String?    @db.VarChar(100)
+  status      String?   @db.VarChar(100)
   humidity    Int?
-  city        city       @relation(fields: [city_id], references: [city_id])
+  city        city      @relation(fields: [city_id], references: [city_id])
+
   @@index([city_id])
 }
-/* -------------------------------------------------------
-   PLACE LIKE / POST LIKE
-------------------------------------------------------- */
+
+/**
+ * -------------------------------------------------------
+ * PLACE LIKE / POST LIKE
+ * -------------------------------------------------------
+ */
 model place_like {
-  like_id    BigInt     @id @default(autoincrement())
+  like_id    BigInt    @id @default(autoincrement())
   user_id    BigInt
   place_id   BigInt
-  created_at DateTime?  @default(now()) @db.DateTime(0)
-  place      place      @relation(fields: [place_id], references: [place_id], onDelete: Cascade)
-  user       user       @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  place      place     @relation(fields: [place_id], references: [place_id], onDelete: Cascade)
+  user       user      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
   @@unique([user_id, place_id])
   @@index([place_id])
   @@index([user_id])
 }
+
 model post_like {
-  like_id    BigInt     @id @default(autoincrement())
+  like_id    BigInt    @id @default(autoincrement())
   user_id    BigInt
   post_id    BigInt
-  created_at DateTime?  @default(now()) @db.DateTime(0)
-  post       post       @relation(fields: [post_id], references: [post_id], onDelete: Cascade)
-  user       user       @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-  
-  @@unique([user_id, post_id])
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  post       post      @relation(fields: [post_id], references: [post_id], onDelete: Cascade)
+  user       user      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
+  @@unique([user_id, post_id])
   @@index([post_id])
   @@index([user_id])
 }
-/* -------------------------------------------------------
-   ENUMS
-------------------------------------------------------- */
+
+/**
+ * -------------------------------------------------------
+ * ENUMS
+ * -------------------------------------------------------
+ */
 enum admin_role {
   SUPER
   MANAGER
 }
+
 enum admin_status {
   ACTIVE
   DISABLED
 }
+
 enum qna_status {
   WAITING @map("대기")
   DONE    @map("완료")

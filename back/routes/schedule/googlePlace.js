@@ -1,4 +1,3 @@
-// back/routes/googlePlace.js
 import express from "express";
 import axios from "axios";
 import { searchPlaceByKeyword } from "../../apis/tourApi.js";
@@ -6,9 +5,6 @@ import { searchGoogleDetails } from "../../apis/googlePlace.js";
 
 const router = express.Router();
 
-/* -------------------------------------------------------
-   🔍 Google Text Search - 장소 검색용 API
-------------------------------------------------------- */
 router.get("/place-search", async (req, res) => {
   try {
     const { keyword } = req.query;
@@ -48,15 +44,10 @@ router.get("/place-search", async (req, res) => {
   }
 });
 
-/* -------------------------------------------------------
-   📍 상세 정보 조회
-   - TourAPI(검색) + Google Details + Naver 이미지 fallback
-------------------------------------------------------- */
 router.get("/place-details", async (req, res) => {
   const { lat, lng, name } = req.query;
 
   try {
-    // 1) 한국 관광공사 정보 (이미지/주소) - 실패해도 전체 에러 안 나게 try/catch
     let kor = null;
     try {
       kor = await searchPlaceByKeyword(name);
@@ -67,7 +58,6 @@ router.get("/place-details", async (req, res) => {
     const korImg = kor?.image ?? null;
     const korAddr = kor?.address ?? null;
 
-    // 2) 구글 디테일 (타입 + 사진 레퍼런스 등)
     const g = await searchGoogleDetails(lat, lng, name);
 
     const googleImg = g?.photoRef
@@ -76,7 +66,6 @@ router.get("/place-details", async (req, res) => {
 
     let finalImg = korImg || googleImg || null;
 
-    // 3) 둘 다 없으면 네이버 이미지 검색으로 한 번 더 시도
     if (!finalImg && name) {
       try {
         const naverImgRes = await axios.get(
@@ -104,12 +93,11 @@ router.get("/place-details", async (req, res) => {
       name: kor?.name ?? g?.name ?? name,
       address: korAddr ?? g?.address ?? "주소 정보 없음",
       image: finalImg,
-      category: g?.types ?? [], // AIScheduleResult에서 category[0] 써서 태그 표시
+      category: g?.types ?? [], 
     });
   } catch (err) {
     console.error("📌 Place-Details API Error:", err);
 
-    // ⬇ 여기서 더 이상 name 스코프 문제 안 나게 req.query에서 다시 꺼냄
     const fallbackName = req.query?.name ?? "";
 
     return res.json({

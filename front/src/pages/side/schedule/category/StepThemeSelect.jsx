@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = "/api";
+const API_BASE = "http://localhost:4000/api";
 const themesList = ["산", "실내여행지", "액티비티", "문화·역사", "테마파크", "카페", "전통시장", "축제"];
 
 const StepThemeSelect = ({
@@ -38,7 +38,7 @@ const StepThemeSelect = ({
         days: selectedDays,
         peopleType: selectedCompanion,
         themes: selectedThemes,
-        contentTypeIds: [12, 39], // 관광지+음식점 (임시)
+        contentTypeIds: [12, 39], 
       });
 
       navigate("/trip/result", { state: { aiPlan: res.data.aiPlan } });

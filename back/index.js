@@ -25,8 +25,6 @@ import cityRouter from "./routes/city/city.js";
 import categoryRouter from "./routes/schedule/category.js";
 import placeRouter from "./routes/city/place.js";
 import eventRouter from "./routes/city/event.js";
-
-import reviewRouter from "./routes/review.js";
 import tripRouter from "./routes/schedule/trip.js";
 import usersRouter from "./routes/users.js";
 
@@ -41,8 +39,8 @@ import postRouter from "./routes/board/post.js";
 import commentRouter from "./routes/board/comment.js";
 
 // 좋아요
-import placeLikeRouter from "./routes/like/PlaceLike.js";
 import postLikeRouter from "./routes/like/PostLike.js";
+import placeLikeRouter from "./routes/like/PlaceLike.js";
 
 // 외부 연동용 라우터
 import googlePlaceRouter from "./routes/schedule/googlePlace.js";
@@ -141,7 +139,6 @@ app.use("/api/event", eventRouter);
 app.use("/api/weather", weatherRouter);
 
 // 리뷰 / 일정
-app.use("/api/review", reviewRouter);
 app.use("/api/trip", tripRouter);
 
 // 게시판
@@ -149,8 +146,8 @@ app.use("/api/posts", postRouter);
 app.use("/api/comment", commentRouter);
 
 // 좋아요
-app.use("/api/like", placeLikeRouter);
 app.use("/api/like", postLikeRouter);
+app.use("/api/place", placeLikeRouter);
 
 // AI 관련
 app.use("/api/ai", aiRouter);

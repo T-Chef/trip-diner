@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../../../styles/side/mypage/MyTrips.css";
 
-const API_BASE = "/api";
+const API_BASE = "http://localhost:4000/api";
 
 function safeJsonParse(str) {
   try {
