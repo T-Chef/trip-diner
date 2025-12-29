@@ -1,99 +1,150 @@
 import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom"; 
 import "../../styles/page/home/Section3.css";
+import MenuSpread from "./MenuSpread";
 
 export default function Section3({ sectionRef }) {
-  const paperBg = process.env.PUBLIC_URL + "/assets/textures/paper.jpg";
-
   const fadeRefs = useRef([]);
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(e => {
+      (entries) => {
+        entries.forEach((e) => {
           if (e.isIntersecting) e.target.classList.add("show");
         });
       },
-      { threshold: 0.25 }
+      { threshold: 0.22 }
     );
 
-    fadeRefs.current.forEach(el => el && observer.observe(el));
-
+    fadeRefs.current.forEach((el) => el && observer.observe(el));
     return () => observer.disconnect();
   }, []);
 
+  const goBoard = () => navigate("/board");
+
+  const reviews = [
+    {
+      name: "준성",
+      avatar: "/assets/images/profile1.png",
+      rating: 5,
+      date: "2025.12.10",
+      title: "부산 2박3일, 동선 완벽했어요",
+      text: "AI 일정표로 뽑은 코스 그대로 갔는데 이동이 너무 편했고 맛집도 실패 없었어요. 다음에도 무조건 사용!",
+      tags: ["#부산", "#커플여행", "#맛집"],
+      thumb: "/assets/images/review1.jpg",
+    },
+    {
+      name: "진호",
+      avatar: "/assets/images/profile2.png",
+      rating: 4,
+      date: "2025.12.13",
+      title: "전주 감성 코스 추천 굿",
+      text: "한옥마을 + 카페 + 야경까지 테마가 딱 맞게 나와서 만족. 일정 수정도 쉬워서 여행 중에도 계속 업데이트했어요.",
+      tags: ["#전주", "#감성", "#한옥"],
+      thumb: "/assets/images/review2.jpg",
+    },
+    {
+      name: "서희",
+      avatar: "/assets/images/profile3.png",
+      rating: 5,
+      date: "2025.12.18",
+      title: "강릉 힐링, 사진 스팟이 미쳤음",
+      text: "바다/카페 위주로 추천받았는데 분위기 좋은 곳만 골라줘서 좋았어요. 후기 보면서 코스 고르는 재미도 있었고요!",
+      tags: ["#강릉", "#힐링", "#카페"],
+      thumb: "/assets/images/review3.jpg",
+    },
+  ];
+
+  const renderStars = (count) =>
+    "★★★★★".slice(0, count) + "☆☆☆☆☆".slice(0, 5 - count);
+
   return (
-    <section
-      className="section-box recommend-section"
-      ref={sectionRef}
-      style={{
-        backgroundImage: `url(${paperBg})`,
-      }}
-    >
-      <div className="recommend-grid">
-        {/* 왼쪽 컬럼*/}
-        <div className="left-col fade-item" ref={el => (fadeRefs.current[0] = el)}>
-          <h4 className="small-blue">여행 정보 · 상품</h4>
-          <h1 className="big-title">
-            나의 여행 취향 어디까지<br />알고 있나요?
-          </h1>
-          <p className="sub-desc">내 성향 기반 여행지 추천</p>
+    <MenuSpread
+      sectionRef={sectionRef}
+      size="sm"
+      className="review-section"
+      leftLabel="TRIP · DINER — 후기"
+      rightLabel="TRIP · DINER — 둘러보기"
+      left={
+        <div
+          className="review-left fade-item"
+          ref={(el) => (fadeRefs.current[0] = el)}
+        >
+          <p className="rv-kicker">여행 후기</p>
 
-          <div className="recommend-list">
+          <h2 className="rv-title">
+            후기로 선택해
+          </h2>
 
-            <div className="item-card fade-item" ref={el => (fadeRefs.current[1] = el)}>
-              <img src="/assets/images/reco1.jpg" className="item-thumb" alt="랜드마크 사랑 여행자" />
-              <div className="item-info">
-                <h4>랜드마크 사랑 여행자</h4>
-                <p>유명한 곳은 다 가봐야지!</p>
-              </div>
-            </div>
+          <p className="rv-sub">실제 여행자들의 동선 · 맛집 · 사진 스팟</p>
 
-            <div className="item-card fade-item" ref={el => (fadeRefs.current[2] = el)}>
-              <img src="/assets/images/reco1.jpg" className="item-thumb" alt="모험가 여행자" />
-              <div className="item-info">
-                <h4>모험가 여행자</h4>
-                <p>여행의 묘미는 체험!</p>
-              </div>
-            </div>
+          <p className="rv-desc">
+            후기에서 마음에 드는 코스를 저장하고
+            <br />
+            내 일정표로 바로 가져와 편하게 시작하세요.
+          </p>
 
-            <div className="item-card fade-item" ref={el => (fadeRefs.current[3] = el)}>
-              <img src="/assets/images/reco1.jpg" className="item-thumb" alt="힐링 여행자" />
-              <div className="item-info">
-                <h4>힐링 여행자</h4>
-                <p>오늘만은 쉬고 싶어!</p>
-              </div>
-            </div>
-          </div>
+          <ul className="rv-checks">
+            <li>실제 여행 동선 기반</li>
+            <li>별점 · 태그로 빠르게 탐색</li>
+            <li>저장 후 일정표로 가져오기</li>
+          </ul>
+
+          <button type="button" className="rv-btn" onClick={goBoard}>
+            후기 둘러보기
+          </button>
         </div>
+      }
+      right={
+        <div className="review-right">
+          {reviews.map((r, idx) => (
+            <article
+              key={idx}
+              className="review-card fade-item"
+              ref={(el) => (fadeRefs.current[idx + 1] = el)}
+            >
+              <div className="rv-top">
+                <div className="rv-user">
+                  <img
+                    className="rv-avatar"
+                    src={r.avatar}
+                    alt={`${r.name} 프로필`}
+                  />
+                  <div className="rv-user-meta">
+                    <div className="rv-name-row">
+                      <strong className="rv-name">{r.name}</strong>
+                      <span className="rv-date">{r.date}</span>
+                    </div>
+                    <div className="rv-rating" aria-label={`별점 ${r.rating}점`}>
+                      <span className="rv-stars">{renderStars(r.rating)}</span>
+                      <span className="rv-score">{r.rating.toFixed(1)}</span>
+                    </div>
+                  </div>
+                </div>
 
-        {/* 오른쪽 컬럼 */}
-        <div className="right-col fade-item" ref={el => (fadeRefs.current[4] = el)}>
+                <span className="rv-badge">BEST</span>
+              </div>
 
-          <div className="product-card">
-            <img src="/assets/images/product1.jpg" className="product-thumb" alt="전주 상품" />
-            <h3 className="p-title">전주에 왔다면 꼭 가야 하는 곳</h3>
-            <p className="p-sub">가이드 · 전주</p>
-            <div className="p-tag">#참고할 만한 가이드</div>
-          </div>
+              <div className="rv-body">
+                <div className="rv-text">
+                  <h4 className="rv-card-title">{r.title}</h4>
+                  <p className="rv-card-desc">{r.text}</p>
+                  <div className="rv-tags">
+                    {r.tags.map((t, i) => (
+                      <span key={i} className="rv-tag">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
 
-          <div className="product-card">
-            <img src="/assets/images/product2.jpg" className="product-thumb" alt="부산 해운대" />
-            <h3 className="p-title">부산 해운대</h3>
-            <p className="p-sub">한국인들이 사랑하는 관광지</p>
-            <p className="p-meta">테마파크 · 어트랙션 · 부산</p>
-            <div className="p-tag">#일정에 담은 상품과 연관된 상품</div>
-          </div>
-
-          <div className="product-card">
-            <img src="/assets/images/product3.jpg" className="product-thumb" alt="여수 밤바다" />
-            <h3 className="p-title">여수 밤바다</h3>
-            <p className="p-sub">3성급 · 여수</p>
-            <div className="p-tag">#여수와 함께 많이 찾는 다리</div>
-          </div>
-
+                <img className="rv-thumb" src={r.thumb} alt="후기 썸네일" />
+              </div>
+            </article>
+          ))}
         </div>
-        
-      </div>
-    </section>
+      }
+    />
   );
 }

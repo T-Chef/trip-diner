@@ -13,7 +13,7 @@ function enqueueTourApi(fn) {
   return next;
 }
 
-async function callTourAPI(path, params, opts = {}) {
+async function _callTourAPI(path, params, opts = {}) {
   const retry = opts.retry ?? 5;          // ✅ 3 → 5 정도로
   const timeoutMs = opts.timeoutMs ?? 12000;
 

@@ -101,7 +101,7 @@ const enrichedPlan = {
     if (step === 1) return !!selectedCity;
     if (step === 2) return !!days;
     if (step === 3) return !!peopleType;
-    if (step === 4) return themes.length >= 2;
+    if (step === 4) return themes.length >= 2 && themes.length <= 6;
     return false;
   };
 
@@ -173,19 +173,27 @@ const enrichedPlan = {
         {/* STEP4: 테마(컨셉) */}
         {step === 4 && (
           <>
-            <h2>어떤 컨셉이에요?</h2>
+            <h2>어떤 컨셉이에요? (최소 2개, 최대 6개)</h2>
             <div className="btn-grid">
               {themeOptions.map((theme) => (
                 <button
                   key={theme}
                   className={themes.includes(theme) ? "active" : ""}
                   onClick={() =>
-                    setThemes((prev) =>
-                      prev.includes(theme)
-                        ? prev.filter((x) => x !== theme)
-                        : [...prev, theme]
-                    )
-                  }
+  setThemes((prev) => {
+    // 이미 선택된 건 해제
+    if (prev.includes(theme)) return prev.filter((x) => x !== theme);
+
+    // ✅ 최대 6개 제한
+    if (prev.length >= 6) {
+      alert("테마는 최대 6개까지 선택할 수 있어요!");
+      return prev;
+    }
+
+    return [...prev, theme];
+  })
+}
+
                   disabled={loading}
                 >
                   {theme}

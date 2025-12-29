@@ -25,7 +25,6 @@ import cityRouter from "./routes/city/city.js";
 import categoryRouter from "./routes/schedule/category.js";
 import placeRouter from "./routes/city/place.js";
 import eventRouter from "./routes/city/event.js";
-import reviewRouter from "./routes/review.js";
 import tripRouter from "./routes/schedule/trip.js";
 import usersRouter from "./routes/users.js";
 
@@ -140,7 +139,6 @@ app.use("/api/event", eventRouter);
 app.use("/api/weather", weatherRouter);
 
 // 리뷰 / 일정
-app.use("/api/review", reviewRouter);
 app.use("/api/trip", tripRouter);
 
 // 게시판

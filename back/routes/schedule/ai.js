@@ -205,79 +205,101 @@ const results = await mapLimit(tasks, 3, async ({ keyword, category }) => {
         const tData = r.tData.value;
         if (Array.isArray(tData)) {
           for (const p of tData) {
-            if (!p || !p.title || !p.lat || !p.lng) continue;
-            const key = `${p.title}-${p.addr1 || p.address || ""}`;
-            if (candidateSeen.has(key)) continue;
-            candidateSeen.add(key);
-            placeCandidates.push({
-              ...p,
-              address: p.addr1 || p.address || "",
-              category,
-            });
-          }
+  if (!p || !p.title || !p.lat || !p.lng) continue;
+
+  const addr = String(p.addr1 || p.address || "").trim();
+  if (!addr) continue; // ✅ 주소 없으면 스킵
+
+  const key = `${p.title}-${addr}`;
+  if (candidateSeen.has(key)) continue;
+  candidateSeen.add(key);
+
+  placeCandidates.push({
+    ...p,
+    address: addr,
+    category,
+  });
+}
         } else if (tData && (tData.title || tData.name)) {
-          const title = tData.title || tData.name;
-          const address = tData.addr1 || tData.address || "";
-          const key = `${title}-${address}`;
-          if (!candidateSeen.has(key)) {
-            candidateSeen.add(key);
-            placeCandidates.push({
-              title,
-              address,
-              lat: tData.lat,
-              lng: tData.lng,
-              image: tData.image ?? null,
-              category,
-            });
-          }
-        }
+  const title = tData.title || tData.name;
+  const address = String(tData.addr1 || tData.address || "").trim();
+
+  // ✅ 주소 없으면 그냥 스킵 (continue 쓰지 말기)
+  if (address) {
+    const key = `${title}-${address}`;
+    if (!candidateSeen.has(key)) {
+      candidateSeen.add(key);
+      placeCandidates.push({
+        title,
+        address,
+        lat: tData.lat,
+        lng: tData.lng,
+        image: tData.image ?? null,
+        category,
+      });
+    }
+  }
+}
+
       }
 
-      // ---- Naver 결과 ----
-      if (r.nData.status === "fulfilled") {
-        const nData = r.nData.value;
-        if (Array.isArray(nData)) {
-          for (const p of nData) {
-            if (!p || !p.title || !p.lat || !p.lng) continue;
-            const key = `${p.title}-${p.addr1 || p.address || ""}`;
-            if (candidateSeen.has(key)) continue;
-            candidateSeen.add(key);
-            placeCandidates.push({
-              ...p,
-              address: p.addr1 || p.address || "",
-              category,
-            });
-          }
-        } else if (nData && nData.title) {
-          const key = `${nData.title}-${nData.addr1 || nData.address || ""}`;
-          if (!candidateSeen.has(key)) {
-            candidateSeen.add(key);
-            placeCandidates.push({
-              ...nData,
-              address: nData.addr1 || nData.address || "",
-              category,
-            });
-          }
-        }
+// ---- Naver 결과 ----
+if (r.nData.status === "fulfilled") {
+  const nData = r.nData.value;
+
+  if (Array.isArray(nData)) {
+    for (const p of nData) {
+      if (!p || !p.title || !p.lat || !p.lng) continue;
+
+      const addr = String(p.roadAddress || p.addr1 || p.address || "").trim();
+      if (!addr) continue;
+
+      const key = `${p.title}-${addr}`;
+      if (candidateSeen.has(key)) continue;
+      candidateSeen.add(key);
+
+      placeCandidates.push({
+        ...p,
+        address: addr,
+        category,
+      });
+    }
+  } else if (nData && nData.title) {
+    const addr = String(nData.roadAddress || nData.addr1 || nData.address || "").trim();
+
+    if (addr) {
+      const key = `${nData.title}-${addr}`;
+      if (!candidateSeen.has(key)) {
+        candidateSeen.add(key);
+        placeCandidates.push({
+          ...nData,
+          address: addr,
+          category,
+        });
       }
     }
-
+  }
+}
+    }
     console.timeEnd(`[CANDIDATES] ${reqId}`);
 
-    const regionKeyword = cityName.replace(/시|도$/g, "");
-    placeCandidates = placeCandidates
-      .filter((p) => p && p.title && p.lat && p.lng)
-      .filter((p) => {
-        if (!p.address) return true;
-        return p.address.includes(regionKeyword);
-      })
-      .filter((p, i, arr) => arr.findIndex((x) => x.title === p.title) === i);
+    const regionKeyword = String(cityName || "").replace(/(특별시|광역시|자치시|시|도)$/g, "");
 
-    const bannedTitleRegex = /(PC방|pc방|피시방|피씨방|노래방|학원|고시원)/i;
-    placeCandidates = placeCandidates.filter((p) => !bannedTitleRegex.test(p.title));
+placeCandidates = placeCandidates
+  .filter((p) => p && p.title && p.lat && p.lng)
+  .filter((p) => p.address && String(p.address).trim().length > 0) // ✅ 주소 없는 후보 제거
+  .filter((p) => {
+    const addr = String(p.address || "");
+    return addr.includes(regionKeyword) || addr.includes(String(cityName || ""));
+  }) // ✅ 지역 필터 (한 번만)
+  .filter((p, i, arr) => arr.findIndex((x) => x.title === p.title) === i); // ✅ 여기 세미콜론 필수
 
-    // ✅ 최종 30개
-    placeCandidates = shuffle(placeCandidates).slice(0, 30);
+const bannedTitleRegex = /(PC방|pc방|피시방|피씨방|노래방|학원|고시원)/i;
+placeCandidates = placeCandidates.filter((p) => !bannedTitleRegex.test(p.title));
+
+// ✅ 최종 30개
+placeCandidates = shuffle(placeCandidates).slice(0, 30);
+
 
     if (placeCandidates.length === 0) {
       console.timeEnd(`[AI_PLAN_TOTAL] ${reqId}`);
