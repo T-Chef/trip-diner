@@ -2,20 +2,24 @@
   position: fixed;
   top: 0;
   width: 100%;
-  height: 70px;
+  height: 68px;
   display: flex;
   align-items: center;
   z-index: 9999;
 
-  /* 기본(히어로 이미지 위) : 따뜻한 아이보리 + 그림자로 가독성 */
-  --header-fg: rgba(255, 248, 236, 0.95);
-  --header-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+  --header-fg: rgba(255, 250, 244, 0.96);
+  --header-shadow: 0 2px 16px rgba(0,0,0,0.45);
 
   background: transparent;
+  border-bottom: 1px solid transparent;
+  box-shadow: none;
   backdrop-filter: none;
-  border: none;
 
-  transition: background 0.25s ease, backdrop-filter 0.25s ease, border-color 0.25s ease;
+  transition:
+    background 0.25s ease,
+    backdrop-filter 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .header .logo,
@@ -25,46 +29,69 @@
 }
 
 .header--scrolled {
-  /* 종이 섹션 위로 내려오면: 라떼 종이 헤더 + 진한 브라운 */
-  --header-fg: rgba(42, 32, 24, 0.92);
-  --header-shadow: none;
+  height: 68px;
+  --header-fg: rgba(255, 248, 236, 0.95);
 
-  background: rgba(255, 252, 246, 0.72);
-  backdrop-filter: blur(10px) saturate(1.15);
-  border-bottom: 1px solid rgba(40, 30, 22, 0.12);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  background: rgba(60, 40, 28, 0.62);
+  backdrop-filter: blur(12px) saturate(1.1);
+
+  border-bottom: 1px solid rgba(255, 233, 204, 0.16);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+}
+
+/* 기본(히어로 위)에서만 은은한 플로팅 */
+.header:not(.header--scrolled) .logo-img{
+  animation: logoFloat 3.2s ease-in-out infinite;
 }
 
 .header-inner {
   max-width: 1280px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 0 28px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .logo {
-  font-size: 24px;
-  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
   text-decoration: none;
-  letter-spacing: 0.02em;
+}
+
+.logo:hover .logo-img{
+  transform: translateY(-1px) scale(1.02);
+  filter: drop-shadow(0 2px 14px rgba(255, 220, 160, 0.18))
+          drop-shadow(0 2px 10px rgba(0,0,0,0.35));
+}
+
+.logo-img{
+  height: 54px; 
+  width: auto;
+  display: block;
+  filter: drop-shadow(0 2px 10px rgba(0,0,0,0.35));
+  transition: transform 180ms ease, filter 180ms ease;
+  will-change: transform;
+}
+
+.header--scrolled .logo-img{
+  animation: none;
 }
 
 .menu-btn {
   cursor: pointer;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  padding: 10px 12px;
-  border-radius: 12px;
+  border: none;              
+  padding: 6px;             
+  border-radius: 12px;      
   line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: var(--header-fg);
 
-  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+  transition: transform 0.16s ease, background 0.16s ease;
 }
 
 .header--scrolled .menu-btn {
@@ -73,11 +100,11 @@
 
 .menu-btn:hover {
   transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.08);
+  background: transparent;
 }
 
 .header--scrolled .menu-btn:hover {
-  background: rgba(154, 107, 66, 0.08);
+  background: transparent;
 }
 
 .menu-btn:active {
@@ -89,14 +116,27 @@
   box-shadow: 0 0 0 3px rgba(154, 107, 66, 0.25);
 }
 
-.menu-icon {
-  width: 26px;
-  height: 26px;
+.menu-icon-img {
+  width: 64px;              
+  height: 64px;             
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.45));
+}
 
-  /* SVG 라인 스타일 */
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  fill: none;
+.header--scrolled .menu-icon-img {
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.18));
+}
+
+@media (max-width: 768px){
+  .logo-img{ height: 56px; }
+}
+
+@keyframes logoFloat{
+  0%,100%{ transform: translateY(0); }
+  50%{ transform: translateY(-2px); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .logo-img{ animation: none !important; transition: none !important; }
 }

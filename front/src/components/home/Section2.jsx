@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ 추가
+import { useNavigate } from "react-router-dom"; 
 import "../../styles/page/home/Section2.css";
 import MenuSpread from "./MenuSpread";
 
@@ -82,10 +82,6 @@ export default function Section2({ sectionRef }) {
               className="example-thumb"
               alt="여행 일정 예시"
             />
-            <div className="card-text">
-              <h4>부산의 3박 4일 여행 완성</h4>
-              <p>AI 맞춤 일정으로 떠나보세요!</p>
-            </div>
           </div>
         </div>
       }
