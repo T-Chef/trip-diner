@@ -1,213 +1,334 @@
+/* =========================================================
+   Section3 (review-section) - Warm paper / latte palette
+   - 기존 구조 유지 + 색감만 포근한 연한갈색 계열로 변경
+========================================================= */
 
-.recommend-grid {
-  display: grid;
-  grid-template-columns: 0.7fr 1.3fr;
-  gap: 40px;
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-  align-items: flex-start;
+/* ✅ 팔레트 (여기만 바꾸면 전체 톤 변경 쉬움) */
+.review-section{
+  --ink: #2a2018;                 /* 메인 타이포(따뜻한 다크브라운) */
+  --ink-2: rgba(42,32,24,0.74);   /* 보조 타이포 */
+  --muted: rgba(70,55,45,0.58);   /* 라벨/설명 */
+  --line: rgba(40,30,22,0.12);    /* 라인 */
+  --paper: rgba(255,252,246,0.82);/* 카드 종이톤 */
+  --paper-2: rgba(255,255,255,0.62);
+  --accent: #9a6b42;              /* 포인트(라떼 브라운) */
+  --accent-deep: #6f4a2d;         /* 딥 브라운 */
+  --tag: rgba(154,107,66,0.12);   /* 태그 배경 */
+  --shadow: rgba(0,0,0,0.14);
 }
 
-/* LEFT SIDE */
-.left-col {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  max-height: 260px;
-}
-
-.big-title {
-  font-size: 42px;
-  font-weight: 800;
-  line-height: 1.28;
-  margin-bottom: 12px;
-}
-
-.sub-desc {
-  margin-bottom: 18px;
-  font-size: 16px;
-  opacity: 0.8;
-}
-
-.left-col h1.big-title {
-  margin-top: 12px;
-  margin-bottom: 18px;
-  font-size: 42px;
-  line-height: 1.3;
-}
-
-.left-col .sub-desc {
-  margin-bottom: 26px;
-}
-
-
-.recommend-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* WHITE CARD */
-.item-card {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  padding: 14px 18px;
-  height: 84px;
-}
-
-.item-card img.item-thumb {
-  width: 64px;
-  height: 64px;
-  border-radius: 10px;
-  object-fit: cover;
-}
-
-.item-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.15);
-}
-
-/* 오른쪽 카드 리스트 */
-.right-col {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-  width: 100%;
-}
-/* 개별 카드 */
-.product-card {
-  width: 100%;
-  background: #fff;
-  border-radius: 18px;
-  padding: 16px 18px 20px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-  transition: 0.3s ease;
-  cursor: pointer;
-}
-
-.product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 22px rgba(0,0,0,0.18);
-}
-
-/* 이미지 (좌측 사각형 비율) */
-.product-thumb {
-  width: 100%;
-  height: 180px;
-  border-radius: 14px;
-  object-fit: cover;
-  margin-bottom: 14px;
-}
-
-.p-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.p-sub {
-  font-size: 14px;
-  opacity: 0.7;
-  margin-bottom: 8px;
-}
-
-.p-meta {
-  font-size: 13px;
-  opacity: 0.55;
-  margin-bottom: 10px;
-}
-
-/* 태그 */
-.p-tag {
-  display: inline-block;
-  padding: 6px 12px;
-  background: #e9f2ff;
-  color: #3a73f3;
-  font-size: 13px;
-  font-weight: 600;
-  border-radius: 10px;
-}
-
-/* 페이드업 애니메이션 */
-.recommend-section .left-col,
-.recommend-section .right-col,
-.recommend-section .big-title {
+/* 공통 fade */
+.review-section .fade-item{
   opacity: 0;
-  transform: translateY(50px);
-  transition: opacity .8s ease, transform .8s ease;
-}
-
-.recommend-section.show .left-col,
-.recommend-section.show .right-col,
-.recommend-section.show .big-title {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ============================================================
-   FADE-UP + BLUR ANIMATION (Section3 공통)
-============================================================ */
-/* 초기값 */
-.recommend-grid > * {
-  opacity: 0;
-  transform: translateY(36px);
-  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-  will-change: opacity, transform;
-}
-
-/* show */
-.recommend-section.show .recommend-grid > * {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* 개별 딜레이 */
-.left-col { transition-delay: 0.1s; }
-.right-col { transition-delay: 0.18s; }
-
-/* 이미지 내부 stagger */
-.big-photo {
-  opacity: 0; 
-  transform: translateY(28px);
-  transition: 0.8s ease-out;
-  will-change: opacity, transform;
-}
-
-.small-photo {
-  opacity: 0; 
-  transform: translateY(28px);
-  transition: 0.8s ease-out;
-  will-change: opacity, transform;
-}
-
-.recommend-section.show .big-photo { 
-  opacity: 1; 
-  transform: translateY(0); 
-  transition-delay: 0.22s;
-}
-
-.recommend-section.show .small-photo:nth-child(1) { 
-  opacity: 1; transform: translateY(0); 
-  transition-delay: 0.28s;
-}
-
-.recommend-section.show .small-photo:nth-child(2) { 
-  opacity: 1; 
-  transform: translateY(0); 
-  transition-delay: 0.34s;
-}
-
-.fade-item {
-  opacity: 0;
-  transform: translateY(50px);
-  filter: blur(4px);
+  transform: translateY(34px);
+  filter: blur(3px);
   transition: opacity 0.8s ease, transform 0.8s ease, filter 0.8s ease;
+  will-change: opacity, transform, filter;
 }
-
-.fade-item.show {
+.review-section .fade-item.show{
   opacity: 1;
   transform: translateY(0);
   filter: blur(0);
+}
+
+/* =========================
+   LEFT
+========================= */
+.review-section .review-left{
+  height: 100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  text-align:center;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.review-section .rv-kicker{
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.review-section .rv-title{
+  font-size: 46px;
+  font-weight: 900;
+  line-height: 1.18;
+  color: var(--ink);
+  font-family: "Playfair Display", "Noto Serif KR", serif;
+  margin: 0;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.55);
+}
+
+.review-section .rv-sub{
+  margin-top: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink-2);
+}
+
+.review-section .rv-desc{
+  margin-top: 14px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: rgba(42,32,24,0.58);
+}
+
+.review-section .rv-checks{
+  margin-top: 20px;
+  padding: 0;
+  list-style:none;
+  display:grid;
+  gap: 10px;
+  text-align:left;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.review-section .rv-checks li{
+  font-size: 15px;
+  color: rgba(42,32,24,0.68);
+  display:flex;
+  align-items:center;
+  gap: 10px;
+}
+
+.review-section .rv-checks li::before{
+  content:"✓";
+  font-weight: 900;
+  color: var(--accent-deep);
+}
+
+/* ✅ 버튼: 블루 → 라떼 브라운 그라데이션 */
+.review-section .rv-btn{
+  margin-top: 26px;
+  width: 520px;
+  max-width: 100%;
+  padding: 16px 20px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 14px;
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0) 42%),
+    linear-gradient(180deg, var(--accent), var(--accent-deep));
+
+  color: #fff;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: .02em;
+  cursor: pointer;
+
+  box-shadow:
+    0 16px 28px rgba(0,0,0,0.18),
+    0 2px 0 rgba(255,255,255,0.14) inset;
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+
+.review-section .rv-btn:hover{
+  transform: translateY(-2px);
+  box-shadow:
+    0 20px 34px rgba(0,0,0,0.22),
+    0 2px 0 rgba(255,255,255,0.16) inset;
+  filter: brightness(1.03);
+}
+.review-section .rv-btn:active{
+  transform: translateY(0);
+  filter: brightness(0.98);
+}
+
+/* =========================
+   RIGHT
+========================= */
+.review-section .review-right{
+  width: 100%;
+  max-width: 640px;
+  display:flex;
+  flex-direction:column;
+  gap: 16px;
+  margin: 0 auto;
+}
+
+/* ✅ 카드: 종이톤 + 라인 + 부드러운 그림자 */
+.review-section .review-card{
+  background: linear-gradient(180deg, var(--paper), var(--paper-2));
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 16px 18px;
+
+  box-shadow:
+    0 12px 24px rgba(0,0,0,0.11),
+    0 1px 0 rgba(255,255,255,0.55) inset;
+
+  transition: transform .25s ease, box-shadow .25s ease, filter .25s ease;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.review-section .review-card:hover{
+  transform: translateY(-4px);
+  box-shadow:
+    0 18px 30px rgba(0,0,0,0.16),
+    0 1px 0 rgba(255,255,255,0.55) inset;
+  filter: brightness(1.01);
+}
+
+.review-section .rv-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.review-section .rv-user{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.review-section .rv-avatar{
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.10);
+  flex: 0 0 auto;
+}
+
+.review-section .rv-user-meta{ min-width: 0; }
+
+.review-section .rv-name-row{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.review-section .rv-name{
+  font-size: 15px;
+  font-weight: 900;
+  color: rgba(42,32,24,0.92);
+  white-space: nowrap;
+}
+
+.review-section .rv-date{
+  font-size: 12px;
+  color: rgba(42,32,24,0.48);
+  white-space: nowrap;
+}
+
+.review-section .rv-rating{
+  margin-top: 4px;
+  display:flex;
+  align-items:center;
+  gap: 8px;
+}
+
+.review-section .rv-stars{
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: rgba(111,74,45,0.88);
+}
+
+.review-section .rv-score{
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(42,32,24,0.55);
+}
+
+/* ✅ 뱃지: 블루 → 라떼 브라운 */
+.review-section .rv-badge{
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+
+  background: rgba(154,107,66,0.14);
+  color: var(--accent-deep);
+  border: 1px solid rgba(154,107,66,0.24);
+
+  flex: 0 0 auto;
+}
+
+.review-section .rv-body{
+  display:flex;
+  align-items:stretch;
+  justify-content:space-between;
+  gap: 14px;
+}
+
+.review-section .rv-text{
+  flex: 1;
+  min-width: 0;
+}
+
+.review-section .rv-card-title{
+  margin: 0;
+  font-size: 16px;
+  font-weight: 900;
+  color: rgba(42,32,24,0.92);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ✅ 기존 line-clamp 유지 + 정리 */
+.review-section .rv-card-desc{
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(42,32,24,0.62);
+
+  overflow: hidden;
+  line-clamp: 2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.review-section .rv-tags{
+  margin-top: 10px;
+  display:flex;
+  flex-wrap:wrap;
+  gap: 8px;
+}
+
+/* ✅ 태그: 네이비 → 라떼 */
+.review-section .rv-tag{
+  display:inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+
+  color: rgba(42,32,24,0.86);
+  background: var(--tag);
+  border: 1px solid rgba(154,107,66,0.18);
+}
+
+.review-section .rv-thumb{
+  width: 120px;
+  height: 86px;
+  border-radius: 14px;
+  object-fit: cover;
+  box-shadow: 0 10px 18px rgba(0,0,0,0.10);
+  flex: 0 0 auto;
+}
+
+/* 카드별 스태거 */
+.review-section .review-card:nth-child(1).show { transition-delay: 0.08s; }
+.review-section .review-card:nth-child(2).show { transition-delay: 0.16s; }
+.review-section .review-card:nth-child(3).show { transition-delay: 0.24s; }
+.review-section .review-card:nth-child(4).show { transition-delay: 0.32s; }
+
+/* 반응형 */
+@media (max-width: 900px){
+  .review-section .rv-title{ font-size: 38px; }
+  .review-section .rv-body{ flex-direction: column; }
+  .review-section .rv-thumb{ width: 100%; height: 160px; }
 }

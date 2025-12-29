@@ -1,185 +1,312 @@
+/* =========================================================
+   Section2 (schedule-section) - Warm paper / latte palette
+   - ✅ 전부 .schedule-section 스코프로 묶어서 충돌 방지
+========================================================= */
 
-.style-content-area {
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 60px;
-  align-items: start;
+/* ===== 팔레트(여기만 바꾸면 전체 톤 조절 쉬움) ===== */
+.schedule-section{
+  --ink: #2a2018;
+  --ink-2: rgba(42,32,24,0.74);
+  --muted: rgba(70,55,45,0.58);
+  --line: rgba(40,30,22,0.12);
+  --paper: rgba(255,252,246,0.80);
+  --paper-2: rgba(255,255,255,0.62);
+  --chip: rgba(255,255,255,0.70);
+  --accent: #9a6b42;
+  --accent-deep: #6f4a2d;
+  --shadow: rgba(0,0,0,0.14);
 }
 
-/* 왼쪽 텍스트 */
-.left-main .main-title {
-  font-size: 42px;
-  font-weight: 900;
-  color: #1E2A55;
-  line-height: 1.25;
-}
-
-.left-main .sub-desc {
-  margin-top: 14px;
-  font-size: 18px;
-  line-height: 1.6;
-  color: #555;
-}
-
-.blue-btn {
-  margin-top: 30px;
-  padding: 16px 28px;
-  border-radius: 12px;
-  background: #3E5BFF;
-  color: white;
-  font-size: 18px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: 0.25s ease;
-}
-
-.blue-btn:hover {
-  background: #2d47e6;
-}
-
-/* 오른쪽 공간 */
-.right-style {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  height: 100%;
-}
-
-.right-style .camera-icon {
-  font-size: 36px;
-  margin-bottom: 14px;
-  opacity: 0.65;
-}
-
-.right-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #333;
-  margin-top: 4px;
-}
-
-.small {
-  margin-top: 6px;
-  font-size: 14px;
-  color: #777;
-}
-
-/* 선택칩 */
-.style-chips {
-  justify-content: center;
-  margin-top: 14px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.style-chips button {
-  padding: 10px 18px;
-  background: #efefef;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-.style-chips .selected {
-  background: #4A79FF;
-  color: white;
-}
-
-/* 예시 카드 */
-.example-card {
-  margin-top: 24px;
-  display: flex;
-  gap: 16px;
-  padding: 18px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-}
-
-.example-thumb {
-  width: 110px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 12px;
-}
-
-.example-card .card-text h4 {
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-/* ================================================================
-   FADE-UP ANIMATION (Section2 공통)
-================================================================ */
-/* 공통 초기값 */
-.style-content-area > * {
-  opacity: 0;
-  transform: translateY(32px);
-  transition: opacity 0.75s ease-out, transform 0.75s ease-out;
-  will-change: transform, opacity, filter;
-}
-
-/* show */
-.style-select-section.show .style-content-area > * {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* 개별 딜레이 */
-.left-main { transition-delay: 0.1s; }
-.right-style { transition-delay: 0.25s; }
-
-/* chips 개별 애니메이션 */
-.style-chips button {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-  will-change: opacity, transform;
-}
-
-.style-select-section.show .style-chips button {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* chips 순서 딜레이 */
-.style-chips button:nth-child(1) { transition-delay: 0.35s; }
-.style-chips button:nth-child(2) { transition-delay: 0.45s; }
-.style-chips button:nth-child(3) { transition-delay: 0.55s; }
-.style-chips button:nth-child(4) { transition-delay: 0.65s; }
-.style-chips button:nth-child(5) { transition-delay: 0.75s; }
-
-/* 예시 카드 */
-.example-card {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity .7s ease-out, transform .7s ease-out;
-}
-
-.style-select-section.show .example-card {
-  opacity: 1;
-  transform: translateY(0);
-  transition-delay: .35s;
-}
-.fade-item {
+/* 공통 fade */
+.schedule-section .fade-item{
   opacity: 0;
   transform: translateY(40px);
   filter: blur(3px);
   transition: opacity 0.7s ease-out, transform 0.7s ease-out, filter 0.7s ease-out;
+  will-change: opacity, transform, filter;
 }
-
-.fade-item.show {
+.schedule-section .fade-item.show{
   opacity: 1;
   transform: translateY(0);
   filter: blur(0);
+}
+
+/* =========================
+   LEFT (AI 일정표)
+========================= */
+.schedule-section .schedule-left{
+  height: 100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  text-align:center;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.schedule-section .s1-kicker{
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.schedule-section .s1-title{
+  font-size: 46px;
+  font-weight: 900;
+  line-height: 1.18;
+  color: var(--ink);
+  font-family: "Playfair Display", "Noto Serif KR", serif;
+  margin: 0;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.55);
+}
+
+.schedule-section .s1-desc{
+  margin-top: 16px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: rgba(42,32,24,0.58);
+}
+
+.schedule-section .s1-checks{
+  list-style:none;
+  padding: 0;
+  margin: 22px auto 0;
+  display:grid;
+  gap: 10px;
+  width: fit-content;
+  text-align:left;
+}
+
+.schedule-section .s1-checks li{
+  font-size: 15px;
+  color: rgba(42,32,24,0.68);
+  display:flex;
+  align-items:center;
+  gap: 10px;
+}
+
+.schedule-section .s1-checks li::before{
+  content:"✓";
+  font-weight: 900;
+  color: var(--accent-deep);
+}
+
+/* 버튼 */
+.schedule-section .s1-btn{
+  margin-top: 28px;
+  width: 520px;
+  max-width: 100%;
+  padding: 16px 20px;
+
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.18);
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0) 42%),
+    linear-gradient(180deg, var(--accent), var(--accent-deep));
+
+  color: #fff;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: .02em;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 16px 28px rgba(0,0,0,0.18),
+    0 2px 0 rgba(255,255,255,0.14) inset;
+
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+
+.schedule-section .s1-btn:hover{
+  transform: translateY(-2px);
+  box-shadow:
+    0 20px 34px rgba(0,0,0,0.22),
+    0 2px 0 rgba(255,255,255,0.16) inset;
+  filter: brightness(1.03);
+}
+.schedule-section .s1-btn:active{
+  transform: translateY(0);
+  filter: brightness(0.98);
+}
+
+/* =========================
+   RIGHT (스타일 카드)
+========================= */
+.schedule-section .schedule-right.right-style{
+  width: 100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  text-align:center;
+  height: 100%;
+}
+
+.schedule-section .right-style .camera-icon{
+  font-size: 36px;
+  margin-bottom: 14px;
+  opacity: .60;
+  filter: sepia(0.25);
+}
+
+.schedule-section .right-title{
+  font-size: 20px;
+  font-weight: 900;
+  color: rgba(42,32,24,0.92);
+  margin-top: 4px;
+}
+
+.schedule-section .small{
+  margin-top: 6px;
+  font-size: 14px;
+  color: rgba(42,32,24,0.55);
+}
+
+/* =========================
+   선택칩 (✅ hover/active/focus-visible만 정리)
+========================= */
+.schedule-section .style-chips{
+  justify-content:center;
+  margin-top: 14px;
+  display:flex;
+  flex-wrap:wrap;
+  gap: 10px;
+}
+
+.schedule-section .style-chips button{
+  padding: 10px 18px;
+  background: var(--chip);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  cursor: pointer;
+
+  color: rgba(42,32,24,0.78);
+  font-weight: 800;
+
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease, border-color .18s ease;
+
+  /* 칩 등장 애니메이션 초기값 */
+  opacity: 0;
+  transform: translateY(16px);
+  will-change: opacity, transform;
+}
+
+/* ✅ hover */
+.schedule-section .style-chips button:hover{
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 22px rgba(0,0,0,0.12);
+  border-color: rgba(111,74,45,0.22);
+  filter: brightness(1.02);
+}
+
+/* ✅ active(눌렀을 때) */
+.schedule-section .style-chips button:active{
+  transform: translateY(0) scale(0.99);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.10);
+  filter: brightness(0.99);
+}
+
+/* ✅ 키보드 포커스 */
+.schedule-section .style-chips button:focus-visible{
+  outline: none;
+  box-shadow:
+    0 12px 22px rgba(0,0,0,0.12),
+    0 0 0 3px rgba(154,107,66,0.22);
+}
+
+/* ✅ 오른쪽 카드(show) 기준으로 칩 등장 */
+.schedule-section .schedule-right.show .style-chips button{
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+/* 칩 순서 딜레이 */
+.schedule-section .style-chips button:nth-child(1){ transition-delay: 0.20s; }
+.schedule-section .style-chips button:nth-child(2){ transition-delay: 0.30s; }
+.schedule-section .style-chips button:nth-child(3){ transition-delay: 0.40s; }
+.schedule-section .style-chips button:nth-child(4){ transition-delay: 0.50s; }
+.schedule-section .style-chips button:nth-child(5){ transition-delay: 0.60s; }
+
+/* selected */
+.schedule-section .style-chips .selected{
+  background:
+    radial-gradient(18px 18px at 30% 30%, rgba(255,255,255,0.18), rgba(255,255,255,0) 65%),
+    linear-gradient(180deg, var(--accent), var(--accent-deep));
+  color: #fff;
+  border-color: rgba(255,255,255,0.18);
+  box-shadow: 0 12px 22px rgba(0,0,0,0.16);
+}
+
+/* =========================
+   예시 카드 (✅ 텍스트 중앙정렬만 추가)
+========================= */
+.schedule-section .example-card{
+  margin-top: 22px;
+  display:flex;
+  gap: 16px;
+  padding: 18px;
+
+  background: linear-gradient(180deg, var(--paper), var(--paper-2));
+  border: 1px solid var(--line);
+  border-radius: 16px;
+
+  box-shadow:
+    0 12px 24px rgba(0,0,0,0.11),
+    0 1px 0 rgba(255,255,255,0.55) inset;
+
+  opacity: 0;
+  transform: translateY(20px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.schedule-section .schedule-right.show .example-card{
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity .7s ease-out, transform .7s ease-out;
+  transition-delay: .30s;
+}
+
+.schedule-section .example-thumb{
+  width: 110px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.10);
+}
+
+/* ✅ 예시 카드 텍스트 중앙 정렬 */
+.schedule-section .example-card .card-text{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.schedule-section .example-card .card-text h4{
+  font-size: 16px;
+  font-weight: 900;
+  margin: 0 0 6px;
+  color: rgba(42,32,24,0.92);
+}
+
+.schedule-section .example-card .card-text p{
+  margin: 0;
+  color: rgba(42,32,24,0.58);
+  font-weight: 700;
+}
+
+/* 반응형 */
+@media (max-width: 900px){
+  .schedule-section .s1-title{ font-size: 38px; }
+  .schedule-section .s1-btn{ width: 100%; }
 }

@@ -5,16 +5,34 @@
   height: 70px;
   display: flex;
   align-items: center;
-  z-index: 9999 !important;
+  z-index: 9999;
 
-  background: transparent !important;
-  backdrop-filter: none !important;
-  border: none !important;
+  /* 기본(히어로 이미지 위) : 따뜻한 아이보리 + 그림자로 가독성 */
+  --header-fg: rgba(255, 248, 236, 0.95);
+  --header-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+
+  background: transparent;
+  backdrop-filter: none;
+  border: none;
+
+  transition: background 0.25s ease, backdrop-filter 0.25s ease, border-color 0.25s ease;
 }
 
 .header .logo,
-.header .ham-btn {
-  color: white !important;
+.header .menu-btn {
+  color: var(--header-fg);
+  text-shadow: var(--header-shadow);
+}
+
+.header--scrolled {
+  /* 종이 섹션 위로 내려오면: 라떼 종이 헤더 + 진한 브라운 */
+  --header-fg: rgba(42, 32, 24, 0.92);
+  --header-shadow: none;
+
+  background: rgba(255, 252, 246, 0.72);
+  backdrop-filter: blur(10px) saturate(1.15);
+  border-bottom: 1px solid rgba(40, 30, 22, 0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
 .header-inner {
@@ -29,12 +47,56 @@
 
 .logo {
   font-size: 24px;
-  font-weight: 800;
+  font-weight: 900;
   text-decoration: none;
+  letter-spacing: 0.02em;
 }
 
-.ham-btn {
-  font-size: 28px;
+.menu-btn {
   cursor: pointer;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 10px 12px;
+  border-radius: 12px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--header-fg);
+
+  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
 }
 
+.header--scrolled .menu-btn {
+  border-color: rgba(42, 32, 24, 0.14);
+}
+
+.menu-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.header--scrolled .menu-btn:hover {
+  background: rgba(154, 107, 66, 0.08);
+}
+
+.menu-btn:active {
+  transform: translateY(0);
+}
+
+.menu-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(154, 107, 66, 0.25);
+}
+
+.menu-icon {
+  width: 26px;
+  height: 26px;
+
+  /* SVG 라인 스타일 */
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}

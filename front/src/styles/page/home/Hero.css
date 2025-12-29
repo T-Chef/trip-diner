@@ -5,6 +5,17 @@
   overflow: hidden;
 }
 
+/* 텍스트 가독성용 오버레이 */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.25) 48%, rgba(0,0,0,0.05) 100%),
+    radial-gradient(900px 600px at 22% 50%, rgba(0,0,0,0.55), rgba(0,0,0,0) 60%);
+  pointer-events: none;
+}
+
 .hero-img {
   width: 100vw;
   height: 100vh;
@@ -16,6 +27,7 @@
   top: 45%;
   left: 60px;
   color: white;
+  z-index: 2;
 
   opacity: 0;
   transform: translateY(20px);
@@ -32,6 +44,7 @@
 .hero-title {
   font-size: 64px;
   font-weight: 900;
+  font-family: "Playfair Display", "Noto Serif KR", serif;
 
   opacity: 0;
   transform: translateY(20px);

@@ -6,28 +6,36 @@ html, body {
   overflow-x: hidden;
 }
 
-.home-wrapper {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: "Pretendard", sans-serif;
-  background: white;
+.home-wrapper{
+  min-width: 100vh;
+  background-color: #f6f0e6;
+  background-image:
+    radial-gradient(1200px 500px at 50% -20%,
+      rgba(255,255,255,0.30), rgba(255,255,255,0) 60%),
+    linear-gradient(180deg,
+      rgba(247,242,234,0.55),
+      rgba(242,236,227,0.55) 45%,
+      rgba(247,242,234,0.55)),
+    url("/public/assets/textures/main_paper.jpg");
+
+  background-repeat: no-repeat, no-repeat, repeat;
+  background-size: 1400px 700px, cover, 520px 520px;
+  background-position: 50% -20%, center, top left;
+  background-blend-mode: screen, multiply, normal;
 }
+
 
 /* 공통 SECTION BOX */
 .section-box {
   width: 100%;
   max-width: 1180px;
-  margin: -50px auto 0 auto;
+  margin: 68px auto 0 auto;
   padding: 80px 60px;
   position: relative;
 
-  background-size: cover;
-  background-position: center;
-
-  border: 1px solid rgba(255,255,255,0.5);
-  border-radius: 40px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+  background: transparent;
+  border: none;
+  box-shadow: none;
 
   /* fade-up 애니메이션 */
   opacity: 0;
@@ -58,6 +66,10 @@ html, body {
    RESPONSIVE
 ============================================================ */
 @media (max-width: 900px) {
+  .home-wrapper {
+    background-attachment: scroll;
+  }
+
   .intro-section {
     flex-direction: column;
   }
