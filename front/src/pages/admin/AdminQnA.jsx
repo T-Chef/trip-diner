@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import "../../styles/admin/AdminQnA.css";
 
 export default function AdminQna() {
@@ -9,7 +10,12 @@ export default function AdminQna() {
   const fetchQna = async () => {
     try {
       const res = await axios.get("http://localhost:4000/api/admin/qna");
-      setQnas(res.data);
+
+      if (res.data.success) {
+        setQnas(res.data.data);
+      } else {
+        alert("QnA 데이터를 불러올 수 없습니다.");
+      }
     } catch (err) {
       console.error("QnA 목록 조회 실패:", err);
       alert("1:1 문의 목록을 불러오지 못했습니다.");
@@ -42,23 +48,30 @@ export default function AdminQna() {
                 <th>작성일</th>
               </tr>
             </thead>
+
             <tbody>
               {qnas.map((qna) => (
                 <tr key={qna.qna_id}>
                   <td>{qna.qna_id}</td>
-                  <td className="qna-title">{qna.title}</td>
+
+                  <td className="qna-title">
+                    <Link to={`/admin/qna/${qna.qna_id}`}>{qna.title}</Link>
+                  </td>
+
                   <td>{qna.user?.name || "탈퇴회원"}</td>
+
                   <td>
                     <span
                       className={
-                        qna.status === "ANSWERED"
+                        qna.status === "DONE"
                           ? "badge answered"
                           : "badge pending"
                       }
                     >
-                      {qna.status === "ANSWERED" ? "답변완료" : "대기중"}
+                      {qna.status === "DONE" ? "답변완료" : "대기중"}
                     </span>
                   </td>
+
                   <td>{qna.created_at?.slice(0, 10)}</td>
                 </tr>
               ))}
