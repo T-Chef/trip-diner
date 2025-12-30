@@ -3,6 +3,7 @@ import prisma from "../../prisma/prismaClient.js";
 import { requireAuth } from "./auth.js";
 
 const router = express.Router();
+const saveLockByUser = new Map(); // key: userId(string) -> true
 
 router.get("/my", requireAuth, async (req, res) => {
   try {
@@ -57,6 +58,15 @@ function toSafePlan(p) {
 }
 
 router.post("/", requireAuth, async (req, res) => {
+  const userKey = String(req.user.user_id);
+  if (saveLockByUser.get(userKey)) {
+    return res.status(409).json({
+      success: false,
+      message: "이미 일정 저장 중입니다. 완료 후 다시 시도해주세요.",
+    });
+  }
+
+  saveLockByUser.set(userKey, true);
   try {
     const userId = req.user.user_id;
     const { aiPlan, themes, startDate } = req.body;
@@ -67,8 +77,8 @@ router.post("/", requireAuth, async (req, res) => {
 
     const cityName = aiPlan.cityName || "";
     const title = aiPlan.title || "여행 일정";
-let start = null;
-let end = null;
+    let start = null;
+    let end = null;
 
 if (startDate) {
   start = new Date(startDate);
@@ -85,6 +95,7 @@ if (startDate) {
     const finalThemes = aiPlan.themes || themes || [];
 
     const saved = await prisma.$transaction(async (tx) => {
+      
 
       let city = null;
       if (cityName.trim()) {
@@ -168,6 +179,9 @@ const planDay = await tx.plan_day.create({
   } catch (err) {
     console.error("Plan Save Error:", err);
     return res.status(500).json({ success: false, message: "일정 저장 실패" });
+  } finally {
+    // ✅ 성공/실패/중간 return 모두 포함해서 무조건 락 해제
+    saveLockByUser.delete(userKey);
   }
 });
 

@@ -54,7 +54,7 @@ router.post("/register", async (req, res) => {
 /* -------------------------------------------------------
    로그인 + 비활성화 유저 로그인 못하게 처리
 ------------------------------------------------------- */
-router.post("/login", async (req, res) => {
+router.post("/login-old", async (req, res) => {
   const { email, password } = req.body;
 
   try {

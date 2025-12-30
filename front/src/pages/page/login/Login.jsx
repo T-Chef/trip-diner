@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import axios from "axios";
+import api from "./api";
 import "../../../styles/page/Login.css";
 
 function Login({ setUser }) {
@@ -13,10 +13,7 @@ function Login({ setUser }) {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:4000/api/auth/login", {
-        email,
-        password,
-      });
+   const res = await api.post("/auth/login", { email, password });
 
       const user = res.data.user;
       const accessToken = res.data.accessToken;

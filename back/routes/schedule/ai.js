@@ -31,6 +31,18 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
  */
 const planCache = new Map();
 const PLAN_CACHE_TTL_MS = 10 * 60 * 1000; // 10분
+const planLockByIp = new Map();
+function getClientKey(req) {
+  const xff = String(req.headers["x-forwarded-for"] || "")
+    .split(",")[0]
+    .trim();
+
+  // express req.ip는 ::ffff:127.0.0.1 형태일 수 있음
+  const ip = (xff || req.ip || req.socket?.remoteAddress || "unknown")
+    .replace(/^::ffff:/, "");
+
+  return ip;
+}
 
 /**
  * ✅ description 캐시 (lazy-load + prewarm)
@@ -88,11 +100,25 @@ router.get("/description", async (req, res) => {
 });
 
 router.post("/plan", async (req, res) => {
+  const key = getClientKey(req);
+
+  // ✅ 이미 생성 중이면 중복 요청 거부
+  if (planLockByIp.get(key)) {
+    return res.status(409).json({
+      error: "추천 생성 중입니다. 완료될 때까지 잠시만 기다려주세요.",
+    });
+  }
+
+  planLockByIp.set(key, true);
+
+  // ✅ (선택) 혹시라도 요청이 영원히 안 끝나면 락이 안 풀리는 상황 대비
+  const lockTTL = setTimeout(() => planLockByIp.delete(key), 120000); // 2분
+
   const reqId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   console.time(`[AI_PLAN_TOTAL] ${reqId}`);
 
   try {
-    const { cityName, days, peopleType, themes } = req.body;
+    const { cityName, days, peopleType, themes, forceNew } = req.body;
 
     if (!cityName || !days || !peopleType || !themes?.length) {
       console.timeEnd(`[AI_PLAN_TOTAL] ${reqId}`);
@@ -101,11 +127,13 @@ router.post("/plan", async (req, res) => {
 
     // ✅ 캐시 조회 (반드시 라우터 안)
     const cacheKey = JSON.stringify({ cityName, days, peopleType, themes });
-    const cachedPlan = planCache.get(cacheKey);
-    if (cachedPlan && cachedPlan.expiresAt > Date.now()) {
-      console.timeEnd(`[AI_PLAN_TOTAL] ${reqId}`);
-      return res.json({ aiPlan: cachedPlan.value, cached: true });
-    }
+    if (!forceNew) {
+  const cachedPlan = planCache.get(cacheKey);
+  if (cachedPlan && cachedPlan.expiresAt > Date.now()) {
+    console.timeEnd(`[AI_PLAN_TOTAL] ${reqId}`);
+    return res.json({ aiPlan: cachedPlan.value, cached: true });
+  }
+}
 
     const themeKeywordMap = {
       먹방: ["맛집", "음식점", "고기집", "해산물", "식당"],
@@ -538,7 +566,10 @@ ${candidateListCompact}
     console.timeEnd(`[AI_PLAN_TOTAL] ${reqId}`);
     console.error("AI 일정 생성 오류:", err);
     return res.status(500).json({ error: "AI 일정 생성 실패" });
-  }
+   } finally {
+  clearTimeout(lockTTL);
+  planLockByIp.delete(key);
+}
 });
 
 export default router;

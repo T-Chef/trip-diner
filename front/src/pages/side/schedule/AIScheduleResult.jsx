@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AIScheduleMap from "./AIScheduleMap.jsx";
 import "../../../styles/side/schedule/AIScheduleResult.css";
@@ -157,15 +157,25 @@ export default function AIScheduleResult() {
   const [searchResults, setSearchResults] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [recommending, setRecommending] = useState(false);
+  const recommendLockRef = useRef(false); 
+  const [cooldownMs, setCooldownMs] = useState(0);
   const [panelTab, setPanelTab] = useState("search"); 
   const [likedPlaces, setLikedPlaces] = useState([]);
   const [likedLoading, setLikedLoading] = useState(false);
 
-  // 🔹 요약 카드용 통계
-  const [summary, setSummary] = useState({
-    totalPlaces: 0,
-    totalDistanceKm: 0,
-  });
+  useEffect(() => {
+  if (cooldownMs <= 0) return;
+  const t = setInterval(() => {
+    setCooldownMs((ms) => Math.max(0, ms - 1000));
+  }, 1000);
+  return () => clearInterval(t);
+}, [cooldownMs]);
+
+// 🔹 요약 카드용 통계
+const [summary, setSummary] = useState({
+  totalPlaces: 0,
+  totalDistanceKm: 0,
+});
 
   const openLikesTab = () => {
     setPanelTab("likes");
@@ -191,53 +201,76 @@ export default function AIScheduleResult() {
   };
 
   // ✅ 3) 새로운 추천받기
-  const handleNewRecommend = async () => {
-    try {
-      if (!aiPlan) return;
+const handleNewRecommend = async () => {
+  if (!aiPlan) return;
 
-      setRecommending(true); // 로딩 시작
+  // ✅ 이미 생성중/쿨다운이면 무시
+  if (cooldownMs > 0) return;
+  if (recommendLockRef.current) return;
 
-      const daysCount = aiPlan.daysCount || aiPlan.days?.length || 1;
+  // ✅ 클릭 즉시 락
+  recommendLockRef.current = true;
+  setRecommending(true);
 
-      const body = {
-        cityName: aiPlan.cityName,
-        days: daysCount,
-        peopleType: aiPlan.peopleType,
-        themes: aiPlan.themes || themes,
-      };
+  try {
+    const daysCount = aiPlan.daysCount || aiPlan.days?.length || 1;
 
-      const res = await fetch("http://localhost:4000/api/ai/plan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+    const body = {
+      cityName: aiPlan.cityName,
+      days: daysCount,
+      peopleType: aiPlan.peopleType,
+      themes: aiPlan.themes || themes,
+      forceNew: true,
+    };
 
-      if (!res.ok) {
-        console.error("새로운 추천 API 에러:", res.status);
-        alert("새로운 추천을 받는 데 실패했습니다. 잠시 후 다시 시도해주세요.");
-        return;
-      }
+    const res = await fetch(`${API_BASE}/ai/plan`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
 
-      const data = await res.json();
-      if (!data.aiPlan) {
-        alert("새로운 추천 결과가 비어 있습니다.");
-        return;
-      }
-
-      // 같은 결과 페이지로, 새로운 aiPlan을 들고 다시 이동
-      navigate("/trip/result", {
-        state: {
-          aiPlan: data.aiPlan,
-          themes: data.aiPlan.themes || body.themes,
-        },
-      });
-    } catch (err) {
-      console.error("새로운 추천받기 오류:", err);
-      alert("새로운 추천을 받는 중 오류가 발생했습니다.");
-    } finally {
-      setRecommending(false);
+    // ✅ 서버가 "생성중"이라 409 주면 사용자에게만 알려주고 종료
+    if (res.status === 409) {
+      const msg = (await res.json().catch(() => null))?.message;
+      alert(msg || "이미 계획 생성 중입니다. 완료 후 다시 시도해주세요.");
+      setCooldownMs(3000);
+      return;
     }
-  };
+
+    if (!res.ok) {
+      alert("새로운 추천을 받는 데 실패했습니다. 잠시 후 다시 시도해주세요.");
+      setCooldownMs(3000);
+      return;
+    }
+
+    const data = await res.json();
+    const nextPlan = data?.aiPlan;
+
+    if (!nextPlan) {
+      alert("새로운 추천 결과가 비어 있습니다.");
+      setCooldownMs(3000);
+      return;
+    }
+
+    navigate("/trip/result", {
+      state: {
+        aiPlan: nextPlan,
+        themes: nextPlan.themes || body.themes,
+      },
+    });
+  } catch (err) {
+    console.error("새로운 추천받기 오류:", err);
+    alert("새로운 추천을 받는 중 오류가 발생했습니다.");
+    setCooldownMs(3000);
+  } finally {
+    setRecommending(false);
+    recommendLockRef.current = false;
+
+    // ✅ 성공/실패 상관없이 연타 방지 (원하면 0으로)
+    setCooldownMs(5000);
+  }
+};
+
 
   // ✅ 4) 다시 선택하기 버튼
   const handleReSelect = () => {
@@ -283,7 +316,8 @@ export default function AIScheduleResult() {
         }
 
         console.log("📌 이미지/주소 보강 완료!");
-        setAiPlan(updated); // ✅ 여기서만 상태 갱신
+        setAiPlan(updated); 
+        setCooldownMs(5000);
       } finally {
         setIsEnhancing(false);
       }
@@ -444,6 +478,26 @@ useEffect(() => {
 
   return (
     <div className="result-wrapper">
+      {/* ✅ 새로운 추천받기 로딩 오버레이 */}
+    {recommending && (
+  <div className="loading-overlay">
+    <div className="loading-box">
+      <div className="loading-icon">🤖</div>
+      <h3 className="loading-title">AI 여행 플래너가</h3>
+      <h3 className="loading-title">당신만의 여행 코스를 만드는 중...</h3>
+      <p className="loading-sub">
+        주변 맛집·명소를 분석해서 일정표를 짜고 있어요.
+        <br />
+        잠시만 기다려 주세요!
+      </p>
+      <div className="loading-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+)}
       <h2 className="result-title">✨ AI 여행 계획이 완성되었습니다!</h2>
 
       <div className="result-layout">
@@ -589,13 +643,17 @@ useEffect(() => {
             </button>
 
             {/* 새로운 추천받기 */}
-            <button
-              className="btn-accent"
-              onClick={handleNewRecommend}
-              disabled={recommending}
-            >
-              {recommending ? "새로운 추천 만드는 중..." : "새로운 추천받기 🎲"}
-            </button>
+           <button
+  className="btn-accent"
+  onClick={handleNewRecommend}
+  disabled={recommending || recommendLockRef.current || cooldownMs > 0}
+>
+  {recommending
+    ? "새로운 추천 만드는 중..."
+    : cooldownMs > 0
+      ? `새로운 추천받기 (${Math.ceil(cooldownMs / 1000)}s)`
+      : "새로운 추천받기 🎲"}
+</button>
 
             {/* 다시 선택하기 */}
             <button className="btn-dark" onClick={handleReSelect}>

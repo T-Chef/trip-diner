@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../page/login/api";
 import { useNavigate } from "react-router-dom";
 import "../../../styles/side/mypage/MyTrips.css";
-
-const API_BASE = "http://localhost:4000/api";
 
 function safeJsonParse(str) {
   try {
@@ -13,38 +11,35 @@ function safeJsonParse(str) {
   }
 }
 
-function formatKoreanDate(d) {
-  const dt = new Date(d);
-  if (Number.isNaN(dt.getTime())) return null;
-  return dt.toLocaleDateString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-}
-
 export default function MyTrips({ user }) {
   const navigate = useNavigate();
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const handleDelete = async (id) => {
-    try {
-      if (!window.confirm("이 일정을 삭제할까요?")) return;
+  try {
+    if (!window.confirm("이 일정을 삭제할까요?")) return;
 
-      const token = localStorage.getItem("accessToken");
-      if (!token) return alert("로그인이 필요합니다.");
+    const res = await api.delete(`/plan/${id}`); // ✅ 여기만 네 백엔드에 맞춰 수정
 
-      await axios.delete(`${API_BASE}/plan/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      setPlans((prev) => prev.filter((p) => String(p.plan_id) !== String(id)));
-    } catch (e) {
-      console.error("삭제 실패:", e);
-      alert("삭제 실패! 콘솔 확인");
+    if (!res.data?.success) {
+      alert(res.data?.message || "삭제 실패");
+      return;
     }
-  };
+
+    setPlans((prev) => prev.filter((p) => String(p.plan_id) !== String(id)));
+  } catch (e) {
+    console.error("삭제 실패:", e);
+
+    if (e.response?.status === 401) {
+      alert("로그인이 필요합니다.");
+      navigate("/login");
+      return;
+    }
+
+    alert("삭제 실패! 콘솔 확인");
+  }
+};
 
   useEffect(() => {
     const run = async () => {
@@ -55,14 +50,7 @@ export default function MyTrips({ user }) {
           return;
         }
 
-        // ✅ requireAuth가 쿠키 기반이면 withCredentials 필요
-        const token = localStorage.getItem("accessToken");
-
-        const res = await axios.get(`${API_BASE}/plan`, {
-         headers: {
-         Authorization: `Bearer ${token}`,
-        },
-        });
+        const res = await api.get("/plan/my");
 
         console.log("✅ /api/plan status:", res.status);
         console.log("✅ /api/plan data:", res.data);

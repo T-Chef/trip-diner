@@ -33,6 +33,8 @@ import aiRouter from "./routes/schedule/ai.js";
 import profileRouter from "./routes/mypage/profile.js";
 import weatherRouter from "./routes/city/weather.js";
 import planRouter from "./routes/schedule/plan.js";
+import proxyImageRouter from "./routes/schedule/proxyImage.js";
+import authSessionRoutes from "./routes/schedule/authSessionRoutes.js";
 
 // 게시판
 import postRouter from "./routes/board/post.js";
@@ -123,6 +125,7 @@ app.get("/api/test", (req, res) => {
    도메인 라우터
 ------------------------------------------------------- */
 // 인증 / 유저
+app.use("/api/auth", authSessionRoutes);
 app.use("/api/auth", usersRouter);
 app.use("/api/profile", profileRouter);
 
@@ -151,6 +154,7 @@ app.use("/api/like", postLikeRouter);
 
 // AI 관련
 app.use("/api/ai", aiRouter);
+app.use("/api/proxy", proxyImageRouter);
 
 // 외부 검색 전용 라우터
 app.use("/api", googlePlaceRouter);

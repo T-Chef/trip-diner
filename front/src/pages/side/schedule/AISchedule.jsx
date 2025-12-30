@@ -1,6 +1,6 @@
 // front/src/pages/side/schedule/AISchedule.jsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../page/login/api";
 import { useNavigate } from "react-router-dom";
 import "../../../styles/side/schedule/AISchedule.css";
 
@@ -48,7 +48,7 @@ const AISchedule = ({ userId = 1 }) => {
 
   // 도시 목록 불러오기
   useEffect(() => {
-    axios.get(`${API_BASE}/tour/cities`).then((res) => setCities(res.data));
+    api.get(`${API_BASE}/tour/cities`).then((res) => setCities(res.data));
   }, []);
 
   const handleNext = () => setStep((prev) => prev + 1);
@@ -59,7 +59,7 @@ const AISchedule = ({ userId = 1 }) => {
     try {
       setLoading(true); // 🔥 로딩 시작
 
-      const res = await axios.post(`${API_BASE}/ai/plan`, {
+      const res = await api.post(`${API_BASE}/ai/plan`, {
         userId,
         cityName: selectedCity.name,
         areaCode: selectedCity.areaCode,

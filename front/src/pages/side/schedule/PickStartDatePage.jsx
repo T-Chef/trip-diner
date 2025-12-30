@@ -1,11 +1,9 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../page/login/api";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "../../../styles/side/schedule/PickStartDatePage.css";
-
-const API_BASE = "http://localhost:4000/api";
 
 function addDays(date, n) {
   const d = new Date(date);
@@ -37,22 +35,18 @@ function isInRange(date, start, end) {
 export default function PickStartDatePage() {
   const navigate = useNavigate();
   const { state } = useLocation();
+
   const aiPlan = state?.aiPlan ?? null;
   const themes = state?.themes ?? [];
 
   const [startDate, setStartDate] = useState(() => new Date());
   const [myPlans, setMyPlans] = useState([]);
 
-  // ✅ 내 저장된 일정 불러오기
+  // ✅ 내 저장된 일정 불러오기 (api가 Authorization/refresh 자동 처리)
   useEffect(() => {
     const fetchMyPlans = async () => {
-      const token = localStorage.getItem("accessToken");
-      if (!token) return;
-
       try {
-        const res = await axios.get(`${API_BASE}/plan/my`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await api.get("/plan/my"); // ✅ baseURL 붙어서 /api/plan/my 로 감
         if (res.data?.success) setMyPlans(res.data.plans || []);
       } catch (e) {
         console.error("내 일정 불러오기 실패:", e);
@@ -109,7 +103,6 @@ export default function PickStartDatePage() {
     else if (d > s && d < e) cls = "td-range-mid";
 
     if (hasSavedPlanOn(date)) cls = `${cls} td-has-saved`.trim();
-
     return cls;
   };
 
@@ -127,20 +120,14 @@ export default function PickStartDatePage() {
     navigate("/trip/summary", { state: { aiPlan, themes } });
   };
 
+  // ✅ 저장 (401이면 api가 refresh 시도 → 그래도 실패하면 로그인 이동)
   const onSave = async () => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      alert("로그인이 필요합니다.");
-      navigate("/login");
-      return;
-    }
-
     try {
-      const res = await axios.post(
-        `${API_BASE}/plan`,
-        { aiPlan, themes, startDate: startDate.toISOString() },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await api.post("/plan", {
+        aiPlan,
+        themes,
+        startDate: startDate.toISOString(),
+      });
 
       if (!res.data?.success) {
         alert(res.data?.message || "저장 실패");
@@ -151,6 +138,13 @@ export default function PickStartDatePage() {
       navigate("/my-trips", { replace: true });
     } catch (e) {
       console.error(e);
+
+      if (e.response?.status === 401) {
+        alert("로그인이 필요합니다.");
+        navigate("/login");
+        return;
+      }
+
       alert("저장 중 오류 발생");
     }
   };
@@ -173,9 +167,7 @@ export default function PickStartDatePage() {
       <div className="td-dates">
         <div className="td-datebox">
           <div className="td-label">가는날</div>
-          <div className="td-value">
-            {startDate.toLocaleDateString("ko-KR")}
-          </div>
+          <div className="td-value">{startDate.toLocaleDateString("ko-KR")}</div>
         </div>
         <div className="td-datebox">
           <div className="td-label">오는날</div>
@@ -184,7 +176,11 @@ export default function PickStartDatePage() {
       </div>
 
       <div className="td-btn-row">
-        <button type="button" className="td-btn td-btn-cancel" onClick={onCancel}>
+        <button
+          type="button"
+          className="td-btn td-btn-cancel"
+          onClick={onCancel}
+        >
           취소
         </button>
         <button className="td-btn td-btn-confirm" onClick={onSave}>
