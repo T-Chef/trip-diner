@@ -8,11 +8,8 @@ import EventList from "./event/EventList.jsx";
 import "../../../styles/side/city/CityMain.css";
 import { useSearchParams } from "react-router-dom";
 
-// ✅ 추가
+
 import useCityWeather from "../../../hooks/useCityWeather.js"; 
-// ↑ 너 폴더 위치에 맞춰 경로 조정 필요
-// 예: CityMain이 front/src/pages/city/CityMain.jsx면 hooks는 front/src/hooks/.. 이므로
-// "../../hooks/useCityWeather" 가 맞는 경우가 많아
 
 const DEFAULT_AREA_CODE = 6;
 
@@ -33,7 +30,7 @@ export default function CityMain({ user, setUser }) {
     };
   });
 
-  // ✅ URL → filter 동기화
+
   useEffect(() => {
     const areaParam = searchParams.get("area");
     const sigunguParam = searchParams.get("sigungu");
@@ -55,7 +52,7 @@ export default function CityMain({ user, setUser }) {
     });
   }, [searchParams]);
 
-  // ✅ filter → URL 동기화 helper
+
   const syncToSearchParams = useCallback(
     (patch) => {
       setSearchParams((prev) => {
@@ -85,7 +82,7 @@ export default function CityMain({ user, setUser }) {
     [setSearchParams, filter.areaCode, filter.sigunguCode, filter.keyword]
   );
 
-  // ✅ AIFilter value/onChange 구조
+
   const handleFilterChangeFromAIFilter = useCallback(
     (patch) => {
       setFilter((prev) => {
@@ -102,7 +99,7 @@ export default function CityMain({ user, setUser }) {
     [syncToSearchParams]
   );
 
-  // ✅ keyword debounce
+  
   const keywordTimer = useRef(null);
   const handleKeywordChange = useCallback(
     (value) => {
@@ -123,7 +120,7 @@ export default function CityMain({ user, setUser }) {
     };
   }, []);
 
-  // ✅✅✅ 날씨: 백엔드(/api/weather)만 호출
+  
   const { weather, forecast, loading: weatherLoading, error: weatherError } =
     useCityWeather(filter.areaCode);
 
@@ -160,7 +157,28 @@ export default function CityMain({ user, setUser }) {
         </div>
 
         <div className="city-content-box">
-          <SearchBar onKeywordChange={handleKeywordChange} />
+          <div className="city-hero">
+            <div className="city-head-center">
+              <h2 className="city-head-title">도시 메뉴</h2>
+            </div>
+
+            <p className="city-head-desc">
+              지역을 고르고, 마음에 드는 여행지를 찜해서 나만의 코스를 만들어보세요.
+            </p>
+
+            <div className="city-hero-search">
+              <SearchBar onKeywordChange={handleKeywordChange} />
+            </div>
+          </div>
+
+          <section className="city-section">
+          <div className="city-section-head center">
+            <h3 className="city-section-title">인기 여행지</h3>
+          </div>
+
+          <p className="city-section-desc center">
+            검색 + 찜(❤️)으로 빠르게 담아보세요.
+          </p>
 
           <div className="city-list-grid">
             <CityList
@@ -170,8 +188,19 @@ export default function CityMain({ user, setUser }) {
               userId={userId}
             />
           </div>
+        </section>
 
-          <section className="city-event-section">
+        <section className="city-event-section city-section">
+            <div className="city-section-head center">
+              <h3 className="city-section-title">축제 · 이벤트</h3>
+            </div>
+
+            <p className="city-section-desc center">
+              지금 진행 중인 행사만 모아봤어요.
+            </p>
+
+            <div className="event-topline" aria-hidden="true" />
+
             <EventList areaCode={filter.areaCode} sigunguCode={filter.sigunguCode} />
           </section>
         </div>

@@ -1,36 +1,29 @@
-/* ===========================
-   기본 래퍼
-=========================== */
 
 .city-search-wrap {
   width: 100%;
-  max-width: 680px;
-  height: 52px;
+  max-width: 720px;
+  height: 54px;
 
-  display: flex;
-  align-items: center;
+  display:flex;
+  align-items:center;
   gap: 10px;
 
   padding: 0 18px;
-  margin: -10px auto 28px auto;
+  margin: 0;
 
-  border-radius: 100px;
-  border: 1px solid #e5e5e5;
-  background: #ffffff;
+  border-radius: 999px;
+  border: 1px solid rgba(42,32,24,0.14);
+  background: rgba(255,252,246,0.88);
 
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    background-color 0.15s ease,
-    transform 0.1s ease;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.08);
+  transition: border-color .18s ease, box-shadow .18s ease, transform .12s ease, background-color .18s ease;
 }
 
 /* 포커스 시 스타일 업그레이드 */
 .city-search-wrap.focused {
-  border-color: #3a76ff;
-  box-shadow: 0 0 0 3px rgba(58,118,255,0.15);
-  background: #f9fbff;
+  border-color: rgba(176,122,58,0.55);
+  box-shadow: 0 0 0 4px rgba(215,176,106,0.18), 0 12px 30px rgba(0,0,0,0.10);
+  background: rgba(255,255,255,0.92);
   transform: translateY(-1px);
 }
 
@@ -39,9 +32,8 @@
 =========================== */
 
 .city-search-icon {
-  font-size: 17px;
-  color: #a0a0a0;
-  flex-shrink: 0;
+  font-size: 16px;
+  opacity: 0.72;
 }
 
 /* 인풋 */
@@ -53,13 +45,13 @@
   background: transparent;
 
   font-size: 15px;
-  color: #333;
-  caret-color: #3a76ff;
+  color: #2a2018;
+  caret-color: #b07a3a;
 }
 
 /* placeholder 스타일 */
 .city-search-input::placeholder {
-  color: #b7bcc6;
+  color: rgba(70,55,45,0.45);
   font-size: 14px;
 }
 
@@ -67,8 +59,7 @@
 .city-search-right {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
+  gap: 8px;
 }
 
 /* 디바운스 점 (로딩 인디케이터) */
@@ -76,15 +67,15 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #3a76ff;
-  opacity: 0.6;
+  background: #b07a3a;
+  opacity: 0.65;
   animation: debounceBlink 1s infinite ease-in-out;
 }
 
 @keyframes debounceBlink {
   0%, 100% {
     transform: scale(0.9);
-    opacity: 0.4;
+    opacity: 0.35;
   }
   50% {
     transform: scale(1.2);
@@ -96,34 +87,24 @@
 .search-clear-btn {
   border: none;
   outline: none;
-  background: transparent;
+  background: rgba(42,32,24,0.06);
   cursor: pointer;
 
   font-size: 14px;
-  color: #b0b5c0;
-  padding: 4px;
+  color: rgba(42,32,24,0.55);
+  width: 28px;
+  height: 28px;
   border-radius: 999px;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  transition: background .15s ease, transform .12s ease;
 }
 
 .search-clear-btn:hover {
-  background: rgba(0,0,0,0.04);
-  color: #6b7280;
+  background: rgba(42,32,24,0.10);
   transform: translateY(-0.5px);
 }
 
 /* 모바일에서 살짝 줄이기 */
-@media (max-width: 640px) {
-  .city-search-wrap {
-    height: 46px;
-    padding: 0 14px;
-  }
-
-  .city-search-input {
-    font-size: 14px;
-  }
-
-  .city-search-input::placeholder {
-    font-size: 13px;
-  }
+@media (max-width: 640px){
+  .city-search-wrap{ height: 48px; padding: 0 14px; }
+  .city-search-input{ font-size: 14px; }
 }

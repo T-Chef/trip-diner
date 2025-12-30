@@ -1,153 +1,320 @@
-/* 공통 변수 */
-:root {
-  --content-width: 820px;
-  --panel-width: 240px;
-  --layout-gap: 70px;
-  --side-offset-left: -20px;
-  --side-offset-right: -20px;
-}
-
-/* 전체 페이지 */
-.city-page-wrapper {
-  width: 100%;
-  min-height: 100vh;
-  background: #e7eccb;
-  padding: 80px 0 80px;
-  position: relative;
-}
-
-/* 중앙 박스 */
-.city-content-box {
-  width: var(--content-width);
-  margin: 0 auto;
-  background: #ffffff;
-  border-radius: 18px;
-  padding: 45px 60px 55px 60px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-}
-
-/* ==========================
-  양 옆 떠 있는 패널 (Weather / Filter)
-========================== */
-
-.floating-left {
-  position: fixed;
-  top: 80px;
-  width: var(--panel-width);
-  z-index: 5;
-}
-
-.floating-right {
-  position: fixed;
-  top: 50px;             
-  width: var(--panel-width);
-  z-index: 5;
-}
-
-/* 중앙 박스 기준으로 왼쪽 */
-.floating-left {
-  left: calc(
-    50% - (var(--content-width) / 2) - var(--panel-width) - var(--layout-gap) + var(--side-offset-left)
-  );
-}
-
-/* 중앙 박스 기준으로 오른쪽 */
-.floating-right {
-  left: calc(
-    50% + (var(--content-width) / 2) + var(--layout-gap) + var(--side-offset-right)
-  );
-}
-
-/* ==========================
-  타이틀 영역
-========================== */
-.city-title-wrap {
-  margin: 24px 0 16px;
-  text-align: left;          
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;   
-  gap: 4px;
-}
-
-.city-title {
-  font-size: 22px;
-  font-weight: 800;
-  margin-bottom: 8px;
-  color: #222;
-}
-
-.city-subtitle {
-  font-size: 14px;
-  color: #777;
-}
-
-/* ==========================
-  리스트 2단
-========================== */
-.city-list-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 398px);
-  gap: 20px 24px;
-}
-
-/* ==========================
-  후기 영역
-========================== */
-.city-review-section {
-  padding: 60px 0;
-}
-
-.section-title h2 {
-  font-size: 24px;
-  font-weight: 800;
-}
-
-.section-title p {
-  font-size: 14px;
-  margin-top: 4px;
-  color: #555;
-}
-
-.review-list {
-  margin-top: 30px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-}
-
-/* ==========================
-  이벤트 영역
-========================== */
-.city-event-section {
-  padding: 60px 0 80px;
-}
-
-.event-list {
-  margin-top: 30px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-}
-
-/* 화면이 좁아질수록 패널을 더 안쪽으로 */
-@media (max-width: 1400px) {
+  /* 공통 변수 */
   :root {
-    --side-offset-left: -20px;
-    --side-offset-right: -10px;
+    --content-width: 820px;
+    --panel-width: 240px;
+    --layout-gap: 70px;
+    --side-offset-left: -30px;
+    --side-offset-right: -2px;
+    --city-ink: #2a2018;
+    --city-muted: rgba(70,55,45,0.62);
+    --city-line: rgba(42,32,24,0.12);
+    --city-paper: rgba(255,252,246,0.88);
+    --city-paper-2: rgba(255,255,255,0.62);
+    --city-accent: #b07a3a;
+    --city-accent-2: #d7b06a;
+    --city-shadow: rgba(0,0,0,0.12);
   }
-}
 
-@media (max-width: 1200px) {
-  :root {
-    --side-offset-left: 0px;
-    --side-offset-right: 0px;
+  /* 전체 페이지 */
+  .city-page-wrapper {
+    width: 100%;
+    min-height: 100vh;
+    background:
+      radial-gradient(1200px 520px at 50% -20%, rgba(255,255,255,0.65), rgba(255,255,255,0) 60%),
+      radial-gradient(700px 520px at 18% 20%, rgba(215,176,106,0.18), rgba(215,176,106,0) 62%),
+      radial-gradient(700px 520px at 82% 18%, rgba(176,122,58,0.14), rgba(176,122,58,0) 62%),
+      linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.02)),
+      url("/public/assets/textures/main_paper.jpg");
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat;
+    background-size: auto, auto, auto, auto, 900px auto;
+    background-attachment: scroll;
+    padding: 80px 0 80px;
+    position: relative;
   }
-}
 
-@media (max-width: 1024px) {
-  .floating-left,
+  /* 중앙 박스 */
+  .city-content-box {
+    width: var(--content-width);
+    margin: 0 auto;
+    background:
+      radial-gradient(1000px 700px at 50% 0%, rgba(255,255,255,0.82), rgba(255,255,255,0.58)),
+      url("/public/assets/textures/main_paper.jpg");
+    background-repeat: no-repeat, repeat;
+    background-size: auto, 820px auto;
+
+    border: 1px solid rgba(42,32,24,0.10);
+    box-shadow: 0 16px 42px rgba(0,0,0,0.12);
+    position: relative;
+    border-radius: 18px;
+    padding: 10px 60px 55px 60px;
+  }
+
+  .city-content-box::before{
+    content:"";
+    position:absolute;
+    inset: 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(215,176,106,0.36);
+    box-shadow: inset 0 0 0 1px rgba(176,122,58,0.14);
+    pointer-events:none;
+  }
+
+  /* ==========================
+    양 옆 떠 있는 패널 (Weather / Filter)
+  ========================== */
+
+  .floating-left {
+    position: fixed;
+    top: 80px;
+    width: var(--panel-width);
+    z-index: 5;
+  }
+
   .floating-right {
-    display: none;   /* 그냥 숨기기 — 모바일 전용 */
+    position: fixed;
+    top: 80px;             
+    width: var(--panel-width);
+    z-index: 5;
   }
+
+  /* 중앙 박스 기준으로 왼쪽 */
+  .floating-left {
+    left: calc(
+      50% - (var(--content-width) / 2) - var(--panel-width) - var(--layout-gap) + var(--side-offset-left)
+    );
+  }
+
+  /* 중앙 박스 기준으로 오른p쪽 */
+  .floating-right {
+    left: calc(
+      50% + (var(--content-width) / 2) + var(--layout-gap) + var(--side-offset-right)
+    );
+  }
+
+  .floating-left > *,
+  .floating-right > *{
+    background: var(--city-paper);
+    border: 1px solid rgba(42,32,24,0.10);
+    box-shadow: 0 14px 34px rgba(0,0,0,0.12);
+    backdrop-filter: blur(6px);
+  }
+
+  .city-hero{
+    margin: 14px 0 18px;
+    padding: 18px 18px 14px;
+
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  .city-section-head.center,
+  .city-head-center {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin: 10px 0 6px;
+  }
+
+  .city-section-head.center::before,
+  .city-section-head.center::after,
+  .city-head-center::before,
+  .city-head-center::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    opacity: 0.9;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      rgba(42,32,24,0.00),
+      rgba(215,176,106,0.60),
+      rgba(42,32,24,0.10),
+      rgba(42,32,24,0.00)
+    );
+  }
+
+  .city-head-title{
+    margin: 0;
+    font-size: 26px;
+    font-weight: 950;
+    color: var(--city-ink);
+    letter-spacing: -0.02em;
+  }
+
+  .city-section-title{
+    margin: 0;
+    font-size: 20px;
+    font-weight: 950;
+    color: var(--city-ink);
+  }
+
+  .city-section-desc.center,
+  .city-head-desc {
+    margin: 0 auto 14px;
+    text-align: center;
+    font-size: 13.5px;
+    color: rgba(70,55,45,0.62);
+    line-height: 1.6;
+    max-width: 680px;
+  }
+
+  .city-hero-search{
+    display: flex;
+    justify-content: center;
+    margin: 10px 0 6px;
+    padding: 0;
+    border-top: none;
+  }
+
+  .city-section{
+    margin-top: 26px;
+  }
+
+  .city-section-head{
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14px;
+    margin: 0 0 14px;
+  }
+
+  .city-section-head > div:first-child{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .city-section-title{
+    margin: 0;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--city-ink);
+  }
+
+  .city-section-desc{
+    margin: 0;
+    font-size: 13px;
+    color: rgba(70,55,45,0.62);
+  }
+
+  .city-section-line{
+    flex: 1;
+    height: 1px;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      rgba(215,176,106,0.55),
+      rgba(42,32,24,0.10),
+      rgba(42,32,24,0.04)
+    );
+    transform: translateY(-2px);
+  }
+
+  /* ==========================
+    리스트 2단
+  ========================== */
+  .city-list-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 400px);
+    gap: 20px 24px;
+  }
+
+  /* ==========================
+    후기 영역
+  ========================== */
+  .city-review-section {
+    padding: 60px 0;
+  }
+
+  .section-title h2 {
+    font-size: 24px;
+    font-weight: 800;
+  }
+
+  .section-title p {
+    font-size: 14px;
+    margin-top: 4px;
+    color: #555;
+  }
+
+  .review-list {
+    margin-top: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  /* ==========================
+    이벤트 영역
+  ========================== */
+
+  .event-list {
+    margin-top: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  /* 3개 타이틀 동일 크기 */
+  .city-head-title,
+  .city-section-title {
+    font-size: 24px;
+    font-weight: 950;
+    letter-spacing: -0.02em;
+    color: var(--city-ink);
+    margin: 0;
+  }
+
+  /* 설명 문장도 통일(원하면) */
+  .city-head-desc,
+  .city-section-desc.center {
+    margin: 0 auto 14px;
+    text-align: center;
+    font-size: 13.5px;
+    color: rgba(70,55,45,0.62);
+    line-height: 1.6;
+    max-width: 680px;
+  }
+
+  .event-topline{
+  width: min(720px, 100%);
+  height: 1px;
+  margin: 12px auto 18px; /* 위/아래 간격 */
+  border-radius: 999px;
+
+  background: linear-gradient(
+    90deg,
+    rgba(42,32,24,0.00),
+    rgba(215,176,106,0.55),
+    rgba(42,32,24,0.12),
+    rgba(215,176,106,0.35),
+    rgba(42,32,24,0.00)
+  );
+
+  opacity: 0.85;
 }
+
+  /* 화면이 좁아질수록 패널을 더 안쪽으로 */
+  @media (max-width: 1400px) {
+    :root {
+      --side-offset-left: -20px;
+      --side-offset-right: -10px;
+    }
+  }
+
+  @media (max-width: 1200px) {
+    :root {
+      --side-offset-left: 0px;
+      --side-offset-right: 0px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .floating-left,
+    .floating-right {
+      display: none;   
+    }
+  }
