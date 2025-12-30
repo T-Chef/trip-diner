@@ -21,6 +21,7 @@ import Unsubscribe from "./pages/side/mypage/Unsubscribe.jsx";
 import Calendar from "./pages/side/mypage/Calendar.jsx";
 import MyTrips from "./pages/side/mypage/MyTrips.jsx";
 import QnAWrite from "./pages/side/mypage/UserQnA";
+import UserQnADetail from "./pages/side/mypage/UserQnADetail.jsx"
 
 // AI / 여행
 import AISchedule from "./pages/side/schedule/AISchedule.jsx";
@@ -101,6 +102,7 @@ export default function App() {
                 <Route path="/profile/edit" element={<ProfileEdit user={user} setUser={setUser} />} />
                 <Route path="/my-trips" element={<MyTrips user={user} />} />
                 <Route path="/qna/write" element={<QnAWrite user={user} />} />
+                <Route path="/mypage/qna/:id" element={<UserQnADetail />} />
 
                 {/* 좋아요 */}
                 <Route path="/like/posts" element={<Likeposts userId={user?.user_id} />} />
