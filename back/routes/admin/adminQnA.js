@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
       orderBy: { created_at: "desc" },
       include: {
         user: { select: { name: true } },
-        answers: true,
+        qna_answer: true,   // ✅ 변경
       },
     });
 
@@ -35,7 +35,7 @@ router.get("/:id", async (req, res) => {
       where: { qna_id: Number(id) },
       include: {
         user: { select: { name: true } },
-        answers: true,
+        qna_answer: true,   // ✅ 변경
       },
     });
 
@@ -71,7 +71,7 @@ router.post("/:qnaId/answer", async (req, res) => {
 
     await prisma.qna_answer.create({
       data: {
-        qna_id: qnaIdBigInt,      
+        qna_id: qnaIdBigInt,
         admin_id: Number(admin_id),
         content,
       },
@@ -86,6 +86,7 @@ router.post("/:qnaId/answer", async (req, res) => {
       success: true,
       message: "답변 등록 완료",
     });
+
   } catch (err) {
     console.error("관리자 QnA 답변 등록 오류:", err);
     return res.status(500).json({
