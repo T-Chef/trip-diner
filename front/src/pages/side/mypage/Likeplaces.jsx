@@ -109,12 +109,9 @@ export default function LikePlaces({ userId }) {
   }
 };
 
-
-
   return (
     <div className="likes-wrapper">
       <h2 className="likes-title">좋아요한 여행지</h2>
-
        <button
         type="button"
         className="likes-clear-btn"
@@ -166,3 +163,4 @@ export default function LikePlaces({ userId }) {
     </div>
   );
 }
+

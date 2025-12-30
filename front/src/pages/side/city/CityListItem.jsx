@@ -1,6 +1,7 @@
 // front/src/components/city/CityListItem.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+
 import { placeLikesApi } from "../../../api/placeLikesApi";
 import "../../../styles/side/city/CityListItem.css";
 

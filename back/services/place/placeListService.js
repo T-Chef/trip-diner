@@ -109,7 +109,7 @@ export async function getPlaces(reqQuery) {
   });
 
   items = items.filter((p) => !isBannedPlaceRaw(p));
-  
+
   if (keyword && keyword.trim()) {
     const kw = keyword.trim().toLowerCase();
     items = items.filter((i) => {

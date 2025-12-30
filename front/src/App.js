@@ -1,11 +1,8 @@
-
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
-// =======================
-// 일반 유저 Layout
-// =======================
+// Layout
 import Layout from "./components/layout/Layout.jsx";
 
 // 기본 페이지
@@ -22,6 +19,7 @@ import Likeplaces from "./pages/side/mypage/Likeplaces.jsx";
 import Unsubscribe from "./pages/side/mypage/Unsubscribe.jsx";
 import Calendar from "./pages/side/mypage/Calendar.jsx";
 import MyTrips from "./pages/side/mypage/MyTrips.jsx";
+import QnAWrite from "./pages/side/mypage/UserQnA";
 
 // AI / 여행
 import AISchedule from "./pages/side/schedule/AISchedule.jsx";
@@ -40,15 +38,14 @@ import Board from "./pages/side/board/Board.jsx";
 import BoardWrite from "./pages/side/board/BoardWrite.jsx";
 import BoardDetail from "./pages/side/board/BoardDetail.jsx";
 
-// =======================
 // 관리자
-// =======================
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
 import AdminLayout from "./pages/admin/layout/AdminLayout.jsx";
 import AdminHome from "./pages/admin/AdminHome.jsx";
 import AdminUsers from "./pages/admin/AdminUsers.jsx";
 import AdminPosts from "./pages/admin/AdminPosts.jsx";
-import AdminInquiries from "./pages/admin/AdminInquiries.jsx";
+import AdminQnA from "./pages/admin/AdminQnA.jsx";
+import AdminQnADetail from "./pages/admin/AdminQnADetail.jsx";
 
 // 비밀번호 재설정
 import ForgotPassword from "./pages/pw/ForgotPassword";
@@ -75,21 +72,17 @@ export default function App() {
       <Toaster position="top-center" />
 
       <Routes>
-        {/* =========================
-            관리자
-        ========================= */}
+        {/* 관리자 */}
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<AdminHome />} />
-
         <Route path="/admin/*" element={<AdminLayout />}>
-          <Route path="users" element={<AdminUsers />} />
-          <Route path="posts" element={<AdminPosts />} />
-          <Route path="inquiries" element={<AdminInquiries />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="posts" element={<AdminPosts />} />
+        <Route path="qna" element={<AdminQnA />} />
+        <Route path="qna/:id" element={<AdminQnADetail />} />
         </Route>
 
-        {/* =========================
-            일반 유저
-        ========================= */}
+        {/* 일반 유저 */}
         <Route
           path="/*"
           element={
@@ -106,6 +99,8 @@ export default function App() {
                 <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
                 <Route path="/profile/edit" element={<ProfileEdit user={user} setUser={setUser} />} />
                 <Route path="/my-trips" element={<MyTrips user={user} />} />
+
+                <Route path="/qna/write" element={<QnAWrite user={user} />} />
 
                 {/* 좋아요 */}
                 <Route path="/like/posts" element={<Likeposts userId={user?.user_id} />} />

@@ -1,32 +1,46 @@
-// src/AdminApp.js (관리자용)
 import React, { useState } from "react";
-import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
+
 import Admin from "./pages/Admin.jsx";
+import AdminPosts from "./pages/admin/AdminPosts.jsx";
+import AdminQnA from "./pages/admin/AdminQnA.jsx";
+import AdminQnADetail from "./pages/admin/AdminQnADetail.jsx";
 
 function AdminHeader({ user, setUser }) {
-    const navigate = useNavigate();
-    const handleLogout = () => {
-        setUser(null);
-        navigate("/");
-    }
+  const navigate = useNavigate();
 
-    return (
-        <header>
-            <div className="logo">Travel -chef (Admin)</div>
-            <nav>
-                <ul>
-                    <li><Link to="/">홈</Link></li>
-                    <li><span>{user.name}님 (관리자)</span></li>
-                    <li>
-                        <button onClick={handleLogout} style={{ border: "none", background: "none", cursor: "pointer"}}>로그아웃</button>
-                    </li>
-                </ul>
-            </nav>
-        </header>
-    );
- }
-   
- function AdminApp() {
+  const handleLogout = () => {
+    setUser(null);
+    navigate("/");
+  };
+
+  return (
+    <header>
+      <div className="logo">Travel - chef (Admin)</div>
+
+      <nav>
+        <ul>
+          <li><Link to="/admin">홈</Link></li>
+          <li><Link to="/admin/posts">게시글 관리</Link></li>
+          <li><Link to="/admin/qna">1:1 문의 관리</Link></li>
+
+          <li><span>{user.name}님 (관리자)</span></li>
+
+          <li>
+            <button
+              onClick={handleLogout}
+              style={{ border: "none", background: "none", cursor: "pointer" }}
+            >
+              로그아웃
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </header>
+  );
+}
+
+function AdminApp() {
   const [user, setUser] = useState({
     email: "admin@gmail.com",
     name: "관리자",
@@ -39,15 +53,32 @@ function AdminHeader({ user, setUser }) {
   ]);
 
   return (
-    <BrowserRouter>
+    <>
       <AdminHeader user={user} setUser={setUser} />
+
       <Routes>
+        {/* /admin */}
         <Route
-          path="/admin"
-          element={<Admin user={user} dummyUsers={dummyUsers} setDummyUsers={setDummyUsers} />}
+          index
+          element={
+            <Admin
+              user={user}
+              dummyUsers={dummyUsers}
+              setDummyUsers={setDummyUsers}
+            />
+          }
         />
+
+        {/* /admin/posts */}
+        <Route path="posts" element={<AdminPosts />} />
+
+        {/* /admin/qna */}
+        <Route path="qna" element={<AdminQnA />} />
+
+        {/* /admin/qna/:id */}
+        <Route path="qna/:id" element={<AdminQnADetail />} />
       </Routes>
-    </BrowserRouter>
+    </>
   );
 }
 

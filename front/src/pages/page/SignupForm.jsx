@@ -3,8 +3,6 @@ import { checkEmailDuplicate } from "../pw/PwApi";
 import Swal from "sweetalert2";
 import "../../styles/page/SignupForm.css";
 
-
-// Debounce Hook
 function useDebounce(callback, delay) {
   const timer = useRef(null);
 
@@ -20,7 +18,6 @@ export default function SignupForm({ setEmail, email, name, setName, password, s
   const [isChecked, setIsChecked] = useState(false);
   const [checking, setChecking] = useState(false);
 
-  // 이메일 입력 변경 시 중복체크 초기화
   const resetCheck = useDebounce(() => {
     setIsChecked(false);
   }, 500);
@@ -51,7 +48,6 @@ export default function SignupForm({ setEmail, email, name, setName, password, s
       }
     } catch(err) {
 
-  // 409가 오면 이메일 중복 처리
   if (err.response?.status === 409) {
     Swal.fire("중복", "이미 사용 중인 이메일입니다.", "error");
 
@@ -65,7 +61,6 @@ export default function SignupForm({ setEmail, email, name, setName, password, s
 
   return (
     <>
-      {/* 이름 */}
       <div className="input-group">
         <label>이름</label>
         <input
@@ -76,7 +71,6 @@ export default function SignupForm({ setEmail, email, name, setName, password, s
         />
       </div>
 
-      {/* 이메일 */}
       <div className="email-row">
   <input
     type="email"
@@ -97,7 +91,6 @@ export default function SignupForm({ setEmail, email, name, setName, password, s
       </button>
     </div>
 
-      {/* 비밀번호 */}
       <div className="input-group">
         <label>비밀번호</label>
         <input
@@ -107,8 +100,6 @@ export default function SignupForm({ setEmail, email, name, setName, password, s
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
-
-      {/* 최종 회원가입 버튼은 Signup.jsx에서 처리 */}
     </>
   );
 } 

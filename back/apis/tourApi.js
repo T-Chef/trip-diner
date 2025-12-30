@@ -5,22 +5,25 @@ import https from "https";
 const SERVICE_KEY = process.env.TOUR_API_KEY;
 const BASE_URL = "https://apis.data.go.kr/B551011/KorService2";
 const httpsAgent = new https.Agent({ keepAlive: true });
-
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
 let queue = Promise.resolve();
+let lastCallAt = 0;
+const MIN_INTERVAL_MS = 400;
+let dynamicIntervalMs = MIN_INTERVAL_MS;
 function enqueueTourApi(fn) {
-  const next = queue.then(fn, fn);
-  queue = next.catch(() => {}); // 큐 끊기 방지
+  const next = queue.then(async () => {
+    const now = Date.now();
+    const wait = Math.max(0, dynamicIntervalMs - (now - lastCallAt));
+    if (wait > 0) await sleep(wait);
+    lastCallAt = Date.now();
+    return fn();
+  }, fn);
+
+  queue = next.catch(() => {});
   return next;
 }
 
-/**
- * ✅ 실제 호출 로직(재시도/429 백오프/timeout 포함)
- * - 이름을 _callTourAPI 로 바꿔서 중복 선언 제거
- */
 async function _callTourAPI(path, params, opts = {}) {
-  const retry = opts.retry ?? 5;
   const timeoutMs = opts.timeoutMs ?? 12000;
 
   const query = Object.entries(params)
@@ -29,102 +32,63 @@ async function _callTourAPI(path, params, opts = {}) {
 
   const url = `${BASE_URL}${path}?serviceKey=${SERVICE_KEY}&${query}`;
 
-  for (let attempt = 1; attempt <= retry; attempt++) {
-    const controller = new AbortController();
-    const t = setTimeout(() => controller.abort(), timeoutMs);
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), timeoutMs);
 
-    try {
-      const res = await fetch(url, {
-        method: "GET",
-        agent: httpsAgent,
-        signal: controller.signal,
-        headers: {
-          "User-Agent": "TripDiner/1.0",
-          Accept: "application/json",
-        },
-      });
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      agent: httpsAgent,
+      signal: controller.signal,
+      headers: {
+        "User-Agent": "TripDiner/1.0",
+        Accept: "application/json",
+      },
+    });
 
-      const text = await res.text();
-      clearTimeout(t);
+    const text = await res.text();
+    clearTimeout(t);
 
-      // ✅ 429면 더 길게 쉬었다가 재시도
-      if (res.status === 429) {
-        const ra = res.headers.get("retry-after");
-        const retryAfterMs = ra ? Number(ra) * 1000 : null;
+    if (res.status === 429) {
+      dynamicIntervalMs = Math.min(2000, dynamicIntervalMs + 200);
+      const err = new Error("TourAPI HTTP 429");
+      err.httpStatus = 429;
+      err.raw = text?.slice(0, 120);
+      throw err;
+    }
 
-        const backoff =
-          retryAfterMs ??
-          Math.min(8000, 500 * 2 ** (attempt - 1)) +
-            Math.floor(Math.random() * 200);
+    if (!res.ok) {
+      const err = new Error(`TourAPI HTTP ${res.status}`);
+      err.httpStatus = res.status;
+      err.raw = text?.slice(0, 120);
+      throw err;
+    }
 
-        if (attempt < retry) {
-          console.warn(
-            `[TourAPI 429] wait ${backoff}ms then retry ${attempt}/${retry}`
-          );
-          await sleep(backoff);
-          continue;
-        }
-      }
-
-      if (!res.ok) {
-        const err = new Error(`TourAPI HTTP ${res.status}`);
-        err.httpStatus = res.status;
-        err.raw = text?.slice(0, 120);
-        throw err;
-      }
-
-      if (text.startsWith("Unauthorized") || text.includes("SERVICE ERROR")) {
-        console.error("TourAPI Unauthorized or Service Error RAW:", text);
-        return [];
-      }
-
-      let json;
-      try {
-        json = JSON.parse(text);
-      } catch (e) {
-        console.error("JSON 파싱 실패 RAW:", text);
-        return [];
-      }
-
-      return json.response?.body?.items?.item || [];
-    } catch (err) {
-      clearTimeout(t);
-
-      const isNetwork =
-        err?.name === "AbortError" ||
-        err?.code === "ECONNRESET" ||
-        err?.code === "ETIMEDOUT" ||
-        err?.code === "ECONNREFUSED";
-
-      const isRetryableHttp =
-        err?.httpStatus === 429 || err?.httpStatus === 503 || err?.httpStatus >= 500;
-
-      if (attempt < retry && (isNetwork || isRetryableHttp)) {
-        const backoff =
-          Math.min(8000, 400 * 2 ** (attempt - 1)) +
-          Math.floor(Math.random() * 200);
-
-        console.warn(
-          `[TourAPI retry ${attempt}/${retry}] wait ${backoff}ms`,
-          err.code || err.name || err.message,
-          err.httpStatus || ""
-        );
-        await sleep(backoff);
-        continue;
-      }
-
-      console.error("TourAPI call failed (give up):", err.code || err.name, err.message);
+    if (text.startsWith("Unauthorized") || text.includes("SERVICE ERROR")) {
+      console.error("TourAPI Unauthorized or Service Error RAW:", text);
       return [];
     }
-  }
 
-  return [];
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch (e) {
+      console.error("JSON 파싱 실패 RAW:", text);
+      return [];
+    }
+    dynamicIntervalMs = Math.max(MIN_INTERVAL_MS, dynamicIntervalMs - 50);
+
+    return json.response?.body?.items?.item || [];
+  } catch (err) {
+    clearTimeout(t);
+    if (err?.httpStatus === 429 || String(err?.message || "").includes("HTTP 429")) {
+    return [];
+  }
+    console.error("TourAPI call failed:", err.code || err.name, err.message);
+    return [];
+  }
 }
 
-/**
- * ✅ 외부에서 쓰는 함수는 이거 하나만!
- * - 큐로 감싸서 호출 순서/과호출 방지
- */
 async function callTourAPI(path, params, opts = {}) {
   return enqueueTourApi(() => _callTourAPI(path, params, opts));
 }
@@ -198,6 +162,7 @@ export async function searchPlaceByKeyword(keyword, cityName) {
   if (!items || items.length === 0) return null;
 
   let best = items.find((i) => i.addr1 && cityName && i.addr1.includes(cityName));
+
   if (!best) best = items[0];
 
   return {

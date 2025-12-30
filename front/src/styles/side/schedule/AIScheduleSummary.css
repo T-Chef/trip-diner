@@ -269,3 +269,33 @@
   padding: 40px 20px;
   text-align: center;
 }
+.btn-pdf{
+  padding: 12px 16px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+}
+
+/* ✅ PDF 캡처할 때만 A4 폭(약 794px)으로 고정 */
+.pdf-capture{
+  width: 794px;
+  max-width: 794px;
+  margin: 0 auto;
+  background: #fff;
+}
+
+.pdf-capture *{
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Day 섹션이 최대한 한 덩어리로 유지되게(브라우저 인쇄 규칙이지만 도움됨) */
+.pdf-capture .summary-day-section,
+.pdf-capture .summary-card{
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+/* PDF로 캡처할 때만 조금 더 오른쪽 */
+.pdf-capture .summary-day-section .summary-card-list{
+  padding-left: 32px;
+}

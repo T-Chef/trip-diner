@@ -31,6 +31,18 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
  */
 const planCache = new Map();
 const PLAN_CACHE_TTL_MS = 10 * 60 * 1000; // 10분
+const planLockByIp = new Map();
+function getClientKey(req) {
+  const xff = String(req.headers["x-forwarded-for"] || "")
+    .split(",")[0]
+    .trim();
+
+  // express req.ip는 ::ffff:127.0.0.1 형태일 수 있음
+  const ip = (xff || req.ip || req.socket?.remoteAddress || "unknown")
+    .replace(/^::ffff:/, "");
+
+  return ip;
+}
 
 /**
  * ✅ description 캐시 (lazy-load + prewarm)
@@ -88,11 +100,25 @@ router.get("/description", async (req, res) => {
 });
 
 router.post("/plan", async (req, res) => {
+  const key = getClientKey(req);
+
+  // ✅ 이미 생성 중이면 중복 요청 거부
+  if (planLockByIp.get(key)) {
+    return res.status(409).json({
+      error: "추천 생성 중입니다. 완료될 때까지 잠시만 기다려주세요.",
+    });
+  }
+
+  planLockByIp.set(key, true);
+
+  // ✅ (선택) 혹시라도 요청이 영원히 안 끝나면 락이 안 풀리는 상황 대비
+  const lockTTL = setTimeout(() => planLockByIp.delete(key), 120000); // 2분
+
   const reqId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   console.time(`[AI_PLAN_TOTAL] ${reqId}`);
 
   try {
-    const { cityName, days, peopleType, themes } = req.body;
+    const { cityName, days, peopleType, themes, forceNew } = req.body;
 
     if (!cityName || !days || !peopleType || !themes?.length) {
       console.timeEnd(`[AI_PLAN_TOTAL] ${reqId}`);
@@ -101,11 +127,13 @@ router.post("/plan", async (req, res) => {
 
     // ✅ 캐시 조회 (반드시 라우터 안)
     const cacheKey = JSON.stringify({ cityName, days, peopleType, themes });
-    const cachedPlan = planCache.get(cacheKey);
-    if (cachedPlan && cachedPlan.expiresAt > Date.now()) {
-      console.timeEnd(`[AI_PLAN_TOTAL] ${reqId}`);
-      return res.json({ aiPlan: cachedPlan.value, cached: true });
-    }
+    if (!forceNew) {
+  const cachedPlan = planCache.get(cacheKey);
+  if (cachedPlan && cachedPlan.expiresAt > Date.now()) {
+    console.timeEnd(`[AI_PLAN_TOTAL] ${reqId}`);
+    return res.json({ aiPlan: cachedPlan.value, cached: true });
+  }
+}
 
     const themeKeywordMap = {
       먹방: ["맛집", "음식점", "고기집", "해산물", "식당"],
@@ -205,79 +233,101 @@ const results = await mapLimit(tasks, 3, async ({ keyword, category }) => {
         const tData = r.tData.value;
         if (Array.isArray(tData)) {
           for (const p of tData) {
-            if (!p || !p.title || !p.lat || !p.lng) continue;
-            const key = `${p.title}-${p.addr1 || p.address || ""}`;
-            if (candidateSeen.has(key)) continue;
-            candidateSeen.add(key);
-            placeCandidates.push({
-              ...p,
-              address: p.addr1 || p.address || "",
-              category,
-            });
-          }
+  if (!p || !p.title || !p.lat || !p.lng) continue;
+
+  const addr = String(p.addr1 || p.address || "").trim();
+  if (!addr) continue; // ✅ 주소 없으면 스킵
+
+  const key = `${p.title}-${addr}`;
+  if (candidateSeen.has(key)) continue;
+  candidateSeen.add(key);
+
+  placeCandidates.push({
+    ...p,
+    address: addr,
+    category,
+  });
+}
         } else if (tData && (tData.title || tData.name)) {
-          const title = tData.title || tData.name;
-          const address = tData.addr1 || tData.address || "";
-          const key = `${title}-${address}`;
-          if (!candidateSeen.has(key)) {
-            candidateSeen.add(key);
-            placeCandidates.push({
-              title,
-              address,
-              lat: tData.lat,
-              lng: tData.lng,
-              image: tData.image ?? null,
-              category,
-            });
-          }
-        }
+  const title = tData.title || tData.name;
+  const address = String(tData.addr1 || tData.address || "").trim();
+
+  // ✅ 주소 없으면 그냥 스킵 (continue 쓰지 말기)
+  if (address) {
+    const key = `${title}-${address}`;
+    if (!candidateSeen.has(key)) {
+      candidateSeen.add(key);
+      placeCandidates.push({
+        title,
+        address,
+        lat: tData.lat,
+        lng: tData.lng,
+        image: tData.image ?? null,
+        category,
+      });
+    }
+  }
+}
+
       }
 
-      // ---- Naver 결과 ----
-      if (r.nData.status === "fulfilled") {
-        const nData = r.nData.value;
-        if (Array.isArray(nData)) {
-          for (const p of nData) {
-            if (!p || !p.title || !p.lat || !p.lng) continue;
-            const key = `${p.title}-${p.addr1 || p.address || ""}`;
-            if (candidateSeen.has(key)) continue;
-            candidateSeen.add(key);
-            placeCandidates.push({
-              ...p,
-              address: p.addr1 || p.address || "",
-              category,
-            });
-          }
-        } else if (nData && nData.title) {
-          const key = `${nData.title}-${nData.addr1 || nData.address || ""}`;
-          if (!candidateSeen.has(key)) {
-            candidateSeen.add(key);
-            placeCandidates.push({
-              ...nData,
-              address: nData.addr1 || nData.address || "",
-              category,
-            });
-          }
-        }
+// ---- Naver 결과 ----
+if (r.nData.status === "fulfilled") {
+  const nData = r.nData.value;
+
+  if (Array.isArray(nData)) {
+    for (const p of nData) {
+      if (!p || !p.title || !p.lat || !p.lng) continue;
+
+      const addr = String(p.roadAddress || p.addr1 || p.address || "").trim();
+      if (!addr) continue;
+
+      const key = `${p.title}-${addr}`;
+      if (candidateSeen.has(key)) continue;
+      candidateSeen.add(key);
+
+      placeCandidates.push({
+        ...p,
+        address: addr,
+        category,
+      });
+    }
+  } else if (nData && nData.title) {
+    const addr = String(nData.roadAddress || nData.addr1 || nData.address || "").trim();
+
+    if (addr) {
+      const key = `${nData.title}-${addr}`;
+      if (!candidateSeen.has(key)) {
+        candidateSeen.add(key);
+        placeCandidates.push({
+          ...nData,
+          address: addr,
+          category,
+        });
       }
     }
-
+  }
+}
+    }
     console.timeEnd(`[CANDIDATES] ${reqId}`);
 
-    const regionKeyword = cityName.replace(/시|도$/g, "");
-    placeCandidates = placeCandidates
-      .filter((p) => p && p.title && p.lat && p.lng)
-      .filter((p) => {
-        if (!p.address) return true;
-        return p.address.includes(regionKeyword);
-      })
-      .filter((p, i, arr) => arr.findIndex((x) => x.title === p.title) === i);
+    const regionKeyword = String(cityName || "").replace(/(특별시|광역시|자치시|시|도)$/g, "");
 
-    const bannedTitleRegex = /(PC방|pc방|피시방|피씨방|노래방|학원|고시원)/i;
-    placeCandidates = placeCandidates.filter((p) => !bannedTitleRegex.test(p.title));
+placeCandidates = placeCandidates
+  .filter((p) => p && p.title && p.lat && p.lng)
+  .filter((p) => p.address && String(p.address).trim().length > 0) // ✅ 주소 없는 후보 제거
+  .filter((p) => {
+    const addr = String(p.address || "");
+    return addr.includes(regionKeyword) || addr.includes(String(cityName || ""));
+  }) // ✅ 지역 필터 (한 번만)
+  .filter((p, i, arr) => arr.findIndex((x) => x.title === p.title) === i); // ✅ 여기 세미콜론 필수
 
-    // ✅ 최종 30개
-    placeCandidates = shuffle(placeCandidates).slice(0, 30);
+const bannedTitleRegex = /(PC방|pc방|피시방|피씨방|노래방|학원|고시원)/i;
+placeCandidates = placeCandidates.filter((p) => !bannedTitleRegex.test(p.title));
+
+// ✅ 최종 30개
+placeCandidates = shuffle(placeCandidates).slice(0, 30);
+
 
     if (placeCandidates.length === 0) {
       console.timeEnd(`[AI_PLAN_TOTAL] ${reqId}`);
@@ -516,7 +566,10 @@ ${candidateListCompact}
     console.timeEnd(`[AI_PLAN_TOTAL] ${reqId}`);
     console.error("AI 일정 생성 오류:", err);
     return res.status(500).json({ error: "AI 일정 생성 실패" });
-  }
+   } finally {
+  clearTimeout(lockTTL);
+  planLockByIp.delete(key);
+}
 });
 
 export default router;

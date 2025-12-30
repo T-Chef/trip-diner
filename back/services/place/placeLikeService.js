@@ -1,27 +1,12 @@
-// back/services/place/placeLikeService.js
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 const toJsonSafe = (data) =>
-  JSON.parse(
-    JSON.stringify(data, (_, v) => (typeof v === "bigint" ? v.toString() : v))
-  );
+  JSON.parse(JSON.stringify(data, (_, v) => (typeof v === "bigint" ? v.toString() : v)));
 
 export async function toggleLike(body) {
-  const {
-    contentId,
-    liked,
-    userId,
-    title,
-    address,
-    image,
-    lat,
-    lng,
-    category,
-    cityId,
-    contentTypeId,
-  } = body || {};
+  const { contentId, liked, userId, title, address, image, lat, lng, category, cityId } = body;
 
   if (!contentId || !userId) {
     const err = new Error("contentId, userId 필요");
@@ -39,8 +24,6 @@ export async function toggleLike(body) {
     throw err;
   }
 
-  const ct = contentTypeId != null ? Number(contentTypeId) : undefined;
-
   const place = await prisma.place.upsert({
     where: { external_id: extId },
     update: {
@@ -51,7 +34,6 @@ export async function toggleLike(body) {
       lng: lng != null ? Number(lng) : undefined,
       category: category ?? undefined,
       city_id: cityId ? BigInt(cityId) : undefined,
-      content_type_id: Number.isFinite(ct) ? ct : undefined,
     },
     create: {
       external_id: extId,
@@ -62,7 +44,6 @@ export async function toggleLike(body) {
       lng: lng != null ? Number(lng) : null,
       category: category ?? null,
       city_id: cityId ? BigInt(cityId) : null,
-      content_type_id: Number.isFinite(ct) ? ct : null,
     },
   });
 

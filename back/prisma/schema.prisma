@@ -65,28 +65,23 @@ model event {
  * -------------------------------------------------------
  */
 model place {
-  place_id        BigInt  @id @default(autoincrement())
-  external_id     BigInt? @unique
-  name            String? @db.VarChar(255)
-  address         String? @db.VarChar(500)
-  category        String? @db.VarChar(255)
-  description     String? @db.Text
-  image_url       String? @db.VarChar(2000)
-  content_type_id Int?
+  place_id     BigInt         @id @default(autoincrement())
+  external_id  BigInt?        @unique
+  city_id      BigInt?
+  name         String?        @db.VarChar(255)
+  category     String?        @db.VarChar(255)
+  address      String?        @db.VarChar(500)
+  lat          Float?
+  lng          Float?
+  description  String?        @db.Text
+  image_url    String?        @db.VarChar(2000)
+  content_id   String?        @unique @db.VarChar(50)
+  city         city?          @relation(fields: [city_id], references: [city_id])
+  place_like   place_like[]
+  plan_item    plan_item[]
+  review_place review_place[]
 
-  plan_items    plan_item[]
-  review_places review_place[]
-
-  // 좌표 (OpenWeather / 지도)
-  lat Float?
-  lng Float?
-
-  // City FK (없으면 null)
-  city_id BigInt?
-  city    city?   @relation(fields: [city_id], references: [city_id])
-
-  // Likes
-  place_like place_like[]
+  @@index([city_id])
 }
 
 /**
@@ -196,7 +191,7 @@ model post {
   post_id    BigInt      @id @default(autoincrement())
   user_id    BigInt
   title      String?     @db.VarChar(255)
-  content    String?     @db.Text
+  content    String?     @db.LongText
   category   String?     @db.VarChar(50)
   image_url  String?     @db.VarChar(500)
   views      Int         @default(0)
@@ -208,7 +203,6 @@ model post {
   user       user        @relation(fields: [user_id], references: [user_id])
   post_like  post_like[]
   report     report[]
-
   @@index([user_id])
 }
 
@@ -286,23 +280,43 @@ model review_place {
  * -------------------------------------------------------
  */
 model user {
-  user_id      BigInt         @id @default(autoincrement())
-  email        String         @unique @db.VarChar(255)
-  password     String         @db.VarChar(255)
-  name         String?        @db.VarChar(100)
-  profile_img  String?        @db.VarChar(500)
-  provider     String         @default("LOCAL") @db.VarChar(50)
-  created_at   DateTime?      @default(now()) @db.DateTime(0)
-  deleted      Int?           @default(0)
-  ai_history   ai_history[]
-  comment      comment[]
-  place_like   place_like[]
-  plan         plan[]
-  post         post[]
-  post_like    post_like[]
-  qna          qna[]
-  report       report[]
-  review_place review_place[]
+  user_id         BigInt            @id @default(autoincrement())
+  email           String            @unique @db.VarChar(255)
+  password        String            @db.VarChar(255)
+  name            String?           @db.VarChar(100)
+  profile_img     String?           @db.VarChar(500)
+  provider        String            @default("LOCAL") @db.VarChar(50)
+  created_at      DateTime?         @default(now()) @db.DateTime(0)
+  deleted         Int?              @default(0)
+  refresh_session refresh_session[]
+  ai_history      ai_history[]
+  comment         comment[]
+  place_like      place_like[]
+  plan            plan[]
+  post            post[]
+  post_like       post_like[]
+  qna             qna[]
+  report          report[]
+  review_place    review_place[]
+}
+
+/**
+ * -------------------------------------------------------
+ * USER  (login token refresh)
+ * -------------------------------------------------------
+ */
+model refresh_session {
+  session_id BigInt    @id @default(autoincrement())
+  user_id    BigInt
+  token_hash String    @unique @db.VarChar(64)
+  expires_at DateTime  @db.DateTime(0)
+  revoked_at DateTime? @db.DateTime(0)
+  created_at DateTime  @default(now()) @db.DateTime(0)
+
+  user user @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([expires_at])
 }
 
 /**

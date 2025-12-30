@@ -1,284 +1,270 @@
-/* ================================
-   전체 페이지
-================================ */
+/* 1. 전체 레이아웃 고정 */
 .write-page {
   width: 100%;
-  max-width: 1300px;
+  max-width: 1400px; 
   margin: 0 auto;
   padding: 40px 20px;
+  background-color: #fcfcfc;
 }
 
-/* 제목 */
-.write-title {
-  font-size: 26px;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 25px;
-}
-
-/* ================================
-   레이아웃 (메인 + 사이드바)
-================================ */
 .write-layout {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  gap: 60px;
+  display: grid;
+  grid-template-columns: 7.5fr 2.5fr; /* 본문과 사이드바 비율 */
+  gap: 40px;
+  align-items: start;
 }
 
-/* 왼쪽 본문 */
 .write-main {
-  flex: 1;
   min-width: 0;
+  background: #fff;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
 
-/* ================================
-   입력 그룹 (카테고리, 제목)
-================================ */
+.write-title {
+  font-size: 28px;
+  font-weight: 800;
+  text-align: left;
+  margin-bottom: 30px;
+  color: #111;
+}
+
+/* 2. 에디터 및 입력 그룹 */
 .input-group {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .input-group label {
   font-size: 15px;
-  margin-bottom: 6px;
+  font-weight: 700;
+  margin-bottom: 10px;
   display: block;
+  color: #444;
 }
 
 .input-group select,
 .input-group input[type="text"] {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   font-size: 15px;
+  transition: all 0.2s;
+  box-sizing: border-box;
 }
 
-/* ================================
-   TIPTAP WRAPPER
-================================ */
-/* ✨ 에디터 전체 박스 클릭 시 바로 입력 활성화되도록 */
+.input-group input:focus, .input-group select:focus {
+  outline: none;
+  border-color: #3b73ff;
+  box-shadow: 0 0 0 3px rgba(59, 115, 255, 0.1);
+}
+
 .editor-box {
   width: 100%;
+  margin-bottom: 30px;
 }
 
-/* Tiptap 전체 박스 */
-.tiptap-wrap {
-  border: 1px solid #ccc;
-  border-radius: 8px;
+/* 3. Quill 에디터 래퍼 스타일 */
+.quill-wrap {
+  border: 1px solid #e2e8f0;
+  border-radius: 15px;
   background: white;
-  cursor: text;
+  min-height: 750px;
+  overflow: hidden;
 }
 
-/* 실제 글을 입력하는 영역 */
-.ProseMirror {
-  min-height: 300px;
-  padding: 16px;
-  outline: none !important;
-  border: none !important;
+/* 4. 사이드바 - 내 일정 리스트 (정보 노출 버전) */
+.write-sidebar {
+  background: #fff;
+  border: 1px solid #f1f5f9;
+  border-radius: 20px;
+  padding: 25px;
+  position: sticky;
+  top: 40px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
 }
 
-/* 문단에 테두리 생기지 않도록 */
-.ProseMirror p {
-  border: none !important;
-  margin-bottom: 12px;
+.sidebar-header {
+  font-size: 19px;
+  font-weight: 800;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid #3b73ff;
+  color: #1e293b;
 }
 
-/* 혹시 에디터 내부에 잘못된 input이 들어갈 경우 제거 */
-.ProseMirror input {
-  border: none !important;
-  outline: none !important;
-  background: transparent !important;
-  width: 100% !important;
+.sidebar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-height: 75vh;
+  overflow-y: auto;
+  padding-right: 5px;
 }
 
-/* ✨ 에디터 내부에 이상한 박스가 생성되지 않도록 */
-/* 본문 입력 */
-.tiptap-editor {
-  padding: 16px;
-  min-height: 350px;
-  font-size: 15px;
-  line-height: 1.7;
-  outline: none;
-  border: none; /* 🔥 자동으로 생기는 내부 테두리 제거 */
+/* 스크롤바 디자인 */
+.sidebar-list::-webkit-scrollbar { width: 5px; }
+.sidebar-list::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+.side-trip-card {
+  border: 1px solid #f1f5f9;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  background: #fff;
+  display: flex; 
+  flex-direction: column; /* 사진 아래에 글자가 오도록 설정 */
 }
 
-/* ✨ p 태그 기본 테두리 제거 */
-.tiptap-editor p {
-  margin: 0 0 12px 0;
-  border: none !important; /* 🔥 여기에 border 생긴 상태라 제거 */
-  padding: 0;
+.side-trip-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 20px rgba(59, 115, 255, 0.15);
 }
 
-/* ✨ 포커스 되었을 때도 테두리 생기지 않게 */
-.tiptap-editor:focus {
-  outline: none !important;
-  border: none !important;
+.side-card-img { 
+  width: 100%; 
+  height: 120px; /* 사진 높이 제한 */
+  overflow: hidden;
 }
 
-/* ✨ placeholder 스타일 */
-.tiptap-editor.is-empty::before {
-  content: "내용을 입력하세요...";
-  color: #999;
-  position: absolute;
-  pointer-events: none;
+.side-card-img img { 
+  width: 100%; 
+  height: 100%; 
+  object-fit: cover; 
 }
 
-/* TIPTAP 툴바 */
-.tiptap-toolbar {
+/* ✅ 사이드바 정보 영역 스타일 (더 선명하게 수정) */
+/* 사이드바 정보 영역 (가독성을 위해 다시 키웠습니다) */
+.side-card-info { 
+  padding: 12px 15px; 
+  background: #fff; 
+  text-align: left;
+  min-height: 60px; /* 공간을 충분히 확보 */
+}
+
+.side-card-title {
+  font-weight: 700; 
+  font-size: 14px; /* 11px에서 14px로 키움 */
+  margin: 0 0 5px 0; 
+  color: #1e293b;
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.side-card-date { 
+  font-size: 13px; /* 날짜도 13px로 조정 */
+  color: #94a3b8;
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 8px;
-  height: 38px;
-  background: #fafafa;
-  border-bottom: 1px solid #ddd;
 }
 
-/* 툴바 버튼 */
-.tiptap-toolbar button {
-  width: 30px;
-  height: 30px;
-  border: 1px solid #ddd;
-  background: white;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* 기간 강조색 유지 */
+.side-card-date .duration {
+  color: #3b73ff;
+  font-weight: 600;
 }
 
-.tiptap-toolbar button:hover {
-  background: #f0f0f0;
+.side-card-date .divider {
+  color: #e2e8f0;
+  font-size: 10px;
 }
 
-/* 색상 선택 */
-.color-picker {
-  width: 30px;
-  height: 30px;
-  position: relative;
-  cursor: pointer;
+.side-card-date .date {
+  color: #94a3b8;
 }
 
-.color-preview {
-  width: 30px;
-  height: 30px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+/* 기간(며칠인지) 강조 */
+.side-card-date strong {
+  color: #3b73ff;
+  font-weight: 600;
 }
 
-.color-picker input[type="color"] {
-  opacity: 0;
-  width: 30px;
-  height: 30px;
-  position: absolute;
-  top: 0;
-  left: 0;
+.side-hover-msg {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(59, 115, 255, 0.9);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; opacity: 0; transition: opacity 0.3s;
+  z-index: 2;
 }
 
-/* ================================
-   태그
-================================ */
+.side-trip-card:hover .side-hover-msg { opacity: 1; }
+
+/* 5. 태그 입력 영역 */
 .tag-box {
-  margin-top: 15px;
+  margin-bottom: 30px;
+  padding: 15px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #edf2f7;
 }
 
 .tag-list {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .tag-item {
-  background: #eaf2ff;
-  color: #3b73ff;
-  padding: 6px 12px;
-  border-radius: 20px;
+  background: #3b73ff;
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  box-shadow: 0 2px 6px rgba(59, 115, 255, 0.2);
 }
 
-.tag-remove {
-  cursor: pointer;
-  color: #ff4b4b;
-}
+.tag-remove { cursor: pointer; font-size: 16px; line-height: 1; }
 
 .tag-input {
-  padding: 10px;
-  border: 1px solid #bbb;
-  border-radius: 6px;
-  font-size: 13px;
-  width: 100%;
-}
-
-.tag-tip {
-  color: #777;
-  font-size: 12px;
-  margin-top: 5px;
-}
-
-/* ================================
-   오른쪽 사이드바
-================================ */
-.write-sidebar {
-  width: 260px;
-  flex-shrink: 0;
-  padding: 20px;
-  border: 1px solid #eee;
-  border-radius: 10px;
-  background: white;
-}
-
-.sidebar-section {
-  margin-bottom: 25px;
-}
-
-.sidebar-section strong {
-  display: block;
-  margin-bottom: 12px;
-  font-size: 14px;
-}
-
-.sidebar-section label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  justify-content: flex-start;
-  white-space: nowrap;
-}
-
-.sidebar-section input[type="checkbox"],
-.sidebar-section input[type="radio"] {
-  width: 16px;
-  height: 16px;
-}
-
-/* ================================
-   하단 버튼
-================================ */
-.write-buttons {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 35px;
-}
-
-.submit-btn {
-  padding: 11px 22px;
-  border-radius: 6px;
   border: none;
-  background: #1e90ff;
-  color: #fff;
-  font-size: 15px;
+  background: transparent;
+  outline: none;
+  padding: 8px;
+  font-size: 14px;
+  flex: 1;
+  min-width: 120px;
+  color: #334155;
+}
+
+/* 6. ✅ 등록 버튼 (크기 축소 및 우측 정렬 완료) */
+.submit-btn {
+  margin-top: 20px;
+  padding: 12px 35px; /* 가로 패딩을 늘려 적절한 크기 유지 */
+  width: auto; /* 고정 너비 대신 내용에 맞게 */
+  min-width: 140px; /* 너무 작아지지 않게 최소 너비 설정 */
+  border: none;
+  background: #4d8dff;
+  color: white;
+  border-radius: 8px; /* 조금 더 부드러운 곡선 */
+  font-size: 16px;
+  font-weight: 700;
   cursor: pointer;
+  transition: all 0.2s ease;
+  display: block;
+  margin-left: auto; /* ✅ 오른쪽 정렬 핵심 */
+  box-shadow: 0 4px 10px rgba(77, 141, 255, 0.2);
 }
 
 .submit-btn:hover {
-  background: #1878d3;
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(59, 115, 255, 0.4);
 }
 
+.submit-btn:active { transform: scale(0.98); }
+
+/* 상세페이지 정렬 깨짐 방지용 (필요시 추가) */
+.ql-align-center {
+  text-align: center !important;
+}

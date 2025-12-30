@@ -104,7 +104,7 @@ const AIScheduleMap = ({ aiPlan, onSelectPlace, activePlace, selectedDayExternal
         marker.customIndex = placeIndex;
 
         window.naver.maps.Event.addListener(marker, "click", () =>
-          onSelectPlace?.(dayIndex, placeIndex)
+          onSelectPlace?.(place, dayIndex, placeIndex)
         );
 
         markersRef.current.push(marker);

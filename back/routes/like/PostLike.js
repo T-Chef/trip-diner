@@ -4,7 +4,6 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 const router = express.Router();
 
-// 1. 좋아요 토글 (POST /api/like/post/:postId)
 router.post("/post/:postId", async (req, res) => {
   const { postId } = req.params;
   const { user_id } = req.body;
@@ -31,7 +30,6 @@ router.post("/post/:postId", async (req, res) => {
   }
 });
 
-// 2. 좋아요 상태 및 개수 조회 (GET /api/like/post/:postId/status)
 router.get("/post/:postId/status", async (req, res) => {
   const { postId } = req.params;
   const { user_id } = req.query;
@@ -53,7 +51,6 @@ router.get("/post/:postId/status", async (req, res) => {
   }
 });
 
-// 3. 사용자가 좋아요한 게시물 목록 조회 (GET /api/like/post/:userId)
 router.get("/post/:userId", async (req, res) => {
   const { userId } = req.params;
 
@@ -65,14 +62,13 @@ router.get("/post/:userId", async (req, res) => {
       include: {
         post: {
           include: {
-            user: { select: { name: true } } // 게시글 작성자 정보가 필요하면 포함
+            user: { select: { name: true } }
           }
         }
       },
-      orderBy: { created_at: 'desc' } // 최신순 정렬
+      orderBy: { created_at: 'desc' }
     });
 
-    // BigInt 포함된 데이터를 JSON으로 변환 (에러 방지)
     const safeResult = JSON.parse(
       JSON.stringify(likedPosts, (key, value) =>
         typeof value === "bigint" ? value.toString() : value
