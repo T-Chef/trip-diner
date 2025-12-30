@@ -662,7 +662,7 @@ useEffect(() => {
           </div>
         </aside>
 
-        <div className="map-area">
+        <div className="map-container">
           {/* ✅ 일차별 색상 레전드 */}
           <div className="day-legend">
             {aiPlan.days.map((day, idx) => (
