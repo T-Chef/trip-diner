@@ -1,13 +1,9 @@
-
 // front/src/pages/side/mypage/Calendar.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-
+import api from "../../page/login/api";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "../../../styles/side/mypage/Calendar.css";
-
-const API_BASE = "http://localhost:4000/api";
 
 function normalize(d) {
   const x = new Date(d);
@@ -61,25 +57,22 @@ export default function MyPageCalendar() {
   const [plans, setPlans] = useState([]);
 
   useEffect(() => {
-    const fetchPlans = async () => {
-      try {
-        const token = localStorage.getItem("accessToken");
-        if (!token) return;
-
-        const res = await axios.get(`${API_BASE}/plan`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (res.data?.success) setPlans(res.data.plans || []);
-        else setPlans([]);
-      } catch (e) {
+  const fetchPlans = async () => {
+    try {
+      const res = await api.get("/plan/my");
+      if (res.data?.success) setPlans(res.data.plans || []);
+      else setPlans([]);
+    } catch (e) {
+      if (e?.response?.status !== 401) {
         console.error("달력용 plan 불러오기 실패:", e);
-        setPlans([]);
       }
-    };
+      setPlans([]);
+    }
+  };
 
-    fetchPlans();
-  }, []);
+  fetchPlans();
+}, []);
+
 
   // ✅ 이 날짜에 걸리는 플랜들 전부 찾기
   const plansOnDate = (date) => {

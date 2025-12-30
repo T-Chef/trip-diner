@@ -1,4 +1,4 @@
-
+// back/routes/users.js
 import express from "express";
 import bcrypt from "bcrypt";
 import prisma from "../prisma/prismaClient.js";
@@ -7,6 +7,9 @@ import nodemailer from "nodemailer";
 
 const router = express.Router();
 
+/* -------------------------------------------------------
+   회원가입
+------------------------------------------------------- */
 router.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -48,7 +51,10 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
+/* -------------------------------------------------------
+   로그인 + 비활성화 유저 로그인 못하게 처리
+------------------------------------------------------- */
+router.post("/login-old", async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -121,6 +127,9 @@ router.post("/login", async (req, res) => {
   }
 });
 
+/* ------------------------------------
+      nodemailer 설정
+-------------------------------------*/
 const transporter = nodemailer.createTransport({
   service: "naver",
   auth: {
@@ -129,6 +138,9 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+/*  -----------------------------------
+       이메일 중복 체크
+--------------------------------------*/
 router.get("/check-email", async (req, res) => {
   const { email } = req.query;
 
@@ -138,7 +150,9 @@ router.get("/check-email", async (req, res) => {
   res.json({ exists: false });
 });
 
-
+/* -------------------------------------
+   비밀번호 재설정 메일 요청
+----------------------------------------*/
 router.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
 
@@ -182,29 +196,9 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
-router.post("/reset-password", async (req, res) => {
-  const { token, password } = req.body;
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-    await prisma.user.update({
-      where: { user_id: BigInt(decoded.user_id) },
-      data: { password: hashedPassword },
-    });
-
-    return res.json({ success: true, message: "비밀번호가 변경되었습니다." });
-  } catch (err) {
-    console.error("비밀번호 재설정 에러:", err);
-    return res.status(400).json({ 
-      success: false, 
-      message: "유효하지 않거나 만료된 링크입니다." 
-    });
-  }
-});
-
+/* ---------------------------------------
+   유저 정보 조회
+----------------------------------------*/
 router.get("/user/:id", async (req, res) => {
   try {
     const user = await prisma.user.findUnique({

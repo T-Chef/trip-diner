@@ -3,7 +3,6 @@ import express from "express";
 
 import { getPlaces } from "../../services/place/placeListService.js";
 import { getPlaceDetail } from "../../services/place/placeDetailService.js";
-import { toggleLike, getLikedPlaces } from "../../services/place/placeLikeService.js";
 
 const router = express.Router();
 
@@ -36,26 +35,6 @@ router.get("/detail", async (req, res) => {
       error: e.code || "PLACE_DETAIL_FAILED",
       message: e.message || "상세 정보를 불러오지 못했습니다.",
     });
-  }
-});
-
-router.post("/like", async (req, res) => {
-  try {
-    const result = await toggleLike(req.body);
-    return res.json(result);
-  } catch (e) {
-    const status = e.status || 500;
-    return res.status(status).json({ ok: false, error: e.message || "Like 저장 실패" });
-  }
-});
-
-router.get("/like/:userId", async (req, res) => {
-  try {
-    const result = await getLikedPlaces(req.params.userId);
-    return res.json(result);
-  } catch (e) {
-    const status = e.status || 400;
-    return res.status(status).json({ ok: false, error: e.message || "조회 실패" });
   }
 });
 

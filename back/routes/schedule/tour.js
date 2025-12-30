@@ -1,13 +1,9 @@
-// back/routes/tour.js
 import express from "express";
 import "dotenv/config";
 
 const router = express.Router();
 const TOUR_API_KEY = process.env.TOUR_API_KEY;
 
-/* -----------------------------------------
-   🔹 전국 광역시/도 목록 반환
------------------------------------------ */
 router.get("/cities", (req, res) => {
   const cities = [
     { name: "서울", areaCode: 1 },
@@ -31,9 +27,6 @@ router.get("/cities", (req, res) => {
   res.json(cities);
 });
 
-/* -----------------------------------------
-   🔹 특정 시/도(areaCode)의 시군구 목록 반환
------------------------------------------ */
 router.get("/areas", async (req, res) => {
   const { areaCode } = req.query;
   if (!areaCode) return res.status(400).json({ error: "areaCode 필요" });

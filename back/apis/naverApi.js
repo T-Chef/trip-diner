@@ -1,4 +1,3 @@
-// back/apis/naverApi.js
 import fetch from "node-fetch";
 
 const NAVER_CLIENT_ID = process.env.NAVER_CLIENT_ID;
@@ -38,12 +37,11 @@ export async function searchPlaceNaver(keyword, cityName) {
       address: item.roadAddress || item.address || null,
       lat: item.mapy ? parseFloat(item.mapy) / 1e7 : null,
       lng: item.mapx ? parseFloat(item.mapx) / 1e7 : null,
-      // 🆕 placeId를 추출하기 위한 네이버 지도 검색 URL 제공
       searchUrl: `https://map.naver.com/v5/search/${encodedTitle}`,
     };
   });
 }
-// 📌 장소 이미지 검색 함수 추가 (파일 맨 아래에 넣기)
+
 export async function searchPlaceImage(title) {
   const res = await fetch(
     `https://openapi.naver.com/v1/search/image?query=${encodeURIComponent(title)}&display=1`,

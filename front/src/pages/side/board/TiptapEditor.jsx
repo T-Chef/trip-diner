@@ -1,133 +1,49 @@
+import React from 'react';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
-import React, { useRef } from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
-import TextAlign from "@tiptap/extension-text-align";
-import { TextStyle } from "@tiptap/extension-text-style";
-import Color from "@tiptap/extension-color";
-import axios from "axios";
-import Swal from "sweetalert2";
-
-const CustomImage = Image.extend({
-  addAttributes() {
-    return {
-      ...this.parent?.(),
-      style: {
-        default:
-          "display:block; margin:0 auto; max-width:90%; height:auto;",
-      },
-    };
-  },
-});
-
-export default function TiptapEditor({ setContent }) {
-  const fileInputRef = useRef(null);
-
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({ TextStyle: false }),
-      TextStyle,
-      Color,
-      CustomImage, 
-      Link.configure({ openOnClick: true }),
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
+export default function TiptapEditor({ setContent, initialContent }) {
+  const modules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'align': [] }],
+      ['image', 'link'],
+      ['clean']
     ],
-    content: "",
-    onUpdate({ editor }) {
-      const html = editor.getHTML();
-      setContent(html);
-    },
-  });
-
-  if (!editor) return null;
-
-  const handleUploadImage = async (file) => {
-    const formData = new FormData();
-    formData.append("image", file);
-
-    try {
-      const res = await axios.post(
-        "http://localhost:4000/api/posts/upload",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-
-      const imageUrl = res.data.url;
-
-      editor.chain().focus().setImage({ src: imageUrl }).run();
-    } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "업로드 실패",
-        text: "이미지 업로드 중 오류가 발생했습니다.",
-      });
-    }
-  };
-
-  const openFileDialog = () => {
-    fileInputRef.current.click();
-  };
-
-  const onFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) handleUploadImage(file);
   };
 
   return (
-    <div className="tiptap-wrap">
-      <input
-        type="file"
-        accept="image/*"
-        ref={fileInputRef}
-        style={{ display: "none" }}
-        onChange={onFileChange}
+    <div className="quill-wrap" style={{ border: '1px solid #e2e8f0', borderRadius: '15px', overflow: 'hidden', background: '#fff' }}>
+      <ReactQuill 
+        theme="snow"
+        value={initialContent || ""}
+        onChange={setContent} 
+        modules={modules}
+        placeholder="여행의 추억을 기록해보세요..."
       />
-
-      <div className="tiptap-toolbar">
-        <button onClick={() => editor.chain().focus().toggleBold().run()}>
-          <b>B</b>
-        </button>
-
-        <button onClick={() => editor.chain().focus().toggleItalic().run()}>
-          <span>/</span>
-        </button>
-
-        <button onClick={() => editor.chain().focus().setTextAlign("left").run()}>
-          ≡
-        </button>
-
-        <button onClick={() => editor.chain().focus().setTextAlign("center").run()}>
-          ≣
-        </button>
-
-        <button onClick={() => editor.chain().focus().setTextAlign("right").run()}>
-          ☰
-        </button>
-
-        <button onClick={openFileDialog}>📷</button>
-
-        <label className="color-picker">
-          <div
-            className="color-preview"
-            style={{
-              backgroundColor:
-                editor.getAttributes("textStyle").color || "#000",
-            }}
-          />
-          <input
-            type="color"
-            onInput={(e) =>
-              editor.chain().focus().setColor(e.target.value).run()
-            }
-          />
-        </label>
-      </div>
-
-      <EditorContent editor={editor} className="tiptap-editor" />
+      
+      <style>{`
+        /* 에디터 내부의 불필요한 테두리 제거 */
+        .ql-container.ql-snow {
+          border: none !important;
+          min-height: 600px;
+          font-family: 'Pretendard', sans-serif;
+        }
+        .ql-toolbar.ql-snow {
+          border: none !important;
+          border-bottom: 1px solid #f1f5f9 !important;
+          background: #f8f9fa;
+        }
+        .ql-editor {
+          padding: 30px !important;
+        }
+        /* 카드 레이아웃 정렬 보정 */
+        .ql-editor div {
+          display: flex !important;
+        }
+      `}</style>
     </div>
   );
 }

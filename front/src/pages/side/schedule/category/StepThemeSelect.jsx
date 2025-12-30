@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 const API_BASE = "http://localhost:4000/api";
 const themesList = ["산", "실내여행지", "액티비티", "문화·역사", "테마파크", "카페", "전통시장", "축제"];
 
+const MAX_THEMES = 6;
+
 const StepThemeSelect = ({
   selectedThemes,
   setSelectedThemes,
@@ -20,14 +22,19 @@ const StepThemeSelect = ({
   const toggleTheme = (theme) => {
     if (selectedThemes.includes(theme)) {
       setSelectedThemes(selectedThemes.filter((t) => t !== theme));
-    } else if (selectedThemes.length < 4) {
-      setSelectedThemes([...selectedThemes, theme]);
+      return;
     }
+
+    if (selectedThemes.length >= MAX_THEMES) {
+      alert(`테마는 최대 ${MAX_THEMES}개까지 선택할 수 있어요!`);
+      return;
+    }
+
+    setSelectedThemes([...selectedThemes, theme]);
   };
 
   const handleGeneratePlan = async () => {
-    if (selectedThemes.length < 2)
-      return alert("2개 이상 선택해주세요!");
+    if (selectedThemes.length < 2) return alert("2개 이상 선택해주세요!");
 
     try {
       const res = await axios.post(`${API_BASE}/ai/plan`, {
@@ -38,7 +45,7 @@ const StepThemeSelect = ({
         days: selectedDays,
         peopleType: selectedCompanion,
         themes: selectedThemes,
-        contentTypeIds: [12, 39], // 관광지+음식점 (임시)
+        contentTypeIds: [12, 39],
       });
 
       navigate("/trip/result", { state: { aiPlan: res.data.aiPlan } });
@@ -48,20 +55,29 @@ const StepThemeSelect = ({
     }
   };
 
+  const isMaxed = selectedThemes.length >= MAX_THEMES;
+
   return (
     <motion.div className="step-box" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <h2>원하는 여행 테마를 선택해주세요! (최소 2개, 최대 4개)</h2>
+      <h2>원하는 여행 테마를 선택해주세요! (최소 2개, 최대 {MAX_THEMES}개)</h2>
 
       <div className="circle-grid">
-        {themesList.map((t) => (
-          <button
-            key={t}
-            className={`circle-btn ${selectedThemes.includes(t) ? "active" : ""}`}
-            onClick={() => toggleTheme(t)}
-          >
-            {t}
-          </button>
-        ))}
+        {themesList.map((t) => {
+          const selected = selectedThemes.includes(t);
+          const disabled = isMaxed && !selected;
+
+          return (
+            <button
+              key={t}
+              className={`circle-btn ${selected ? "active" : ""} ${disabled ? "disabled" : ""}`}
+              onClick={() => toggleTheme(t)}
+              disabled={disabled}
+              type="button"
+            >
+              {t}
+            </button>
+          );
+        })}
       </div>
 
       <div className="btn-row">

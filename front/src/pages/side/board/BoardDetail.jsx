@@ -151,7 +151,6 @@ export default function BoardDetail() {
         )}
 
         <hr className="stats-separator" />
-
         <div className="comment-input-area">
           <textarea 
             ref={textRef} 

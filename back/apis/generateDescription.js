@@ -10,7 +10,6 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// 줄바꿈/공백 제거
 const cleanText = (text) => text?.replace(/\n/g, " ").trim() ?? "";
 
 export async function generateDescription(title, address) {
@@ -42,6 +41,6 @@ export async function generateDescription(title, address) {
     return completion.choices[0].message.content.trim();
   } catch (err) {
     console.error("AI 설명 생성 오류:", err);
-    return ""; // 실패 시엔 그냥 빈 문자열
+    return ""; 
   }
 }

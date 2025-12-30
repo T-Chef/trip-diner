@@ -32,14 +32,16 @@ import aiRouter from "./routes/schedule/ai.js";
 import profileRouter from "./routes/mypage/profile.js";
 import weatherRouter from "./routes/city/weather.js";
 import planRouter from "./routes/schedule/plan.js";
+import proxyImageRouter from "./routes/schedule/proxyImage.js";
+import authSessionRoutes from "./routes/schedule/authSessionRoutes.js";
 
 // 게시판
 import postRouter from "./routes/board/post.js";
 import commentRouter from "./routes/board/comment.js";
 
 // 좋아요
-import placeLikeRouter from "./routes/like/PlaceLike.js";
 import postLikeRouter from "./routes/like/PostLike.js";
+import placeLikeRouter from "./routes/like/PlaceLike.js";
 
 // 외부 연동
 import googlePlaceRouter from "./routes/schedule/googlePlace.js";
@@ -55,7 +57,6 @@ const app = express();
 app.set("json replacer", (key, value) =>
   typeof value === "bigint" ? value.toString() : value
 );
-
 BigInt.prototype.toJSON = function () {
   return this.toString();
 };
@@ -174,6 +175,7 @@ app.patch("/api/admin/posts/:id/restore", async (req, res) => {
    도메인 라우터
 ------------------------------------------------------- */
 // 인증 / 유저
+app.use("/api/auth", authSessionRoutes);
 app.use("/api/auth", usersRouter);
 app.use("/api/profile", profileRouter);
 
@@ -190,7 +192,7 @@ app.use("/api/place", placeRouter);
 app.use("/api/event", eventRouter);
 app.use("/api/weather", weatherRouter);
 
-// 일정
+// 리뷰 / 일정
 app.use("/api/trip", tripRouter);
 
 // 게시판
@@ -198,11 +200,12 @@ app.use("/api/posts", postRouter);
 app.use("/api/comment", commentRouter);
 
 // 좋아요
-app.use("/api/like", placeLikeRouter);
 app.use("/api/like", postLikeRouter);
+app.use("/api/place", placeLikeRouter);
 
 // AI
 app.use("/api/ai", aiRouter);
+app.use("/api/proxy", proxyImageRouter);
 
 // 외부 API
 app.use("/api", googlePlaceRouter);

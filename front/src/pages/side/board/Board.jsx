@@ -77,7 +77,7 @@ export default function Board() {
             </div>
 
             <ul className="category-list">
-              {["전체보기", "자유", "후기", "질문", "Q&A"].map((cat) => (
+              {["전체보기", "자유", "후기", "질문"].map((cat) => (
                 <li
                   key={cat}
                   className={(category === cat || (category === "전체" && cat === "전체보기")) ? "active" : ""}

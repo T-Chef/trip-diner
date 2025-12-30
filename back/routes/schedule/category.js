@@ -1,11 +1,9 @@
-// back/routes/category.js
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// api/category  → 전체 카테고리
 router.get('/', async (req, res) => {
   try {
     const categories = await prisma.category.findMany({

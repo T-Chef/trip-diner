@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AIScheduleMap from "./AIScheduleMap.jsx";
 import "../../../styles/side/schedule/AIScheduleResult.css";
+import axios from "axios";
 
 console.log("🎯 GOOGLE KEY:", process.env.REACT_APP_GOOGLE_API_KEY);
 
@@ -68,7 +69,8 @@ export default function AIScheduleResult() {
 
   // 화면에서 사용할 플랜(사진/주소 붙여서 사용)
   const [aiPlan, setAiPlan] = useState(rawPlan);
-  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [, setIsEnhancing] = useState(false);
+  
 
   // rawPlan이 바뀔 때마다 aiPlan 초기화
   useEffect(() => {
@@ -79,18 +81,107 @@ export default function AIScheduleResult() {
 
   const [highlight, setHighlight] = useState({ day: null, index: null });
   const [selectedPlace, setSelectedPlace] = useState(null);
+    const API_BASE = "http://localhost:4000/api";
+
+  // ✅ selectedPlace의 (dayIdx, placeIdx)도 같이 기억해야 "aiPlan 안에" description을 저장할 수 있음
+  const [selectedPos, setSelectedPos] = useState(null);
+  const [descLoading, setDescLoading] = useState(false);
+
+  // ✅ place.description이 없을 때만 호출
+  const fetchDesc = async (place) => {
+    const resp = await axios.get(`${API_BASE}/ai/description`, {
+      params: { name: place.name, address: place.address },
+    });
+    return resp.data.description;
+  };
+
+  // ✅ aiPlan 내부 특정 place를 안전하게 업데이트하는 유틸
+  const patchPlaceInPlan = (dayIdx, placeIdx, patch) => {
+    setAiPlan((prev) => {
+      if (!prev?.days?.[dayIdx]?.places?.[placeIdx]) return prev;
+
+      const next = {
+        ...prev,
+        days: prev.days.map((d, di) =>
+          di !== dayIdx
+            ? d
+            : {
+                ...d,
+                places: d.places.map((p, pi) =>
+                  pi !== placeIdx ? p : { ...p, ...patch }
+                ),
+              }
+        ),
+      };
+      return next;
+    });
+  };
+
+  // ✅ 슬라이드 패널(선택된 장소)이 열릴 때 description 없으면 자동으로 가져오기
+  useEffect(() => {
+    if (!selectedPos || !aiPlan?.days) return;
+
+    const { dayIdx, placeIdx } = selectedPos;
+    const p = aiPlan.days?.[dayIdx]?.places?.[placeIdx];
+    if (!p || p.description) return; // 이미 있으면 호출 X
+    if (!p.name) return;
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        setDescLoading(true);
+        const desc = await fetchDesc(p);
+        if (cancelled) return;
+
+        // ✅ aiPlan 내부에도 저장 (다음에 다시 눌러도 재호출 안 함)
+        patchPlaceInPlan(dayIdx, placeIdx, { description: desc });
+
+        // ✅ 현재 열려있는 selectedPlace에도 반영
+        setSelectedPlace((prev) => (prev ? { ...prev, description: desc } : prev));
+      } catch (e) {
+        console.error("description 불러오기 실패:", e);
+      } finally {
+        if (!cancelled) setDescLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedPos, aiPlan]);
+
 
   const [editMode, setEditMode] = useState(false);
   const [searchTarget, setSearchTarget] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [recommending, setRecommending] = useState(false);
+  const recommendLockRef = useRef(false); 
+  const [cooldownMs, setCooldownMs] = useState(0);
+  const [panelTab, setPanelTab] = useState("search"); 
+  const [likedPlaces, setLikedPlaces] = useState([]);
+  const [likedLoading, setLikedLoading] = useState(false);
 
-  // 🔹 요약 카드용 통계
-  const [summary, setSummary] = useState({
-    totalPlaces: 0,
-    totalDistanceKm: 0,
-  });
+  useEffect(() => {
+  if (cooldownMs <= 0) return;
+  const t = setInterval(() => {
+    setCooldownMs((ms) => Math.max(0, ms - 1000));
+  }, 1000);
+  return () => clearInterval(t);
+}, [cooldownMs]);
+
+// 🔹 요약 카드용 통계
+const [summary, setSummary] = useState({
+  totalPlaces: 0,
+  totalDistanceKm: 0,
+});
+
+  const openLikesTab = () => {
+    setPanelTab("likes");
+    setSearchQuery("");
+    setSearchResults([]);
+  };
 
   // ✅ 1) 일정편집 / 편집완료 토글
   const handleToggleEdit = () => {
@@ -110,53 +201,76 @@ export default function AIScheduleResult() {
   };
 
   // ✅ 3) 새로운 추천받기
-  const handleNewRecommend = async () => {
-    try {
-      if (!aiPlan) return;
+const handleNewRecommend = async () => {
+  if (!aiPlan) return;
 
-      setRecommending(true); // 로딩 시작
+  // ✅ 이미 생성중/쿨다운이면 무시
+  if (cooldownMs > 0) return;
+  if (recommendLockRef.current) return;
 
-      const daysCount = aiPlan.daysCount || aiPlan.days?.length || 1;
+  // ✅ 클릭 즉시 락
+  recommendLockRef.current = true;
+  setRecommending(true);
 
-      const body = {
-        cityName: aiPlan.cityName,
-        days: daysCount,
-        peopleType: aiPlan.peopleType,
-        themes: aiPlan.themes || themes,
-      };
+  try {
+    const daysCount = aiPlan.daysCount || aiPlan.days?.length || 1;
 
-      const res = await fetch("http://localhost:4000/api/ai/plan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+    const body = {
+      cityName: aiPlan.cityName,
+      days: daysCount,
+      peopleType: aiPlan.peopleType,
+      themes: aiPlan.themes || themes,
+      forceNew: true,
+    };
 
-      if (!res.ok) {
-        console.error("새로운 추천 API 에러:", res.status);
-        alert("새로운 추천을 받는 데 실패했습니다. 잠시 후 다시 시도해주세요.");
-        return;
-      }
+    const res = await fetch(`${API_BASE}/ai/plan`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
 
-      const data = await res.json();
-      if (!data.aiPlan) {
-        alert("새로운 추천 결과가 비어 있습니다.");
-        return;
-      }
-
-      // 같은 결과 페이지로, 새로운 aiPlan을 들고 다시 이동
-      navigate("/trip/result", {
-        state: {
-          aiPlan: data.aiPlan,
-          themes: data.aiPlan.themes || body.themes,
-        },
-      });
-    } catch (err) {
-      console.error("새로운 추천받기 오류:", err);
-      alert("새로운 추천을 받는 중 오류가 발생했습니다.");
-    } finally {
-      setRecommending(false);
+    // ✅ 서버가 "생성중"이라 409 주면 사용자에게만 알려주고 종료
+    if (res.status === 409) {
+      const msg = (await res.json().catch(() => null))?.message;
+      alert(msg || "이미 계획 생성 중입니다. 완료 후 다시 시도해주세요.");
+      setCooldownMs(3000);
+      return;
     }
-  };
+
+    if (!res.ok) {
+      alert("새로운 추천을 받는 데 실패했습니다. 잠시 후 다시 시도해주세요.");
+      setCooldownMs(3000);
+      return;
+    }
+
+    const data = await res.json();
+    const nextPlan = data?.aiPlan;
+
+    if (!nextPlan) {
+      alert("새로운 추천 결과가 비어 있습니다.");
+      setCooldownMs(3000);
+      return;
+    }
+
+    navigate("/trip/result", {
+      state: {
+        aiPlan: nextPlan,
+        themes: nextPlan.themes || body.themes,
+      },
+    });
+  } catch (err) {
+    console.error("새로운 추천받기 오류:", err);
+    alert("새로운 추천을 받는 중 오류가 발생했습니다.");
+    setCooldownMs(3000);
+  } finally {
+    setRecommending(false);
+    recommendLockRef.current = false;
+
+    // ✅ 성공/실패 상관없이 연타 방지 (원하면 0으로)
+    setCooldownMs(5000);
+  }
+};
+
 
   // ✅ 4) 다시 선택하기 버튼
   const handleReSelect = () => {
@@ -202,7 +316,8 @@ export default function AIScheduleResult() {
         }
 
         console.log("📌 이미지/주소 보강 완료!");
-        setAiPlan(updated); // ✅ 여기서만 상태 갱신
+        setAiPlan(updated); 
+        setCooldownMs(5000);
       } finally {
         setIsEnhancing(false);
       }
@@ -240,35 +355,97 @@ export default function AIScheduleResult() {
     });
   }, [aiPlan]);
 
-  const handleAddPlace = async (place) => {
+    // ✅ 좋아요한 여행지 불러오기 (API는 너희 백엔드에 맞게 경로만 맞추면 됨)
+const getUserId = () => {
+  // 프로젝트에 맞춰 user 저장 형태가 다를 수 있으니 여러 후보 커버
+  const userStr = localStorage.getItem("user");
+  if (userStr) {
     try {
-      const { lat, lng } = place;
+      const u = JSON.parse(userStr);
+      return u?.user_id || u?.id;
+    } catch {}
+  }
+  const direct =
+    localStorage.getItem("user_id") ||
+    localStorage.getItem("userId") ||
+    localStorage.getItem("uid");
+  return direct ? Number(direct) : null;
+};
 
-      const updated = { ...aiPlan };
-      updated.days[searchTarget.dayIdx].places.push({
+const fetchLikedPlaces = async () => {
+  try {
+    setLikedLoading(true);
+
+    const userId = getUserId();
+    if (!userId) {
+      console.log("❗ userId 없음: localStorage 확인 필요");
+      setLikedPlaces([]);
+      return;
+    }
+
+    // ✅ LikePlaces.jsx랑 동일한 API
+    const res = await axios.get(`${API_BASE}/place/like/${userId}`);
+    setLikedPlaces(Array.isArray(res.data) ? res.data : []);
+  } catch (e) {
+    console.error("좋아요 목록 불러오기 실패:", e);
+    setLikedPlaces([]);
+  } finally {
+    setLikedLoading(false);
+  }
+};
+
+  // ✅ 좋아요 데이터 → 현재 handleAddPlace가 받는 형태로 변환
+  const normalizeLikedToSearchPlace = (item) => {
+  const p = item?.place || {};
+
+  return {
+    placeId: p.place_id || p.placeId || item.like_id,
+    name: p.name,
+    address: p.address || "",
+    lat: p.lat ?? p.latitude,   // ✅ DB에 있으면 자동 사용
+    lng: p.lng ?? p.longitude,
+    image: p.image_url || (process.env.PUBLIC_URL + "/assets/images/default-thumb.jpg"),
+    types: p.category ? [p.category] : [],  // 있으면 태그로
+    rating: p.rating,
+    reviews: p.reviews,
+    openNow: p.openNow,
+  };
+};
+useEffect(() => {
+  if (!searchTarget) return;
+  if (panelTab === "likes") fetchLikedPlaces();
+}, [panelTab, searchTarget]);
+
+ const handleAddPlace = (place) => {
+  try {
+    const { lat, lng } = place;
+
+    setAiPlan((prev) => {
+      const next = JSON.parse(JSON.stringify(prev));
+      next.days[searchTarget.dayIdx].places.push({
         name: place.name,
         address: place.address,
         lat,
         lng,
         image: place.image || "/assets/images/default-placeholder.jpg",
-        category: [place.types?.[0]?.replace(/_/g, " ")],
+        category: place.types?.length ? [String(place.types[0]).replace(/_/g, " ")] : [],
         rating: place.rating,
         reviews: place.reviews,
         openNow: place.openNow,
-        placeId: place.placeId,
+        placeId: place.placeId ?? null,
         startTime: null,
         endTime: null,
       });
+      return next;
+    });
 
-      navigate("/trip/result", { state: { aiPlan: updated, themes } });
-
-      setSearchTarget(null);
-      setSearchQuery("");
-      setSearchResults([]);
-    } catch (err) {
-      console.error("장소 추가 중 오류:", err);
-    }
-  };
+    setSearchTarget(null);
+    setSearchQuery("");
+    setSearchResults([]);
+  } catch (err) {
+    console.error("장소 추가 중 오류:", err);
+  }
+};
 
   useEffect(() => {
     if (!highlight || highlight.day === null) return;
@@ -301,6 +478,26 @@ export default function AIScheduleResult() {
 
   return (
     <div className="result-wrapper">
+      {/* ✅ 새로운 추천받기 로딩 오버레이 */}
+    {recommending && (
+  <div className="loading-overlay">
+    <div className="loading-box">
+      <div className="loading-icon">🤖</div>
+      <h3 className="loading-title">AI 여행 플래너가</h3>
+      <h3 className="loading-title">당신만의 여행 코스를 만드는 중...</h3>
+      <p className="loading-sub">
+        주변 맛집·명소를 분석해서 일정표를 짜고 있어요.
+        <br />
+        잠시만 기다려 주세요!
+      </p>
+      <div className="loading-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+)}
       <h2 className="result-title">✨ AI 여행 계획이 완성되었습니다!</h2>
 
       <div className="result-layout">
@@ -377,10 +574,12 @@ export default function AIScheduleResult() {
                       : ""
                   }`}
                   onClick={() => {
-                    if (editMode) return;
-                    setHighlight({ day: dayIdx, index: placeIdx });
-                    setSelectedPlace(p);
-                  }}
+  if (editMode) return;
+  setHighlight({ day: dayIdx, index: placeIdx });
+  setSelectedPos({ dayIdx, placeIdx });   // ✅ 추가
+  setSelectedPlace(p);
+}}
+
                 >
                   <img
                     src={
@@ -396,11 +595,12 @@ export default function AIScheduleResult() {
                   <div className="place-text">
                     {p.time && <span>⏱ {p.time}</span>}
                     📍 {p.name}
-                    {p.category?.[0] && (
-                      <span className="place-tag">
-                        {getCategoryLabel(p.category)}
-                      </span>
-                    )}
+{p.category && (
+  <span className="place-tag">
+    {getCategoryLabel(p.category)}
+  </span>
+)}
+
                   </div>
                   {editMode && (
                     <button
@@ -443,13 +643,17 @@ export default function AIScheduleResult() {
             </button>
 
             {/* 새로운 추천받기 */}
-            <button
-              className="btn-accent"
-              onClick={handleNewRecommend}
-              disabled={recommending}
-            >
-              {recommending ? "새로운 추천 만드는 중..." : "새로운 추천받기 🎲"}
-            </button>
+           <button
+  className="btn-accent"
+  onClick={handleNewRecommend}
+  disabled={recommending || recommendLockRef.current || cooldownMs > 0}
+>
+  {recommending
+    ? "새로운 추천 만드는 중..."
+    : cooldownMs > 0
+      ? `새로운 추천받기 (${Math.ceil(cooldownMs / 1000)}s)`
+      : "새로운 추천받기 🎲"}
+</button>
 
             {/* 다시 선택하기 */}
             <button className="btn-dark" onClick={handleReSelect}>
@@ -474,9 +678,11 @@ export default function AIScheduleResult() {
             aiPlan={aiPlan}
             activePlace={highlight}
             onSelectPlace={(dayIdx, placeIdx) => {
-              setHighlight({ day: dayIdx, index: placeIdx });
-              setSelectedPlace(aiPlan.days[dayIdx].places[placeIdx]);
-            }}
+  setHighlight({ day: dayIdx, index: placeIdx });
+  setSelectedPos({ dayIdx, placeIdx });   // ✅ 추가
+  setSelectedPlace(aiPlan.days[dayIdx].places[placeIdx]);
+}}
+
           />
         </div>
 
@@ -484,11 +690,14 @@ export default function AIScheduleResult() {
           {selectedPlace && (
             <>
               <button
-                className="close-btn"
-                onClick={() => setSelectedPlace(null)}
-              >
-                ✕
-              </button>
+  className="close-btn"
+  onClick={() => {
+    setSelectedPlace(null);
+    setSelectedPos(null);
+  }}
+>
+  ✕
+</button>
               <img
                 className="detail-image"
                 src={
@@ -502,19 +711,18 @@ export default function AIScheduleResult() {
               />
               <h3 className="place-title">{selectedPlace.name}</h3>
 
-              {selectedPlace.category?.[0] && (
-                <p className="place-category">
-                  {getCategoryLabel(selectedPlace.category)}
-                </p>
-              )}
+              {selectedPlace.category && (
+  <p className="place-category">
+    {getCategoryLabel(selectedPlace.category)}
+  </p>
+)}
 
-              {selectedPlace.description &&
-                selectedPlace.description.trim().length > 0 && (
-                  <p className="place-summary">
-                    {selectedPlace.description}
-                  </p>
-                )}
 
+             {descLoading && (!selectedPlace.description || !selectedPlace.description.trim()) ? (
+  <p className="place-summary">설명 불러오는 중...</p>
+) : selectedPlace.description && selectedPlace.description.trim().length > 0 ? (
+  <p className="place-summary">{selectedPlace.description}</p>
+) : null}
               <p className="place-info">{selectedPlace.address}</p>
 
               {selectedPlace.rating && (
@@ -531,7 +739,14 @@ export default function AIScheduleResult() {
                   "point_of_interest",
                 ];
 
-                const category = selectedPlace.category?.[0];
+                const categoryRaw = Array.isArray(selectedPlace.category)
+  ? selectedPlace.category[0]
+  : selectedPlace.category;
+
+const category = String(categoryRaw || "")
+  .toLowerCase()
+  .replace(/\s+/g, "_");
+
                 const shouldShowOpenNow =
                   selectedPlace.openNow !== null &&
                   selectedPlace.openNow !== undefined &&
@@ -551,68 +766,129 @@ export default function AIScheduleResult() {
         </div>
 
         {searchTarget && (
-          <div className="search-panel">
-            <input
-              className="search-input"
-              placeholder="장소 검색..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <button
-              className="close-search"
-              onClick={() => setSearchTarget(null)}
-            >
-              ✕
-            </button>
+  <div className="search-panel">
 
-            <ul className="search-list">
-              {searchResults.map((place) => (
-                <li
-                  key={place.placeId}
-                  className="search-item"
+    {/* ✅ 탭 버튼 */}
+    <div className="panel-tabs">
+      <button
+        className={panelTab === "search" ? "active" : ""}
+        onClick={() => setPanelTab("search")}
+        type="button"
+      >
+        검색
+      </button>
+      <button
+        className={panelTab === "likes" ? "active" : ""}
+        onClick={openLikesTab}
+        type="button"
+      >
+        좋아요
+      </button>
+
+      <button
+        className="close-search"
+        onClick={() => setSearchTarget(null)}
+        type="button"
+      >
+        ✕
+      </button>
+    </div>
+
+    {/* ✅ 검색 탭 */}
+    {panelTab === "search" && (
+      <>
+        <input
+          className="search-input"
+          placeholder="장소 검색..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+
+        <ul className="search-list">
+          {searchResults.map((place) => (
+            <li
+              key={place.placeId}
+              className="search-item"
+              onClick={() => handleAddPlace(place)}
+            >
+              <img
+                src={place.image || "/assets/images/default-placeholder.jpg"}
+                alt="thumb"
+                className="search-thumb"
+              />
+
+              <div className="search-info">
+                <div className="search-title">{place.name}</div>
+
+                {place.rating && (
+                  <div className="rating">
+                    ⭐ {place.rating} ({place.reviews})
+                  </div>
+                )}
+
+                {place.types && (
+                  <span className="search-tag">
+                    {String(place.types[0]).replace(/_/g, " ")}
+                  </span>
+                )}
+
+                <div className="search-address">{place.address}</div>
+
+                {place.openNow !== null && place.openNow !== undefined && (
+                  <span
+                    className={`open-status ${place.openNow ? "open" : "closed"}`}
+                  >
+                    {place.openNow ? "영업중 🔥" : "영업종료 ❌"}
+                  </span>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+
+    {/* ✅ 좋아요 탭 */}
+    {panelTab === "likes" && (
+      <div className="liked-list">
+        {likedLoading && <div className="liked-empty">불러오는 중...</div>}
+
+        {!likedLoading && likedPlaces.length === 0 && (
+          <div className="liked-empty">좋아요한 여행지가 없어요</div>
+        )}
+
+        {!likedLoading &&
+          likedPlaces.map((item) => {
+            const place = normalizeLikedToSearchPlace(item);
+            return (
+              <div key={place.placeId} className="liked-item">
+                <img
+  src={place.image || (process.env.PUBLIC_URL + "/assets/images/default-thumb.jpg")}
+  className="liked-thumb"
+  alt={place.name}
+  onError={(e) =>
+    (e.currentTarget.src = process.env.PUBLIC_URL + "/assets/images/default-thumb.jpg")
+  }
+/>
+                <div className="liked-info">
+                  <div className="liked-title">{place.name}</div>
+                  <div className="liked-address">{place.address}</div>
+                </div>
+
+                <button
+                  className="liked-add-btn"
+                  type="button"
                   onClick={() => handleAddPlace(place)}
                 >
-                  <img
-                    src={
-                      place.image ||
-                      "/assets/images/default-placeholder.jpg"
-                    }
-                    alt="thumb"
-                    className="search-thumb"
-                  />
-
-                  <div className="search-info">
-                    <div className="search-title">{place.name}</div>
-
-                    {place.rating && (
-                      <div className="rating">
-                        ⭐ {place.rating} ({place.reviews})
-                      </div>
-                    )}
-
-                    {place.types && (
-                      <span className="search-tag">
-                        {place.types[0].replace(/_/g, " ")}
-                      </span>
-                    )}
-
-                    <div className="search-address">{place.address}</div>
-
-                    {place.openNow !== null && (
-                      <span
-                        className={`open-status ${
-                          place.openNow ? "open" : "closed"
-                        }`}
-                      >
-                        {place.openNow ? "영업중 🔥" : "영업종료 ❌"}
-                      </span>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+                  추가
+                </button>
+              </div>
+            );
+          })}
+      </div>
+    )}
+  </div>
+)}
       </div>
     </div>
   );

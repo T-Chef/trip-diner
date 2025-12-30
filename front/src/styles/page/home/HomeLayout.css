@@ -6,28 +6,72 @@ html, body {
   overflow-x: hidden;
 }
 
-.home-wrapper {
+.home-wrapper{
+  min-height: 100vh;
   width: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: "Pretendard", sans-serif;
-  background: white;
+  background-color: #f6f0e6;
+
+  background-image:
+    radial-gradient(1200px 500px at 50% -20%,
+      rgba(255,255,255,0.30), rgba(255,255,255,0) 60%),
+    linear-gradient(180deg,
+      rgba(247,242,234,0.55),
+      rgba(242,236,227,0.55) 45%,
+      rgba(247,242,234,0.55)),
+    url("/public/assets/textures/main_paper.jpg");
+
+  background-repeat: no-repeat, no-repeat, repeat;
+  background-size: 1400px 700px, cover, 520px 520px;
+  background-position: 50% -20%, center, top left;
+  background-blend-mode: screen, multiply, normal;
+}
+
+
+.home-sections {
+  position: relative;
+  padding-top: 10px; /* 살짝만 띄워도 경계가 부드러워짐 */
+}
+
+/* ✅ 상단 얇은 그림자(경계 숨기기) */
+.home-sections::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 70px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.20), rgba(0,0,0,0));
+  opacity: 0.55;
+}
+
+/* ✅ 골드 헤어라인(고급 메뉴판 연결감) */
+.home-sections::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 2px;
+  pointer-events: none;
+
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(255, 232, 190, 0.85),
+    rgba(205, 145, 70, 0.85),
+    rgba(255, 232, 190, 0.85),
+    transparent
+  );
+  opacity: 0.35;
 }
 
 /* 공통 SECTION BOX */
 .section-box {
   width: 100%;
   max-width: 1180px;
-  margin: -50px auto 0 auto;
+  margin: 68px auto 0 auto;
   padding: 80px 60px;
   position: relative;
 
-  background-size: cover;
-  background-position: center;
-
-  border: 1px solid rgba(255,255,255,0.5);
-  border-radius: 40px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+  background: transparent;
+  border: none;
+  box-shadow: none;
 
   /* fade-up 애니메이션 */
   opacity: 0;
@@ -58,14 +102,9 @@ html, body {
    RESPONSIVE
 ============================================================ */
 @media (max-width: 900px) {
-  .intro-section {
-    flex-direction: column;
+  .home-wrapper {
+    background-attachment: scroll;
   }
-
-  .intro-right {
-    min-height: 300px;
-  }
-
   .hero-title {
     font-size: 48px;
   }

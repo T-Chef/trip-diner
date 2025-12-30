@@ -9,10 +9,9 @@ const API_BASE = "http://localhost:4000/api";
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
+  const token = localStorage.getItem("adminToken");
 
   useEffect(() => {
-    const token = localStorage.getItem("adminToken");
-
     if (!token) {
       toast.error("관리자 인증이 필요합니다.");
       navigate("/admin/login");
@@ -24,25 +23,16 @@ export default function AdminUsers() {
         const res = await axios.get(`${API_BASE}/admin/users`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
-        setUsers(res.data.users ?? res.data); // 어떤 구조로 와도 안정적으로 처리
+        setUsers(res.data);
       } catch (err) {
-        if (err.response?.status === 401) {
-          toast.error("관리자 인증이 만료되었습니다.");
-          localStorage.removeItem("adminToken");
-          navigate("/admin/login");
-        } else {
-          toast.error("유저 목록을 불러오지 못했습니다.");
-        }
+        toast.error("유저 목록을 불러오지 못했습니다.");
       }
     };
 
     fetchUsers();
-  }, [navigate]);
+  }, [token, navigate]);
 
   const updateUserStatus = async (userId, deleted) => {
-    const token = localStorage.getItem("adminToken");
-
     const url = deleted
       ? `${API_BASE}/admin/users/${userId}/activate`
       : `${API_BASE}/admin/users/${userId}/deactivate`;
@@ -51,9 +41,7 @@ export default function AdminUsers() {
       await axios.patch(
         url,
         {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setUsers((prev) =>
@@ -63,14 +51,8 @@ export default function AdminUsers() {
       );
 
       toast.success(deleted ? "활성화 완료" : "비활성화 완료");
-    } catch (err) {
-      if (err.response?.status === 401) {
-        toast.error("관리자 인증이 만료되었습니다.");
-        localStorage.removeItem("adminToken");
-        navigate("/admin/login");
-      } else {
-        toast.error("상태 변경 실패");
-      }
+    } catch {
+      toast.error("상태 변경 실패");
     }
   };
 
@@ -91,47 +73,39 @@ export default function AdminUsers() {
           </thead>
 
           <tbody>
-            {users.length === 0 ? (
-              <tr>
-                <td colSpan="5" style={{ textAlign: "center" }}>
-                  회원이 없습니다.
+            {users.map((u) => (
+              <tr key={u.user_id}>
+                <td>{u.user_id}</td>
+                <td>{u.email}</td>
+                <td>{u.name || "-"}</td>
+
+                <td>
+                  {u.deleted ? (
+                    <span className="status disabled">비활성</span>
+                  ) : (
+                    <span className="status active">활성</span>
+                  )}
+                </td>
+
+                <td>
+                  {u.deleted ? (
+                    <button
+                      className="admin-btn activate"
+                      onClick={() => updateUserStatus(u.user_id, 1)}
+                    >
+                      활성화
+                    </button>
+                  ) : (
+                    <button
+                      className="admin-btn delete"
+                      onClick={() => updateUserStatus(u.user_id, 0)}
+                    >
+                      비활성화
+                    </button>
+                  )}
                 </td>
               </tr>
-            ) : (
-              users.map((u) => (
-                <tr key={u.user_id}>
-                  <td>{u.user_id}</td>
-                  <td>{u.email}</td>
-                  <td>{u.name || "-"}</td>
-
-                  <td>
-                    {u.deleted ? (
-                      <span className="status disabled">비활성</span>
-                    ) : (
-                      <span className="status active">활성</span>
-                    )}
-                  </td>
-
-                  <td>
-                    {u.deleted ? (
-                      <button
-                        className="admin-btn activate"
-                        onClick={() => updateUserStatus(u.user_id, 1)}
-                      >
-                        활성화
-                      </button>
-                    ) : (
-                      <button
-                        className="admin-btn delete"
-                        onClick={() => updateUserStatus(u.user_id, 0)}
-                      >
-                        비활성화
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))
-            )}
+            ))}
           </tbody>
         </table>
       </div>
