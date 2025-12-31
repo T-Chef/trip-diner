@@ -2,14 +2,23 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 500px;
   flex-direction: column;
+
+  min-height: calc(100vh - 120px); /* header/footer 높이 대충 보정(원하면 조절) */
+  padding: 60px 16px;
+  box-sizing: border-box;
 }
 
 .step-box {
   text-align: center;
   width: 600px;
+
+  background: rgba(255,255,255,0.92);
+  border-radius: 20px;
+  padding: 28px 20px;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.35);
 }
+
 
 .circle-grid {
   display: flex;
@@ -83,4 +92,21 @@
   text-align: center;
   margin-top: 50px;
   color: #777;
+}
+
+.trip-page{
+  position: relative;
+  min-height: 100vh;
+}
+
+.trip-page__bg{
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.trip-page > *:not(.trip-page__bg){
+  position: relative;
+  z-index: 1;
 }

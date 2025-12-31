@@ -191,7 +191,7 @@ model post {
   post_id    BigInt      @id @default(autoincrement())
   user_id    BigInt
   title      String?     @db.VarChar(255)
-  content    String?     @db.Text
+  content    String?     @db.LongText
   category   String?     @db.VarChar(50)
   image_url  String?     @db.VarChar(500)
   views      Int         @default(0)
@@ -203,7 +203,6 @@ model post {
   user       user        @relation(fields: [user_id], references: [user_id])
   post_like  post_like[]
   report     report[]
-
   @@index([user_id])
 }
 

@@ -91,24 +91,16 @@
 }
 
 /*************** Map ***************/
-.map-container{
+.map-area {
   width: 100%;
   height: 100%;
-  min-height: 500px;
+  min-height: 500px; /* 지도 강제 높이 확보 */
   position: relative;
-  min-width: 0;      /* ✅ grid에서 중요 */
-  overflow: hidden;
-}
-
-/* ✅ 실제 네이버 지도 div(속) */
-.naver-map{
-  width: 100%;
-  height: 100%;
 }
 
 .result-layout {
   display: grid;
-  grid-template-columns: 350px minmax(0, 1fr);
+  grid-template-columns: 350px 1fr;
   height: calc(100vh - 70px);
   position: relative;
   overflow: hidden;
@@ -117,21 +109,31 @@
 /*************** Slide Panel ***************/
 .slide-panel {
   position: absolute;
-  right: -360px;
   top: 0;
+  right: 0;
   width: 360px;
   height: 100%;
   background: #fff;
-  transition: right 0.35s;
-  padding: 20px;
+  padding: 18px 22px;
+  box-sizing: border-box;
+
+  /* ✅ 숨김/표시를 right 음수 대신 transform으로 */
+  transform: translateX(100%);
+  transition: transform 0.35s;
+
   box-shadow: -3px 0 10px rgba(0,0,0,0.12);
   z-index: 100;
   overflow-y: auto;
+
+  /* (선택) 닫혀있을 때 클릭 방지 */
+  pointer-events: none;
 }
 
 .slide-panel.open {
-  right: 0;
+  transform: translateX(0);
+  pointer-events: auto;
 }
+
 
 .close-btn {
   background: none;
@@ -490,56 +492,100 @@
 }
 .liked-empty{ padding:12px; opacity:0.7; }
 
-/* ✅ 로딩 오버레이 */
-.loading-overlay {
+/* 🔮 로딩 오버레이 (AISchedule / AIScheduleResult 공용) */
+.loading-overlay{
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.35);
-  z-index: 9999;
+  background: rgba(0,0,0,0.45);
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 9999;
 }
 
-.loading-box {
-  width: min(360px, 90vw);
+.loading-box{
+  width: min(420px, calc(100vw - 48px));
   background: #fff;
-  border-radius: 16px;
-  padding: 20px 18px;
+  border-radius: 18px;
+  padding: 28px 24px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.22);
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
-.loading-robot {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-  margin: 4px auto 10px;
-  display: block;
+.loading-icon{
+  font-size: 44px;
+  margin-bottom: 10px;
 }
 
-.loading-title {
-  font-size: 16px;
+.loading-title{
+  margin: 0;
+  line-height: 1.2;
+  font-size: 18px;
   font-weight: 800;
-  margin-bottom: 6px;
 }
 
-.loading-sub {
-  font-size: 13px;
+.loading-sub{
+  margin-top: 10px;
+  margin-bottom: 18px;
+  font-size: 14px;
   color: #666;
-}
-/* ✅ 어떤 부모 max-width든 무시하고 /trip/result는 화면 꽉 채우기 */
-.result-wrapper{
-  position: fixed;
-  inset: 0;          /* top/right/bottom/left = 0 */
-  width: 100vw;
-  height: 100vh;
-  background: #fff;
-  overflow: hidden;
+  line-height: 1.5;
 }
 
-/* grid 폭도 확실히 */
-.result-layout{
-  width: 100%;
-  grid-template-columns: 350px minmax(0, 1fr);
+.loading-dots{
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-dots span{
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #222;
+  opacity: 0.2;
+  animation: loadingDot 1.1s infinite ease-in-out;
+}
+
+.loading-dots span:nth-child(2){ animation-delay: 0.15s; }
+.loading-dots span:nth-child(3){ animation-delay: 0.30s; }
+
+@keyframes loadingDot{
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.2; }
+  40% { transform: translateY(-6px); opacity: 1; }
+}
+.place-item.draggable{
+  cursor: grab;
+}
+
+.place-item.draggable:active{
+  cursor: grabbing;
+}
+
+.place-item.drag-over{
+  outline: 2px dashed #3b82f6;
+  background: #f3f8ff;
+}
+
+.reorder-btns{
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.reorder-btn{
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.reorder-btn:disabled{
+  opacity: 0.35;
+  cursor: not-allowed;
 }

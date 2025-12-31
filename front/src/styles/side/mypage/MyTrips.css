@@ -86,6 +86,25 @@
   font-size: 12px;
   margin-bottom: 8px;
 }
+.mytrips-wrap .badge-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom: 8px;
+  
+}
+
+/* 기존 badge가 margin-bottom:8px라 줄맞춤 깨질 수 있어서 */
+.mytrips-wrap .badge{
+  margin-bottom: 0;
+}
+
+.mytrips-wrap .date-range{
+  font-size: 12px;
+  opacity: 0.7;
+  white-space: nowrap;   /* ✅ 줄바꿈 방지 */
+  line-height: 1;        /* ✅ 뱃지랑 세로 정렬 깔끔 */
+}
 
 .mytrips-wrap .title {
   margin: 0 0 6px;

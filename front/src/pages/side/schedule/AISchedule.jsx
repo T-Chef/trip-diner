@@ -106,7 +106,15 @@ const enrichedPlan = {
   };
 
   return (
-    <div className="trip-wrapper">
+   <div
+  className="trip-wrapper"
+  style={{
+    backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${process.env.PUBLIC_URL}/assets/images/trip-bg.png)`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+  }}
+>
       <div className="trip-card">
         {/* 단계 표시 */}
         <div className="step-indicator">{String(step).padStart(2, "0")}</div>

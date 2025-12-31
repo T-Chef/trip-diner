@@ -37,8 +37,7 @@ export default function AdminHome() {
               관리자 페이지
             </h1>
             <p style={{ marginTop: 14, fontSize: 18, maxWidth: 520 }}>
-              햄버거 메뉴에서 회원 관리, 게시글 관리, 1:1 문의 답변으로 이동할
-              수 있습니다.
+              내가 관리자다.
             </p>
           </div>
         </div>

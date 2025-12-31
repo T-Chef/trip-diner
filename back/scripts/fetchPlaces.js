@@ -5,7 +5,7 @@ import "dotenv/config";
 const prisma = new PrismaClient();
 
 const areaCodeMap = { 부산: 6, 서울: 1, 대구: 4, 제주: 39 };
-const contentTypes = [12, 39, 14, 28]; // 명소, 음식점, 문화, 레포츠
+const contentTypes = [12, 39, 14, 28]; 
 
 async function saveCity(cityName) {
   const areaCode = areaCodeMap[cityName];
@@ -17,16 +17,17 @@ async function saveCity(cityName) {
 
     for (const p of places) {
       await prisma.place.upsert({
-        where: { content_id: String(p.contentid) },
+        where: { external_id: BigInt(p.contentid) },
         update: {},
         create: {
-          content_id: String(p.contentid),
+          external_id: BigInt(p.contentid),
           name: p.title,
           address: p.addr1,
           lat: parseFloat(p.mapy) || null,
           lng: parseFloat(p.mapx) || null,
           image_url: p.firstimage || null,
           description: p.overview || null,
+          content_type_id: type,
           city: { connect: { name: cityName } },
         },
       });

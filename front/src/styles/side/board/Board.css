@@ -1,6 +1,3 @@
-/* ========================================
-   전체 페이지
-======================================== */
 .board-page {
   width: 100%;
   display: flex;
@@ -16,7 +13,6 @@
   align-items: center;
 }
 
-/* 배너 */
 .board-banner {
   width: 250%;
   height: 300px;
@@ -30,9 +26,6 @@
   margin-bottom: 30px;
 }
 
-/* ================================
-   프로필 박스
-================================ */
 .board-profile-view {
   text-align: center;
   padding: 20px;
@@ -61,7 +54,6 @@
   z-index: 10;
 }
 
-/* 닉네임 */
 .board-profile-name {
   font-size: 18px;
   font-weight: bold;
@@ -69,16 +61,12 @@
   color: #333;
 }
 
-/* 환영 문구 */
 .board-profile-welcome {
   font-size: 14px;
   color: #666;
   margin-bottom: 10px;
 }
 
-/* ========================================
-   레이아웃
-======================================== */
 .board-layout {
   display: flex;
   width: 100%;
@@ -87,7 +75,6 @@
   gap: 40px;
 }
 
-/* 왼쪽 패널 */
 .left-panel {
   width: 260px;
   display: flex;
@@ -95,7 +82,6 @@
   height: 600px;
 }
 
-/* 카테고리 */
 .category-list {
   flex: 1;
   list-style: none;
@@ -126,12 +112,10 @@
   color: #1e90ff;
 }
 
-/* 오른쪽 게시판 */
 .right-panel {
   flex: 1;
 }
 
-/* 테이블 */
 .post-header {
   display: flex;
   padding: 12px 0;
@@ -166,7 +150,6 @@
   text-overflow: ellipsis;
 }
 
-/* 페이지네이션 */
 .pagination {
   display: flex;
   justify-content: center;
@@ -190,7 +173,6 @@
   border-bottom: 2px solid #1e90ff;
 }
 
-/* 글쓰기 버튼 */
 .write-btn {
   margin-top: 20px;
   padding: 12px 20px;

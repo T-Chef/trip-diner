@@ -19,7 +19,6 @@ function Login({ setUser }) {
       const accessToken = res.data.accessToken;
       localStorage.setItem("accessToken", accessToken);
 
-      // 🔹 profile_img를 절대경로로 정리 (백엔드에서 /uploads/xxx.jpg 보내준다고 가정)
       const normalizedUser = {
         ...user,
         profile_img: user?.profile_img

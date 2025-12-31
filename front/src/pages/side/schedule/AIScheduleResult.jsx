@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import AIScheduleMap from "./AIScheduleMap.jsx";
 import "../../../styles/side/schedule/AIScheduleResult.css";
 import axios from "axios";
+import { placeLikesApi } from "../../../api/placeLikesApi";
 
 console.log("🎯 GOOGLE KEY:", process.env.REACT_APP_GOOGLE_API_KEY);
 
@@ -86,14 +87,14 @@ export default function AIScheduleResult() {
   // ✅ selectedPlace의 (dayIdx, placeIdx)도 같이 기억해야 "aiPlan 안에" description을 저장할 수 있음
   const [selectedPos, setSelectedPos] = useState(null);
   const [descLoading, setDescLoading] = useState(false);
-
   // ✅ place.description이 없을 때만 호출
-  const fetchDesc = async (place) => {
-    const resp = await axios.get(`${API_BASE}/ai/description`, {
-      params: { name: place.name, address: place.address },
-    });
-    return resp.data.description;
-  };
+const fetchDesc = async (place) => {
+  const resp = await axios.get(`${API_BASE}/ai/description`, {
+    params: { name: place.name, address: place.address },
+  });
+  return resp.data.description;
+};
+
 
   // ✅ aiPlan 내부 특정 place를 안전하게 업데이트하는 유틸
   const patchPlaceInPlan = (dayIdx, placeIdx, patch) => {
@@ -150,7 +151,64 @@ export default function AIScheduleResult() {
       cancelled = true;
     };
   }, [selectedPos, aiPlan]);
+const dragRef = useRef(null); // { dayIdx, placeIdx }
+const [dragOver, setDragOver] = useState(null); // { dayIdx, placeIdx } or null
 
+// ✅ 같은 day 내에서 place 순서 이동
+const movePlace = (dayIdx, fromIdx, toIdx) => {
+  if (fromIdx === toIdx) return;
+
+  setAiPlan((prev) => {
+    const day = prev?.days?.[dayIdx];
+    if (!day) return prev;
+
+    const places = [...(day.places || [])];
+    if (!places[fromIdx] || toIdx < 0 || toIdx >= places.length) return prev;
+
+    const [moved] = places.splice(fromIdx, 1);
+    places.splice(toIdx, 0, moved);
+
+    // highlight/selectedPos가 순서 변경에 맞게 따라가게
+    setHighlight((h) => {
+      if (h?.day !== dayIdx) return h;
+      if (h.index === fromIdx) return { ...h, index: toIdx };
+      // 사이에 끼어있는 애들 index 보정
+      if (fromIdx < toIdx && h.index > fromIdx && h.index <= toIdx) return { ...h, index: h.index - 1 };
+      if (fromIdx > toIdx && h.index < fromIdx && h.index >= toIdx) return { ...h, index: h.index + 1 };
+      return h;
+    });
+
+    setSelectedPos((pos) => {
+      if (!pos || pos.dayIdx !== dayIdx) return pos;
+      if (pos.placeIdx === fromIdx) return { ...pos, placeIdx: toIdx };
+      if (fromIdx < toIdx && pos.placeIdx > fromIdx && pos.placeIdx <= toIdx) return { ...pos, placeIdx: pos.placeIdx - 1 };
+      if (fromIdx > toIdx && pos.placeIdx < fromIdx && pos.placeIdx >= toIdx) return { ...pos, placeIdx: pos.placeIdx + 1 };
+      return pos;
+    });
+
+    return {
+      ...prev,
+      days: prev.days.map((d, di) =>
+        di !== dayIdx ? d : { ...d, places }
+      ),
+    };
+  });
+};
+
+// ✅ DnD 핸들러
+const onDragStartPlace = (dayIdx, placeIdx) => {
+  dragRef.current = { dayIdx, placeIdx };
+};
+
+const onDropPlace = (targetDayIdx, targetPlaceIdx) => {
+  const src = dragRef.current;
+  dragRef.current = null;
+  setDragOver(null);
+
+  if (!src) return;
+  if (src.dayIdx !== targetDayIdx) return; // 일단 같은 day에서만 허용(원하면 day 간 이동도 가능)
+  movePlace(targetDayIdx, src.placeIdx, targetPlaceIdx);
+};
 
   const [editMode, setEditMode] = useState(false);
   const [searchTarget, setSearchTarget] = useState(null);
@@ -357,63 +415,72 @@ const handleNewRecommend = async () => {
 
     // ✅ 좋아요한 여행지 불러오기 (API는 너희 백엔드에 맞게 경로만 맞추면 됨)
 const getUserId = () => {
-  // 프로젝트에 맞춰 user 저장 형태가 다를 수 있으니 여러 후보 커버
   const userStr = localStorage.getItem("user");
   if (userStr) {
     try {
       const u = JSON.parse(userStr);
-      return u?.user_id || u?.id;
+      const id =
+        u?.user_id ?? u?.userId ?? u?.id ??
+        u?.user?.user_id ?? u?.user?.userId ?? u?.user?.id;
+      return id != null ? Number(id) : null;
     } catch {}
   }
+
   const direct =
     localStorage.getItem("user_id") ||
     localStorage.getItem("userId") ||
     localStorage.getItem("uid");
+
   return direct ? Number(direct) : null;
 };
 
-const fetchLikedPlaces = async () => {
-  try {
-    setLikedLoading(true);
-
-    const userId = getUserId();
-    if (!userId) {
-      console.log("❗ userId 없음: localStorage 확인 필요");
-      setLikedPlaces([]);
-      return;
-    }
-
-    // ✅ LikePlaces.jsx랑 동일한 API
-    const res = await axios.get(`${API_BASE}/place/like/${userId}`);
-    setLikedPlaces(Array.isArray(res.data) ? res.data : []);
-  } catch (e) {
-    console.error("좋아요 목록 불러오기 실패:", e);
-    setLikedPlaces([]);
-  } finally {
-    setLikedLoading(false);
-  }
-};
-
   // ✅ 좋아요 데이터 → 현재 handleAddPlace가 받는 형태로 변환
-  const normalizeLikedToSearchPlace = (item) => {
-  const p = item?.place || {};
-
+  const normalizeLikedToSearchPlace = (row) => {
+  const p = row?.place || {};
   return {
-    placeId: p.place_id || p.placeId || item.like_id,
+    placeId: p.external_id || row.like_id,          // ✅ 고유값(외부id 우선)
     name: p.name,
     address: p.address || "",
-    lat: p.lat ?? p.latitude,   // ✅ DB에 있으면 자동 사용
-    lng: p.lng ?? p.longitude,
+    lat: p.lat ?? null,
+    lng: p.lng ?? null,
     image: p.image_url || (process.env.PUBLIC_URL + "/assets/images/default-thumb.jpg"),
-    types: p.category ? [p.category] : [],  // 있으면 태그로
+    types: p.category ? [p.category] : [],
     rating: p.rating,
     reviews: p.reviews,
     openNow: p.openNow,
   };
 };
+
 useEffect(() => {
   if (!searchTarget) return;
-  if (panelTab === "likes") fetchLikedPlaces();
+  if (panelTab !== "likes") return;
+
+  let cancelled = false;
+
+  (async () => {
+    try {
+      setLikedLoading(true);
+
+      const userId = getUserId();
+      if (!userId) {
+        console.log("❗ userId 없음 (좋아요 탭): localStorage/userAuth 확인");
+        if (!cancelled) setLikedPlaces([]);
+        return;
+      }
+
+      const res = await placeLikesApi.listByUser(userId);
+      if (!cancelled) setLikedPlaces(res.data || []);
+    } catch (e) {
+      console.error("좋아요 목록 불러오기 실패:", e);
+      if (!cancelled) setLikedPlaces([]);
+    } finally {
+      if (!cancelled) setLikedLoading(false);
+    }
+  })();
+
+  return () => {
+    cancelled = true;
+  };
 }, [panelTab, searchTarget]);
 
  const handleAddPlace = (place) => {
@@ -501,168 +568,187 @@ useEffect(() => {
       <h2 className="result-title">✨ AI 여행 계획이 완성되었습니다!</h2>
 
       <div className="result-layout">
-        <aside className="side-list">
-          <h3 className="plan-title">{aiPlan.title}</h3>
+<aside className="side-list">
+  <h3 className="plan-title">{aiPlan.title}</h3>
 
-          {/* ✅ 여행 요약 카드 */}
-          <div className="trip-summary-card">
-            <div className="summary-header">
-              {(() => {
-                const totalDays = aiPlan.daysCount || aiPlan.days?.length || 1;
-                const nights = Math.max(totalDays - 1, 0);
-                return (
-                  <>
-                    <span className="summary-days">
-                      {nights}박 {totalDays}일
-                    </span>
-                    {aiPlan.peopleType && (
-                      <span className="summary-people">
-                        {aiPlan.peopleType} 여행
-                      </span>
-                    )}
-                  </>
-                );
-              })()}
-            </div>
-
-            <ul className="summary-stats">
-              <li>
-                <span className="label">총 이동거리</span>
-                <strong>
-                  {summary.totalDistanceKm > 0
-                    ? `${summary.totalDistanceKm}km`
-                    : "계산 중"}
-                </strong>
-              </li>
-              <li>
-                <span className="label">여행지역</span>
-                <strong>
-                  {aiPlan.cityName
-                    ? `${aiPlan.cityName} ~ ${aiPlan.cityName}`
-                    : aiPlan.title}
-                </strong>
-              </li>
-              <li>
-                <span className="label">추천 장소</span>
-                <strong>{summary.totalPlaces}곳</strong>
-              </li>
-            </ul>
-
-            {themes.length > 0 && (
-              <div className="summary-tags">
-                {themes.map((t) => (
-                  <span key={t} className="summary-tag">
-                    #{t}
-                  </span>
-                ))}
-              </div>
+  {/* ✅ 여행 요약 카드 */}
+  <div className="trip-summary-card">
+    <div className="summary-header">
+      {(() => {
+        const totalDays = aiPlan.daysCount || aiPlan.days?.length || 1;
+        const nights = Math.max(totalDays - 1, 0);
+        return (
+          <>
+            <span className="summary-days">{nights}박 {totalDays}일</span>
+            {aiPlan.peopleType && (
+              <span className="summary-people">{aiPlan.peopleType} 여행</span>
             )}
-          </div>
+          </>
+        );
+      })()}
+    </div>
 
-          {aiPlan.days.map((day, dayIdx) => (
-            <div key={dayIdx} className="day-block">
-              <h4 className="day-header">{day.day}일차</h4>
+    <ul className="summary-stats">
+      <li>
+        <span className="label">총 이동거리</span>
+        <strong>
+          {summary.totalDistanceKm > 0 ? `${summary.totalDistanceKm}km` : "계산 중"}
+        </strong>
+      </li>
+      <li>
+        <span className="label">여행지역</span>
+        <strong>
+          {aiPlan.cityName ? `${aiPlan.cityName} ~ ${aiPlan.cityName}` : aiPlan.title}
+        </strong>
+      </li>
+      <li>
+        <span className="label">추천 장소</span>
+        <strong>{summary.totalPlaces}곳</strong>
+      </li>
+    </ul>
 
-              {day.places.map((p, placeIdx) => (
-                <div
-                  key={placeIdx}
-                  id={`place-${dayIdx}-${placeIdx}`}
-                  className={`place-item ${
-                    highlight.day === dayIdx &&
-                    highlight.index === placeIdx
-                      ? "active"
-                      : ""
-                  }`}
-                  onClick={() => {
-  if (editMode) return;
-  setHighlight({ day: dayIdx, index: placeIdx });
-  setSelectedPos({ dayIdx, placeIdx });   // ✅ 추가
-  setSelectedPlace(p);
-}}
+    {themes.length > 0 && (
+      <div className="summary-tags">
+        {themes.map((t) => (
+          <span key={t} className="summary-tag">#{t}</span>
+        ))}
+      </div>
+    )}
+  </div>
 
-                >
-                  <img
-                    src={
-                      p.image ?? "/assets/images/default-placeholder.jpg"
-                    }
-                    onError={(e) =>
-                      (e.target.src =
-                        "/assets/images/default-placeholder.jpg")
-                    }
-                    alt="thumb"
-                    className="list-thumb"
-                  />
-                  <div className="place-text">
-                    {p.time && <span>⏱ {p.time}</span>}
-                    📍 {p.name}
-{p.category && (
-  <span className="place-tag">
-    {getCategoryLabel(p.category)}
-  </span>
-)}
+  {/* ✅ 일차별 일정 리스트 */}
+  {aiPlan.days.map((day, dayIdx) => (
+    <div key={day.day} className="day-block">
+      <h4 className="day-header">{day.day}일차</h4>
 
-                  </div>
-                  {editMode && (
-                    <button
-                      className="delete-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const updated = { ...aiPlan };
-                        updated.days[dayIdx].places.splice(placeIdx, 1);
-                        navigate("/trip/result", {
-                          state: { aiPlan: updated, themes },
-                        });
-                      }}
-                    >
-                      ❌
-                    </button>
-                  )}
-                </div>
-              ))}
+      {day.places.map((p, placeIdx) => {
+        const stableKey =
+          p.placeId || p.external_id || `${p.name}-${p.lat}-${p.lng}-${placeIdx}`;
 
-              {editMode && (
-                <button
-                  className="btn-add"
-                  onClick={() => setSearchTarget({ dayIdx })}
-                >
-                  ➕ 장소 추가
-                </button>
+        const isDragOver =
+          dragOver?.dayIdx === dayIdx && dragOver?.placeIdx === placeIdx;
+
+        return (
+          <div
+            key={stableKey}
+            id={`place-${dayIdx}-${placeIdx}`}
+            className={`place-item ${isDragOver ? "drag-over" : ""} ${
+              highlight.day === dayIdx && highlight.index === placeIdx ? "active" : ""
+            } ${editMode ? "draggable" : ""}`}
+            draggable={!!editMode}
+            onDragStart={() => {
+              if (!editMode) return;
+              onDragStartPlace(dayIdx, placeIdx);
+            }}
+            onDragOver={(e) => {
+              if (!editMode) return;
+              e.preventDefault();
+              setDragOver({ dayIdx, placeIdx });
+            }}
+            onDragLeave={() => setDragOver(null)}
+            onDrop={(e) => {
+              if (!editMode) return;
+              e.preventDefault();
+              onDropPlace(dayIdx, placeIdx);
+            }}
+            onClick={() => {
+              if (editMode) return;
+              setHighlight({ day: dayIdx, index: placeIdx });
+              setSelectedPos({ dayIdx, placeIdx });
+              setSelectedPlace(p);
+            }}
+          >
+            <img
+              src={p.image ?? "/assets/images/default-placeholder.jpg"}
+              onError={(e) => (e.currentTarget.src = "/assets/images/default-placeholder.jpg")}
+              alt="thumb"
+              className="list-thumb"
+            />
+
+            <div className="place-text">
+              {p.time && <span>⏱ {p.time}</span>}
+              📍 {p.name}
+              {p.category && (
+                <span className="place-tag">{getCategoryLabel(p.category)}</span>
               )}
             </div>
-          ))}
 
-          <div className="action-buttons">
-            {/* 일정편집 / 편집완료 */}
-            <button className="btn-dark" onClick={handleToggleEdit}>
-              {editMode ? "편집완료 📁" : "일정편집 ✏️"}
-            </button>
+            {editMode && (
+              <div className="reorder-btns" onClick={(e) => e.stopPropagation()}>
+                <button
+                  type="button"
+                  className="reorder-btn"
+                  disabled={placeIdx === 0}
+                  onClick={() => movePlace(dayIdx, placeIdx, placeIdx - 1)}
+                >
+                  ▲
+                </button>
+                <button
+                  type="button"
+                  className="reorder-btn"
+                  disabled={placeIdx === (day.places?.length || 0) - 1}
+                  onClick={() => movePlace(dayIdx, placeIdx, placeIdx + 1)}
+                >
+                  ▼
+                </button>
+              </div>
+            )}
 
-            {/* 확인 */}
-            <button className="btn-primary" onClick={handleConfirm}>
-              확인
-            </button>
-
-            {/* 새로운 추천받기 */}
-           <button
-  className="btn-accent"
-  onClick={handleNewRecommend}
-  disabled={recommending || recommendLockRef.current || cooldownMs > 0}
->
-  {recommending
-    ? "새로운 추천 만드는 중..."
-    : cooldownMs > 0
-      ? `새로운 추천받기 (${Math.ceil(cooldownMs / 1000)}s)`
-      : "새로운 추천받기 🎲"}
-</button>
-
-            {/* 다시 선택하기 */}
-            <button className="btn-dark" onClick={handleReSelect}>
-              다시 선택하기 🔄
-            </button>
+            {editMode && (
+              <button
+                className="delete-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setAiPlan((prev) => {
+                    const next = JSON.parse(JSON.stringify(prev));
+                    next.days[dayIdx].places.splice(placeIdx, 1);
+                    return next;
+                  });
+                }}
+              >
+                ❌
+              </button>
+            )}
           </div>
-        </aside>
+        );
+      })}
 
-        <div className="map-container">
+      {editMode && (
+        <button className="btn-add" onClick={() => setSearchTarget({ dayIdx })}>
+          ➕ 장소 추가
+        </button>
+      )}
+    </div>
+  ))}
+
+  <div className="action-buttons">
+    <button className="btn-dark" onClick={handleToggleEdit}>
+      {editMode ? "편집완료 📁" : "일정편집 ✏️"}
+    </button>
+
+    <button className="btn-primary" onClick={handleConfirm}>
+      확인
+    </button>
+
+    <button
+      className="btn-accent"
+      onClick={handleNewRecommend}
+      disabled={recommending || recommendLockRef.current || cooldownMs > 0}
+    >
+      {recommending
+        ? "새로운 추천 만드는 중..."
+        : cooldownMs > 0
+          ? `새로운 추천받기 (${Math.ceil(cooldownMs / 1000)}s)`
+          : "새로운 추천받기 🎲"}
+    </button>
+
+    <button className="btn-dark" onClick={handleReSelect}>
+      다시 선택하기 🔄
+    </button>
+  </div>
+</aside>
+
+        <div className="map-area">
           {/* ✅ 일차별 색상 레전드 */}
           <div className="day-legend">
             {aiPlan.days.map((day, idx) => (

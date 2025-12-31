@@ -45,6 +45,44 @@
   box-shadow: 0 8px 20px rgba(0,0,0,0.12);
 }
 
+.like-remove-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  border: 0;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  padding: 6px 8px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.like-remove-btn:hover {
+  transform: scale(1.05);
+}
+
+.likes-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom: 25px;
+}
+
+.likes-clear-btn{
+  border: 1px solid #ddd;
+  background: #fff;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.likes-clear-btn:disabled{
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* ===== 이미지 ===== */
 
 .like-img {
@@ -52,6 +90,7 @@
   height: 170px;
   object-fit: cover;
   position: relative;
+  z-index: 0;
 }
 
 /* 이미지 위 오버레이 */
@@ -64,6 +103,7 @@
   height: 170px;
   background: linear-gradient(to bottom, rgba(0,0,0,0.25), rgba(0,0,0,0));
   pointer-events: none;
+  z-index: 1;
 }
 
 /* ===== 정보 영역 ===== */

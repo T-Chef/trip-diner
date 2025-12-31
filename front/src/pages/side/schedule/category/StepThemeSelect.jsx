@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 const API_BASE = "http://localhost:4000/api";
 const themesList = ["산", "실내여행지", "액티비티", "문화·역사", "테마파크", "카페", "전통시장", "축제"];
 
-// ✅ 여기 추가
 const MAX_THEMES = 6;
 
 const StepThemeSelect = ({
@@ -26,7 +25,6 @@ const StepThemeSelect = ({
       return;
     }
 
-    // ✅ 여기 수정: 4 -> 6 (MAX_THEMES 사용)
     if (selectedThemes.length >= MAX_THEMES) {
       alert(`테마는 최대 ${MAX_THEMES}개까지 선택할 수 있어요!`);
       return;
@@ -61,7 +59,6 @@ const StepThemeSelect = ({
 
   return (
     <motion.div className="step-box" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      {/* ✅ 문구 수정 */}
       <h2>원하는 여행 테마를 선택해주세요! (최소 2개, 최대 {MAX_THEMES}개)</h2>
 
       <div className="circle-grid">
@@ -74,7 +71,6 @@ const StepThemeSelect = ({
               key={t}
               className={`circle-btn ${selected ? "active" : ""} ${disabled ? "disabled" : ""}`}
               onClick={() => toggleTheme(t)}
-              // ✅ 최대치면 “새로 선택”만 막고, 이미 선택된 건 해제 가능
               disabled={disabled}
               type="button"
             >

@@ -1,52 +1,38 @@
-/* 전체 페이지 가운데 정렬 */
-.admin-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 40px 0;
-}
-
-/* 제목 */
-.admin-title {
-  margin-bottom: 20px;
-  font-size: 24px;
-  font-weight: 600;
-}
-
-/* 테이블 감싸는 카드 */
-.admin-table-wrapper {
-  width: 900px;              /* ← 여기서 크기 조절 */
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+/* 페이지 레이아웃 */
+.admin-container {
+  max-width: 1100px;
+  margin: 80px auto 0;
   padding: 20px;
 }
 
-/* 테이블 */
+.admin-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 30px;
+}
+
+/* 테이블 카드 */
+.admin-table-wrapper {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  background: #fff;
 }
 
 .admin-table th,
 .admin-table td {
   text-align: center;
   padding: 12px;
-}
-
-.admin-table td {
-  padding: 12px;
   border-bottom: 1px solid #eee;
 }
 
-.admin-container {
-  max-width: 1100px;      /* 테이블 폭 제한 */
-  margin: 80px auto 0;   /* 🔥 위에서 80px 내려오기 */
-  padding: 20px;
-}
-
-/* 상태 표시 */
+/* 상태 텍스트 */
 .status.active {
   color: #2ecc71;
   font-weight: 600;
@@ -57,22 +43,28 @@
   font-weight: 600;
 }
 
-/* 버튼 */
-.activate-btn,
-.delete-btn {
-  padding: 6px 12px;
-  border-radius: 6px;
+/* 버튼 (게시글 관리와 동일) */
+.admin-btn {
+  padding: 6px 14px;
+  border-radius: 4px;
   border: none;
-  cursor: pointer;
   font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
 }
 
-.activate-btn {
-  background: #2ecc71;
-  color: white;
-}
-
-.delete-btn {
+/* 비활성화 버튼 */
+.admin-btn.delete {
   background: #e74c3c;
-  color: white;
+  color: #fff;
+}
+
+/* 활성화 버튼 */
+.admin-btn.activate {
+  background: #2ecc71;
+  color: #fff;
+}
+
+.admin-btn:hover {
+  opacity: 0.9;
 }

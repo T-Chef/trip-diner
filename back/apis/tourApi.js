@@ -49,7 +49,6 @@ async function _callTourAPI(path, params, opts = {}) {
     const text = await res.text();
     clearTimeout(t);
 
-    // ✅ 429면 재시도 없이 바로 실패(혹은 그냥 [] 반환하고 싶으면 return []로 바꿔도 됨)
     if (res.status === 429) {
       dynamicIntervalMs = Math.min(2000, dynamicIntervalMs + 200);
       const err = new Error("TourAPI HTTP 429");
@@ -176,4 +175,3 @@ export async function searchPlaceByKeyword(keyword, cityName) {
     homepage: best.homepage ?? null,
   };
 }
-

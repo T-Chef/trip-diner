@@ -6,19 +6,19 @@ import fs from "fs";
 import prisma from "../../prisma/prismaClient.js";
 import { userAuth } from "../../middleware/userAuth.js";
 
-
 const router = express.Router();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 업로드 폴더
+/* -------------------------------------------------------
+   업로드 폴더 세팅
+------------------------------------------------------- */
 const uploadDir = path.join(__dirname, "../../uploads/postImages");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// multer
 const storage = multer.diskStorage({
   destination: (_, __, cb) => cb(null, uploadDir),
   filename: (_, file, cb) => {
@@ -26,6 +26,7 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + "_" + Math.random().toString(36).slice(2) + ext);
   },
 });
+
 const upload = multer({ storage });
 
 const safeJson = (obj) =>
@@ -35,10 +36,9 @@ const safeJson = (obj) =>
     )
   );
 
-
-/* ---------------------------------------------
-   1) Tiptap 이미지 업로드  (라우트 충돌 방지: 반드시 위쪽!)
----------------------------------------------- */
+/* -------------------------------------------------------
+   이미지 업로드
+------------------------------------------------------- */
 router.post("/upload", upload.single("image"), (req, res) => {
   try {
     if (!req.file) {
@@ -53,14 +53,12 @@ router.post("/upload", upload.single("image"), (req, res) => {
   }
 });
 
-/* ---------------------------------------------
-   2) 게시글 작성
----------------------------------------------- */
+/* -------------------------------------------------------
+   게시글 작성
+------------------------------------------------------- */
 router.post("/", upload.single("image"), async (req, res) => {
   try {
-    const { user_id, title, content, category } = req.body;
-
-
+    const { user_id, title, content, category, tags } = req.body;
     const imageUrl = req.file ? `/postImages/${req.file.filename}` : null;
 
     const newPost = await prisma.post.create({
@@ -71,6 +69,8 @@ router.post("/", upload.single("image"), async (req, res) => {
         category,
         image_url: imageUrl,
         views: 0,
+        tags,
+        deleted: 0, // ⭐ 명시
       },
     });
 
@@ -81,64 +81,88 @@ router.post("/", upload.single("image"), async (req, res) => {
   }
 });
 
-/* ---------------------------------------------
-   3) 게시글 목록 (댓글 수 포함 & 에러 방지 버전)
----------------------------------------------- */
+/* -------------------------------------------------------
+   게시글 목록 (⭐ 삭제된 글 제외)
+------------------------------------------------------- */
 router.get("/", async (req, res) => {
   try {
     const posts = await prisma.post.findMany({
+      where: {
+        deleted: 0, // ⭐ 핵심
+      },
       orderBy: { created_at: "desc" },
       include: {
         user: {
           select: { name: true },
         },
         _count: {
-          select: { comment: true }
-        }
+          select: { comment: true },
+        },
       },
     });
 
-    // ✅ BigInt 에러 방지를 위한 수동 변환
-    const safePosts = posts.map(post => ({
+    const safePosts = posts.map((post) => ({
       ...post,
       post_id: post.post_id.toString(),
       user_id: post.user_id.toString(),
-      comment_count: post._count?.comment || 0 // 댓글 수 추출
+      comment_count: post._count?.comment || 0,
     }));
 
     return res.json(safePosts);
   } catch (err) {
-    console.error("게시글 목록 로드 중 서버 에러:", err);
-    return res.status(500).json({ error: "서버 오류: 목록을 불러올 수 없습니다." });
+    console.error("게시글 목록 로드 오류:", err);
+    return res.status(500).json({ error: "서버 오류" });
   }
 });
-/* ---------------------------------------------
-   4) 게시글 단일 조회 (조회수 1 증가 포함)
----------------------------------------------- */
+
+/* -------------------------------------------------------
+   게시글 상세 (⭐ 삭제된 글 접근 차단)
+------------------------------------------------------- */
 router.get("/:id", async (req, res) => {
   try {
     const postId = Number(req.params.id);
 
-    // [수정된 부분] 조회수(views)를 1 증가시키면서 동시에 데이터를 가져옵니다.
-    const post = await prisma.post.update({
-      where: { post_id: postId },
-      data: {
-        views: { increment: 1 } // 기존 값에서 1 증가
+    // 🔒 삭제된 글은 조회 불가
+    const post = await prisma.post.findFirst({
+      where: {
+        post_id: postId,
+        deleted: 0, // ⭐ 핵심
       },
-      include: { 
-        user: { 
-          select: { name: true, profile_img: true } 
-        } 
+      include: {
+        user: {
+          select: { name: true, profile_img: true },
+        },
       },
     });
 
-    if (!post) return res.status(404).json({ error: "게시글 없음" });
-    
-    res.json(safeJson(post));
+    if (!post) {
+      return res
+        .status(404)
+        .json({ error: "삭제되었거나 존재하지 않는 게시글입니다." });
+    }
+
+    // 조회수 증가 (삭제되지 않은 글만)
+    await prisma.post.update({
+      where: { post_id: postId },
+      data: { views: { increment: 1 } },
+    });
+
+    const safePost = safeJson(post);
+
+    if (safePost.tags) {
+      try {
+        safePost.tags = JSON.parse(safePost.tags);
+      } catch {
+        safePost.tags = safePost.tags.split(",").map((t) => t.trim());
+      }
+    } else {
+      safePost.tags = [];
+    }
+
+    res.json(safePost);
   } catch (err) {
     console.error("게시글 상세 조회 오류:", err);
-    // 만약 게시글이 없어서 에러가 난 경우 처리
-    res.status(404).json({ error: "게시글을 찾을 수 없습니다." });
+    res.status(500).json({ error: "게시글 조회 실패" });
   }
 });
 
