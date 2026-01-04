@@ -1,10 +1,11 @@
-/* 1. 전체 레이아웃 고정 */
 .write-page {
   width: 100%;
   max-width: 1400px; 
   margin: 0 auto;
   padding: 40px 20px;
-  background-color: #fcfcfc;
+  /* 메인 페이지와 통일된 따뜻한 베이지 톤 */
+  background-color: #f4f1ea !important; 
+  min-height: 100vh;
 }
 
 .write-layout {
@@ -54,10 +55,12 @@
   box-sizing: border-box;
 }
 
-.input-group input:focus, .input-group select:focus {
+/* 포커스 시 강조색을 메인 브라운 톤으로 변경 */
+.input-group input:focus, 
+.input-group select:focus {
   outline: none;
-  border-color: #3b73ff;
-  box-shadow: 0 0 0 3px rgba(59, 115, 255, 0.1);
+  border-color: #a68b6a; 
+  box-shadow: 0 0 0 3px rgba(166, 139, 106, 0.1);
 }
 
 .editor-box {
@@ -74,7 +77,6 @@
   overflow: hidden;
 }
 
-/* 4. 사이드바 - 내 일정 리스트 (정보 노출 버전) */
 .write-sidebar {
   background: #fff;
   border: 1px solid #f1f5f9;
@@ -90,7 +92,7 @@
   font-weight: 800;
   margin-bottom: 20px;
   padding-bottom: 12px;
-  border-bottom: 3px solid #3b73ff;
+  border-bottom: 3px solid #a68b6a; 
   color: #1e293b;
 }
 
@@ -116,17 +118,17 @@
   transition: all 0.3s ease;
   background: #fff;
   display: flex; 
-  flex-direction: column; /* 사진 아래에 글자가 오도록 설정 */
+  flex-direction: column;
 }
 
 .side-trip-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 20px rgba(59, 115, 255, 0.15);
+  box-shadow: 0 12px 20px rgba(166, 139, 106, 0.15); 
 }
 
 .side-card-img { 
   width: 100%; 
-  height: 120px; /* 사진 높이 제한 */
+  height: 120px; 
   overflow: hidden;
 }
 
@@ -136,18 +138,16 @@
   object-fit: cover; 
 }
 
-/* ✅ 사이드바 정보 영역 스타일 (더 선명하게 수정) */
-/* 사이드바 정보 영역 (가독성을 위해 다시 키웠습니다) */
 .side-card-info { 
   padding: 12px 15px; 
   background: #fff; 
   text-align: left;
-  min-height: 60px; /* 공간을 충분히 확보 */
+  min-height: 60px;
 }
 
 .side-card-title {
   font-weight: 700; 
-  font-size: 14px; /* 11px에서 14px로 키움 */
+  font-size: 14px;
   margin: 0 0 5px 0; 
   color: #1e293b;
   white-space: nowrap; 
@@ -157,37 +157,22 @@
 }
 
 .side-card-date { 
-  font-size: 13px; /* 날짜도 13px로 조정 */
+  font-size: 13px;
   color: #94a3b8;
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-/* 기간 강조색 유지 */
-.side-card-date .duration {
-  color: #3b73ff;
-  font-weight: 600;
-}
-
-.side-card-date .divider {
-  color: #e2e8f0;
-  font-size: 10px;
-}
-
-.side-card-date .date {
-  color: #94a3b8;
-}
-
-/* 기간(며칠인지) 강조 */
+.side-card-date .duration,
 .side-card-date strong {
-  color: #3b73ff;
+  color: #a68b6a; 
   font-weight: 600;
 }
 
 .side-hover-msg {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(59, 115, 255, 0.9);
+  background: rgba(166, 139, 106, 0.9); 
   color: #fff; display: flex; align-items: center; justify-content: center;
   font-weight: 700; opacity: 0; transition: opacity 0.3s;
   z-index: 2;
@@ -195,24 +180,37 @@
 
 .side-trip-card:hover .side-hover-msg { opacity: 1; }
 
-/* 5. 태그 입력 영역 */
+/* 5. 태그 입력 영역 (통합 수정본) */
 .tag-box {
+  margin-top: 10px;
   margin-bottom: 30px;
-  padding: 15px;
-  background: #f8fafc;
+  padding: 12px 18px;
+  background-color: #fdfbf8; 
   border-radius: 12px;
-  border: 1px solid #edf2f7;
+  border: 1px solid #e9e0d5;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  cursor: text;
+  transition: all 0.2s ease;
+}
+
+.tag-box:focus-within {
+  border-color: #a68b6a;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(166, 139, 106, 0.05);
 }
 
 .tag-list {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
   align-items: center;
+  width: 100%;
 }
 
 .tag-item {
-  background: #3b73ff;
+  background-color: #a68b6a; 
   color: #fff;
   padding: 6px 14px;
   border-radius: 100px;
@@ -220,51 +218,58 @@
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 6px;
-  box-shadow: 0 2px 6px rgba(59, 115, 255, 0.2);
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(166, 139, 106, 0.2);
 }
 
-.tag-remove { cursor: pointer; font-size: 16px; line-height: 1; }
+.tag-remove { 
+  cursor: pointer; 
+  font-size: 16px; 
+  line-height: 1; 
+  transition: opacity 0.2s;
+}
+
+.tag-remove:hover { opacity: 0.7; }
 
 .tag-input {
-  border: none;
-  background: transparent;
-  outline: none;
-  padding: 8px;
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  padding: 8px 0;
   font-size: 14px;
   flex: 1;
-  min-width: 120px;
+  min-width: 150px;
   color: #334155;
+  box-shadow: none !important;
 }
 
-/* 6. ✅ 등록 버튼 (크기 축소 및 우측 정렬 완료) */
+/* 6. 등록 버튼 */
 .submit-btn {
   margin-top: 20px;
-  padding: 12px 35px; /* 가로 패딩을 늘려 적절한 크기 유지 */
-  width: auto; /* 고정 너비 대신 내용에 맞게 */
-  min-width: 140px; /* 너무 작아지지 않게 최소 너비 설정 */
+  padding: 12px 35px;
+  width: auto;
+  min-width: 140px;
   border: none;
-  background: #4d8dff;
+  background: #8d7456; 
   color: white;
-  border-radius: 8px; /* 조금 더 부드러운 곡선 */
+  border-radius: 8px;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
   display: block;
-  margin-left: auto; /* ✅ 오른쪽 정렬 핵심 */
-  box-shadow: 0 4px 10px rgba(77, 141, 255, 0.2);
+  margin-left: auto;
+  box-shadow: 0 4px 10px rgba(141, 116, 86, 0.2);
 }
 
 .submit-btn:hover {
-  background: #2563eb;
+  background: #766148; 
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(59, 115, 255, 0.4);
+  box-shadow: 0 6px 15px rgba(118, 97, 72, 0.4);
 }
 
 .submit-btn:active { transform: scale(0.98); }
 
-/* 상세페이지 정렬 깨짐 방지용 (필요시 추가) */
 .ql-align-center {
   text-align: center !important;
 }

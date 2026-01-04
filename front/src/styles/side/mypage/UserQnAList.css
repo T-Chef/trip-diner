@@ -1,0 +1,84 @@
+.qna-container {
+  max-width: 900px;
+  margin: 120px auto;
+  padding: 30px 40px;
+  background: #fffaf2;
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(170, 128, 80, 0.25);
+}
+
+.qna-container .qna-title {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 800;
+  color: #5b3a1c;
+  margin-bottom: 25px;
+}
+
+.qna-container .qna-empty {
+  text-align: center;
+  color: #8a6d45;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.qna-container .qna-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 15px;
+}
+
+.qna-container .qna-table thead tr {
+  background: #f3e2cc;
+}
+
+.qna-container .qna-table th {
+  padding: 12px;
+  color: #5b3a1c;
+  font-weight: 700;
+}
+
+.qna-container .qna-table td {
+  text-align: center;
+  padding: 13px 10px;
+  border-bottom: 1px solid rgba(170, 128, 80, 0.2);
+  color: #4a3b2b;
+}
+
+.qna-container .qna-table tbody tr:hover {
+  background: #fff2dd;
+  transition: 0.2s;
+}
+
+.qna-container .qna-table a {
+  color: #6a3dff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.qna-container .qna-table a:hover {
+  color: #4520c9;
+  text-decoration: underline;
+}
+
+.qna-container .status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.qna-container .waiting {
+  background: #ffe9b6;
+  color: #9a6b00;
+  border: 1px solid #ffcd62;
+}
+
+.qna-container .done {
+  background: #d8ffd6;
+  color: #067a2b;
+  border: 1px solid #8cea9f;
+}

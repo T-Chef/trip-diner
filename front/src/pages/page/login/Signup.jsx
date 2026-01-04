@@ -2,15 +2,31 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-import "../../../styles/page/Login.css";
+import "../../../styles/page/Login.css"; // 공용 CSS 사용
 
-import SignupForm from "../../page/SignupForm";
+import SignupForm from "../SignupForm"; // 같은 폴더에 있다면 경로 확인!
+
 
 export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const navigate = useNavigate();
+
+  // 🎨 로그인과 동일한 배경 이미지 설정
+  const bgStyle = {
+    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/assets/images/login.png')`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    backgroundAttachment: 'fixed',
+    width: '100%',
+    minHeight: '100vh',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '40px 0'
+  };
 
   const validateEmail = (email) => {
     const regex = /^[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
@@ -48,9 +64,9 @@ export default function Signup() {
     }
   };
 
- return (
-    <div className="login-container">
-      <div className="login-box">
+  return (
+    <div className="login-container" style={bgStyle}>
+      <div className="login-box" style={{ width: '450px' }}> {/* 중복체크 버튼 공간 확보 */}
 
         <h2 className="login-title">Trip Diner 회원가입</h2>
 
@@ -64,7 +80,8 @@ export default function Signup() {
             setPassword={setPassword}
           />
 
-          <button type="submit" className="login-btn" style={{ marginTop: "15px" }}>
+
+          <button type="submit" className="login-btn" style={{ marginTop: "25px" }}>
             회원가입
           </button>
         </form>
@@ -78,3 +95,4 @@ export default function Signup() {
     </div>
   );
 }
+

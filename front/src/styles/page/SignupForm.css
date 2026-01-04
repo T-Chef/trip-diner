@@ -1,25 +1,44 @@
-.email-row {
+/* SignupForm.css */
+
+.input-group {
+  margin-bottom: 20px;
+  width: 100%;
   display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-top: 10px;
-  margin-bottom: 15px;
+  flex-direction: column;
 }
 
+.input-group label {
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+/* ✅ 이메일 줄 정렬 - display: flex가 핵심입니다 */
+.email-row {
+  display: flex !important;
+  flex-direction: row !important; 
+  gap: 10px !important;
+  width: 100% !important;
+  align-items: center !important;
+}
+
+/* ✅ 입력창이 버튼을 밀지 않게 width: auto 설정 */
 .email-input {
-  flex: 1;
-  height: 45px;
+  flex: 1 !important;
+  width: auto !important; 
+  height: 48px !important;
+  border: 1px solid #d6d6d6;
+  border-radius: 10px;
   padding: 0 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
 }
 
-.email-check-btn {
-  padding: 0 15px;
-  height: 70px;
+.check-btn {
+  width: 100px !important;
+  height: 48px !important;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   color: #fff;
+  font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
 }

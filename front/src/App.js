@@ -20,6 +20,9 @@ import Unsubscribe from "./pages/side/mypage/Unsubscribe.jsx";
 import Calendar from "./pages/side/mypage/Calendar.jsx";
 import MyTrips from "./pages/side/mypage/MyTrips.jsx";
 import QnAWrite from "./pages/side/mypage/UserQnA";
+import UserQnAList from "./pages/side/mypage/UserQnAList.jsx";
+import UserQnADetail from "./pages/side/mypage/UserQnADetail.jsx";
+
 
 // AI / 여행
 import AISchedule from "./pages/side/schedule/AISchedule.jsx";
@@ -57,6 +60,12 @@ import NotFound from "./pages/page/404.jsx";
 export default function App() {
   const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  
+  useEffect(() => {
+  console.log("🔧 앱 최초 실행 - 토큰 초기화");
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("user");
+}, []);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -99,8 +108,9 @@ export default function App() {
                 <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
                 <Route path="/profile/edit" element={<ProfileEdit user={user} setUser={setUser} />} />
                 <Route path="/my-trips" element={<MyTrips user={user} />} />
-
                 <Route path="/qna/write" element={<QnAWrite user={user} />} />
+                <Route path="/mypage/qna" element={<UserQnAList />} />
+                <Route path="/mypage/qna/:id" element={<UserQnADetail />} />
 
                 {/* 좋아요 */}
                 <Route path="/like/posts" element={<Likeposts userId={user?.user_id} />} />

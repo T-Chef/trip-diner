@@ -77,9 +77,10 @@ function buildAiPlanFromDb(plan) {
             category: pl.category ? [pl.category] : [],
             startTime,
             endTime,
-            // 혹시 나중에 필요하면:
-            // placeId: pl.external_id || null,
-          };
+            contentId: pl.content_id ?? pl.contentId ?? pl.external_id ?? null,      // TourAPI contentId
+            contentTypeId: pl.content_type_id ?? pl.contentTypeId ?? null,           // TourAPI contentTypeId(예: 12)
+            areaCode: pl.area_code ?? pl.areaCode ?? memo?.areaCode ?? null,         // 지역코드(예: 부산 6)
+        };
         });
 
       return { day: Number(d.day_index), places };
@@ -128,6 +129,25 @@ export default function AIScheduleSummary() {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const openPlaceDetail = (p) => {
+  const contentId =
+    p?.contentId ?? p?.content_id ?? p?.placeId ?? p?.external_id ?? null;
+
+  const type =
+    p?.contentTypeId ?? p?.content_type_id ?? 12; // 보통 관광지/행사면 다르게 올 수 있음
+
+  const area =
+    p?.areaCode ?? p?.area_code ?? 0; // area 없으면 0으로라도
+
+  if (!contentId) {
+    alert("이 장소는 상세페이지로 이동할 ID(contentId)가 없어요. (DB/AI 저장 시 external_id 저장 필요)");
+    console.log("상세이동 실패 place:", p);
+    return;
+  }
+
+  navigate(`/place/${contentId}?area=${area}&type=${type}`);
+};
+
 
   const planId = searchParams.get("planId"); // ✅ /trip/summary?planId=123
   const stateAiPlan = location.state?.aiPlan;
@@ -482,7 +502,16 @@ const handleSaveMyPlan = () => {
 
             <div className="summary-card-list">
               {day.places.map((p, idx) => (
-                <article key={`${day.day}-${idx}`} className="summary-card">
+                <article
+  key={`${day.day}-${idx}`}
+  className="summary-card"
+  onClick={() => openPlaceDetail(p)}
+  role="button"
+  tabIndex={0}
+  onKeyDown={(e) => e.key === "Enter" && openPlaceDetail(p)}
+  style={{ cursor: "pointer" }}
+>
+
                   <div className="summary-card-thumb">
                     <img
   crossOrigin="anonymous"

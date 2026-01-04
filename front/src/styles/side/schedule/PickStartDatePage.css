@@ -1,3 +1,11 @@
+
+:root{
+  --td-gold: #BD9B6D;        /* 메인 갈색/골드 */
+  --td-gold-hover: #A67F55;  /* hover */
+  --td-gold-soft: rgba(189,155,109,0.35); /* range 중간 */
+  --td-brown-text: #2b1b10;
+}
+
 .td-pick-wrap{
   max-width: 900px;
   margin: 0 auto;
@@ -47,16 +55,16 @@
 /* ✅ 범위 하이라이트 */
 .td-range-start abbr,
 .td-range-end abbr,
-.td-range-mid abbr { color:#fff; }
+.td-range-mid abbr { color: var(--td-brown-text); }
 
 .td-range-mid{
-  background: rgba(47,124,255,0.35) !important;
+  background: var(--td-gold-soft) !important;
   border-radius: 999px !important;
 }
 
 .td-range-start,
 .td-range-end{
-  background: #2f7cff !important;
+  background: var(--td-gold) !important;
   border-radius: 999px !important;
 }
 
@@ -79,16 +87,19 @@
 /* 취소 버튼 */
 .td-btn-cancel{
   width: 160px;
-  background: #e9eefc;
-  color: #2f7cff;
+ background: #efe6da;
+  color: var(--td-brown-text);
+  border: 1px solid #dbc6ad;
 }
-
 /* 선택완료 버튼 */
 .td-btn-confirm{
   width: 640px;
   max-width: calc(100vw - 220px);
-  background: #2f7cff;
-  color: #fff;
+  background: var(--td-gold);
+  color: var(--td-brown-text);
+}
+.td-btn-confirm:hover{
+  background: var(--td-gold-hover);
 }
 
 .td-saved-dot {

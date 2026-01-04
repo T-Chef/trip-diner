@@ -116,6 +116,46 @@ router.get("/", async (req, res) => {
 });
 
 /* -------------------------------------------------------
+   카테고리 '후기' 중 '좋아요' 많은 순 베스트 가져오기
+------------------------------------------------------- */
+router.get("/latest", async (req, res) => {
+  try {
+    // 지역 필터링(areaCode)을 무시하고 전체에서 가져옵니다.
+    const posts = await prisma.post.findMany({
+      where: {
+        deleted: 0,
+        category: "후기", // ⭐ 카테고리가 '후기'인 글만 필터링
+      },
+      take: 2, // 상위 2개만
+      orderBy: [
+        {
+          post_like: {
+            _count: 'desc' // 1순위: 좋아요 많은 순
+          }
+        },
+        {
+          created_at: 'desc' // 2순위: 최신순
+        }
+      ],
+      include: {
+        user: { select: { name: true } },
+        _count: {
+          select: { 
+            post_like: true, 
+            comment: true 
+          },
+        },
+      },
+    });
+
+    return res.json(safeJson(posts));
+  } catch (err) {
+    console.error("Best 후기 로드 에러:", err.message);
+    return res.status(500).json({ error: "데이터 로드 실패" });
+  }
+});
+
+/* -------------------------------------------------------
    게시글 상세 (⭐ 삭제된 글 접근 차단)
 ------------------------------------------------------- */
 router.get("/:id", async (req, res) => {
