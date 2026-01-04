@@ -37,7 +37,7 @@ export default function AdminHome() {
               관리자 페이지
             </h1>
             <p style={{ marginTop: 14, fontSize: 18, maxWidth: 520 }}>
-              내가 관리자다.
+              환영합니다! 관리자 페이지에 오신 것을 환영합니다.
             </p>
           </div>
         </div>

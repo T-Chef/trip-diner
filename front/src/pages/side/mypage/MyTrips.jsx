@@ -11,10 +11,9 @@ function safeJsonParse(str) {
   }
 }
 
-// ✅ "2025-12-31T00:00:00.000Z" / "2025-12-31" 둘 다 처리해서 UTC Date로 변환
 function parseDateUTC(val) {
   if (!val) return null;
-  const ymd = String(val).slice(0, 10); // YYYY-MM-DD
+  const ymd = String(val).slice(0, 10);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return null;
   const [y, m, d] = ymd.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, d));
@@ -25,18 +24,16 @@ function formatMonthDayUTC(dateObj) {
   return `${dateObj.getUTCMonth() + 1}월${dateObj.getUTCDate()}일`;
 }
 
-// ✅ start/end 둘 다 있으면 dayCount 계산 (inclusive)
 function calcDayCountFromDates(startDate, endDate) {
   if (!startDate || !endDate) return 0;
   const diff = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
   return diff + 1;
 }
 
-// ✅ rangeText: endDate 있으면 그걸 쓰고, 없으면 dayCount로 계산
 function makeRangeText(startDate, endDate, dayCount) {
   if (!startDate) return "";
-
   let e = endDate;
+
   if (!e && dayCount && dayCount >= 1) {
     e = new Date(startDate);
     e.setUTCDate(e.getUTCDate() + (Number(dayCount) - 1));
@@ -85,8 +82,6 @@ export default function MyTrips({ user }) {
         }
 
         const res = await api.get("/plan/my");
-        console.log("✅ /api/plan status:", res.status);
-        console.log("✅ /api/plan data:", res.data);
 
         if (res.data?.success) setPlans(res.data.plans || []);
         else setPlans([]);
@@ -109,23 +104,31 @@ export default function MyTrips({ user }) {
     const themes = memo?.themes || [];
     const cityName = p.city?.name || memo?.cityName || "";
 
-    // ✅ start/end (지금 네 스샷처럼 API에서 내려옴)
-    const startDate = parseDateUTC(p.start_date || p.startDate || memo?.start_date || memo?.startDate);
-    const endDate = parseDateUTC(p.end_date || p.endDate || memo?.end_date || memo?.endDate);
+    const startDate = parseDateUTC(
+      p.start_date || p.startDate || memo?.start_date || memo?.startDate
+    );
+    const endDate = parseDateUTC(
+      p.end_date || p.endDate || memo?.end_date || memo?.endDate
+    );
 
-    // ✅ dayCount: plan_day가 있으면 그걸 쓰고, 없으면 start~end로 계산, 그것도 없으면 days_count류
     let dayCount = Array.isArray(p.plan_day) ? p.plan_day.length : 0;
     if (!dayCount) dayCount = calcDayCountFromDates(startDate, endDate);
     if (!dayCount) {
-      dayCount = Number(p.days_count ?? p.daysCount ?? memo?.daysCount ?? memo?.days?.length ?? 0);
+      dayCount = Number(
+        p.days_count ??
+          p.daysCount ??
+          memo?.daysCount ??
+          memo?.days?.length ??
+          0
+      );
     }
 
-    // ✅ (12월20일~12월22일)
     const rangeText = makeRangeText(startDate, endDate, dayCount);
 
-    // ✅ 썸네일/미리보기 (plan_day 없으면 placeholder 뜨는 게 정상)
-    const allPlaces = (p.plan_day || [])
-      .flatMap((d) => (d.plan_item || []).map((it) => it.place).filter(Boolean));
+    const allPlaces = (p.plan_day || []).flatMap((d) =>
+      (d.plan_item || []).map((it) => it.place).filter(Boolean)
+    );
+
     const previewImages = allPlaces
       .map((pl) => pl.image_url)
       .filter(Boolean)
@@ -150,7 +153,11 @@ export default function MyTrips({ user }) {
     <div className="mytrips-wrap">
       <div className="mytrips-head">
         <h2>나의 여행코스</h2>
-        <button className="danger" onClick={() => alert("전체 삭제는 추후 연결")}>
+
+        <button
+          className="danger"
+          onClick={() => alert("전체 삭제는 추후 연결")}
+        >
           전체 코스 삭제
         </button>
       </div>
@@ -161,13 +168,18 @@ export default function MyTrips({ user }) {
         <div className="mytrips-grid">
           {cards.map((c) => (
             <div className="trip-card" key={c.id}>
-              <button className="xbtn" onClick={() => handleDelete(c.id)}>×</button>
+              <button className="xbtn" onClick={() => handleDelete(c.id)}>
+                ×
+              </button>
 
               <div className="trip-hero">
                 <img
                   src={c.thumb}
                   alt={c.title}
-                  onError={(e) => (e.currentTarget.src = "/assets/images/default-placeholder.jpg")}
+                  onError={(e) =>
+                    (e.currentTarget.src =
+                      "/assets/images/default-placeholder.jpg")
+                  }
                 />
               </div>
 
@@ -177,11 +189,13 @@ export default function MyTrips({ user }) {
                     {c.dayCount >= 2
                       ? `${c.dayCount - 1}박${c.dayCount}일`
                       : c.dayCount
-                        ? `${c.dayCount}일`
-                        : "여행"}
+                      ? `${c.dayCount}일`
+                      : "여행"}
                   </div>
 
-                  {c.rangeText && <div className="date-range">({c.rangeText})</div>}
+                  {c.rangeText && (
+                    <div className="date-range">({c.rangeText})</div>
+                  )}
                 </div>
 
                 <h3 className="title">{c.title}</h3>
@@ -201,7 +215,11 @@ export default function MyTrips({ user }) {
 
                   <button
                     className="more"
-                    onClick={() => navigate(`/trip/summary?planId=${c.id}`, { state: { from: "my-trips" } })}
+                    onClick={() =>
+                      navigate(`/trip/summary?planId=${c.id}`, {
+                        state: { from: "my-trips" },
+                      })
+                    }
                   >
                     자세히보기
                   </button>
@@ -214,4 +232,3 @@ export default function MyTrips({ user }) {
     </div>
   );
 }
-

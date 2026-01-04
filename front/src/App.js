@@ -22,7 +22,8 @@ import MyTrips from "./pages/side/mypage/MyTrips.jsx";
 import QnAWrite from "./pages/side/mypage/UserQnA";
 import UserQnAList from "./pages/side/mypage/UserQnAList.jsx";
 import UserQnADetail from "./pages/side/mypage/UserQnADetail.jsx";
-
+import MyPosts from "./pages/side/mypage/MyPosts.jsx";
+import MyComments from "./pages/side/mypage/MyComments.jsx";
 
 // AI / 여행
 import AISchedule from "./pages/side/schedule/AISchedule.jsx";
@@ -111,6 +112,9 @@ export default function App() {
                 <Route path="/qna/write" element={<QnAWrite user={user} />} />
                 <Route path="/mypage/qna" element={<UserQnAList />} />
                 <Route path="/mypage/qna/:id" element={<UserQnADetail />} />
+                <Route path="/my/posts" element={<MyPosts />} />
+                <Route path="/my/comments" element={<MyComments />} />
+
 
                 {/* 좋아요 */}
                 <Route path="/like/posts" element={<Likeposts userId={user?.user_id} />} />
