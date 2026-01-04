@@ -61,12 +61,6 @@ import NotFound from "./pages/page/404.jsx";
 export default function App() {
   const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  
-  useEffect(() => {
-  console.log("🔧 앱 최초 실행 - 토큰 초기화");
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("user");
-}, []);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");

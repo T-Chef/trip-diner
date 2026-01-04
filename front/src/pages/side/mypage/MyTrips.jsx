@@ -150,85 +150,100 @@ export default function MyTrips({ user }) {
   });
 
   return (
-    <div className="mytrips-wrap">
-      <div className="mytrips-head">
-        <h2>나의 여행코스</h2>
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+          url(${process.env.PUBLIC_URL}/assets/images/trip-bg.png)`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        display: "flex",
+        justifyContent: "center",
+        paddingTop: "40px",
+        paddingBottom: "60px",
+      }}
+    >
+      <div className="mytrips-wrap">
+        <div className="mytrips-head">
+          <h2>나의 여행코스</h2>
 
-        <button
-          className="danger"
-          onClick={() => alert("전체 삭제는 추후 연결")}
-        >
-          전체 코스 삭제
-        </button>
-      </div>
+          <button
+            className="danger"
+            onClick={() => alert("전체 삭제는 추후 연결")}
+          >
+            전체 코스 삭제
+          </button>
+        </div>
 
-      {cards.length === 0 ? (
-        <div className="empty">저장된 일정이 없습니다.</div>
-      ) : (
-        <div className="mytrips-grid">
-          {cards.map((c) => (
-            <div className="trip-card" key={c.id}>
-              <button className="xbtn" onClick={() => handleDelete(c.id)}>
-                ×
-              </button>
+        {cards.length === 0 ? (
+          <div className="empty">저장된 일정이 없습니다.</div>
+        ) : (
+          <div className="mytrips-grid">
+            {cards.map((c) => (
+              <div className="trip-card" key={c.id}>
+                <button className="xbtn" onClick={() => handleDelete(c.id)}>
+                  ×
+                </button>
 
-              <div className="trip-hero">
-                <img
-                  src={c.thumb}
-                  alt={c.title}
-                  onError={(e) =>
-                    (e.currentTarget.src =
-                      "/assets/images/default-placeholder.jpg")
-                  }
-                />
-              </div>
+                <div className="trip-hero">
+                  <img
+                    src={c.thumb}
+                    alt={c.title}
+                    onError={(e) =>
+                      (e.currentTarget.src =
+                        "/assets/images/default-placeholder.jpg")
+                    }
+                  />
+                </div>
 
-              <div className="trip-body">
-                <div className="badge-row">
-                  <div className="badge">
-                    {c.dayCount >= 2
-                      ? `${c.dayCount - 1}박${c.dayCount}일`
-                      : c.dayCount
-                      ? `${c.dayCount}일`
-                      : "여행"}
+                <div className="trip-body">
+                  <div className="badge-row">
+                    <div className="badge">
+                      {c.dayCount >= 2
+                        ? `${c.dayCount - 1}박${c.dayCount}일`
+                        : c.dayCount
+                        ? `${c.dayCount}일`
+                        : "여행"}
+                    </div>
+
+                    {c.rangeText && (
+                      <div className="date-range">({c.rangeText})</div>
+                    )}
                   </div>
 
-                  {c.rangeText && (
-                    <div className="date-range">({c.rangeText})</div>
-                  )}
-                </div>
+                  <h3 className="title">{c.title}</h3>
+                  <div className="sub">{c.cityName}</div>
+                  <div className="meta">만든날짜 | {c.createdAt}</div>
 
-                <h3 className="title">{c.title}</h3>
-                <div className="sub">{c.cityName}</div>
-                <div className="meta">만든날짜 | {c.createdAt}</div>
+                  <div className="tags">
+                    {(c.themes || []).slice(0, 6).map((t) => (
+                      <span key={t}>#{t}</span>
+                    ))}
+                  </div>
 
-                <div className="tags">
-                  {(c.themes || []).slice(0, 6).map((t) => (
-                    <span key={t}>#{t}</span>
-                  ))}
-                </div>
+                  <div className="thumbs">
+                    {(c.previewImages || []).slice(0, 3).map((src, i) => (
+                      <img key={i} src={src} alt="" />
+                    ))}
 
-                <div className="thumbs">
-                  {(c.previewImages || []).slice(0, 3).map((src, i) => (
-                    <img key={i} src={src} alt="" />
-                  ))}
-
-                  <button
-                    className="more"
-                    onClick={() =>
-                      navigate(`/trip/summary?planId=${c.id}`, {
-                        state: { from: "my-trips" },
-                      })
-                    }
-                  >
-                    자세히보기
-                  </button>
+                    <button
+                      className="more"
+                      onClick={() =>
+                        navigate(`/trip/summary?planId=${c.id}`, {
+                          state: { from: "my-trips" },
+                        })
+                      }
+                    >
+                      자세히보기
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

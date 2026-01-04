@@ -82,3 +82,28 @@
   color: #067a2b;
   border: 1px solid #8cea9f;
 }
+
+.qna-modal-back{
+  position: fixed; inset:0;
+  background: rgba(0,0,0,0.55);
+  display:flex; justify-content:center; align-items:center;
+  z-index:9999;
+}
+
+.qna-modal{
+  width: 650px;
+  background:#fff;
+  border-radius:18px;
+  padding:28px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.25);
+}
+
+.qna-close-btn{
+  margin-top:20px;
+  padding:10px 20px;
+  background:#8d7456;
+  color:white;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+}

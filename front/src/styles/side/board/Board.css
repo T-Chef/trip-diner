@@ -2,8 +2,7 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  /* 메인 페이지의 그 고급스러운 베이지 톤으로 변경 */
-  background: #f4f1ea !important; 
+  background: #f3efe6;
   font-size: 16px;
   min-height: 100vh;
 }
@@ -16,127 +15,208 @@
 }
 
 .board-banner {
-  width: 100%; /* 기존 250%는 너무 넓으니 100%로 조정 제안 */
-  height: 300px;
-  /* 메인 페이지 느낌의 차분한 브라운 그라데이션 */
-  background: linear-gradient(to bottom, #a68b6a, #8d7456) !important;
+  width: 100%;
+  padding: 35px 0 21px 0;
+  background: linear-gradient(135deg, #a68b6a, #8d7456);
   color: white;
+  margin-bottom: 40px;
+  position: relative;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.2);
+}
+
+.board-banner::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: #f3efe6;
+  border-radius: 45px 45px 0 0;
+}
+
+.board-banner-inner {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+
   display: flex;
-  align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.board-banner-left {
+  width: 100%;
+  text-align: left;
+}
+
+.board-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.4);
+  font-size: 11px;
+  letter-spacing: 1.8px;
+  margin-bottom: 10px;
+}
+
+.board-main-title {
   font-size: 32px;
-  font-weight: bold;
-  margin-bottom: 30px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.board-main-sub {
+  font-size: 15px;
+  opacity: 0.9;
+  margin-bottom: 16px;
+}
+
+.board-banner-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.board-banner-tags span {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.18);
+  font-size: 12px;
+}
+
+.board-layout {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 24px 60px 24px;
+  margin-top: -10px;
+  gap: 32px;
+  position: relative;
+  z-index: 1;
+}
+
+.left-panel {
+  width: 260px;
+  margin-top: 42px;   
 }
 
 .board-profile-view {
   text-align: center;
-  padding: 30px 20px 10px 20px; /* 아래쪽 패딩을 줄여 카테고리와 가깝게 */
+  padding: 30px 20px 12px 20px;
   background: white;
-  /* 위쪽만 둥글게 설정하여 카테고리와 연결 */
-  border-radius: 20px 20px 0 0 !important; 
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03); /* 그림자 일체감 */
-  border-bottom: 1px solid #f8f8f8; /* 경계 구분을 위한 아주 연한 선 */
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.06);
 }
 
 .profile-circle {
   width: 110px;
   height: 110px;
   border-radius: 50%;
-  /* 파란색 계열(#dbe6ff)을 베이지 톤으로 변경 */
-  border: 4px solid #e2d9cc !important;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 auto 12px auto;
+  border: 4px solid #e2d9cc;
   overflow: hidden;
-  position: relative;
+  margin: 0 auto 12px auto;
 }
 
 .profile-circle img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  position: relative;
-  z-index: 10;
 }
 
 .board-profile-name {
   font-size: 18px;
   font-weight: bold;
-  margin-bottom: 6px;
-  color: #333;
+  margin-bottom: 4px;
 }
 
 .board-profile-welcome {
   font-size: 14px;
   color: #666;
-  margin-bottom: 10px;
-}
-
-.board-layout {
-  display: flex;
-  width: 100%;
-  max-width: 1500px;
-  margin: 0 auto;
-  gap: 40px;
-}
-
-.left-panel {
-  width: 260px;
-  display: flex;
-  flex-direction: column;
-  /* height: 600px; 기존 고정 높이는 내용에 맞게 제거하거나 조정 추천 */
-  gap: 0 !important; /* 프로필과 카테고리 사이 간격 완전 제거 */
+  margin-bottom: 8px;
 }
 
 .category-list {
+  background: white;
   list-style: none;
   padding: 0;
   margin: 0;
-  background: white;
-  /* 아래쪽만 둥글게 설정 */
-  border-radius: 0 0 20px 20px !important; 
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
-  overflow: hidden; /* 테두리 밖으로 배경 안나가게 함 */
+  border-radius: 0 0 24px 24px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.06);
 }
 
 .category-list li {
-  padding: 20px;
-  border-bottom: 1px solid #f8f8f8;
-  cursor: pointer;
+  padding: 18px;
+  border-bottom: 1px solid #f7f7f7;
   text-align: center;
-  transition: 0.2s;
-  font-size: 15px;
   color: #666;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
 .category-list li:last-child {
-  border-bottom: none; /* 마지막 항목 선 제거 */
+  border-bottom: none;
 }
 
 .category-list li:hover {
-  background: #fdfaf5;
+  background: #fdf5e8;
   color: #a68b6a;
 }
 
 .category-list .active {
-  background: #fdfaf5 !important;
-  font-weight: bold;
-  color: #a68b6a !important;
+  background: #fbeed9;
+  font-weight: 600;
+  color: #a68b6a;
 }
 
 .right-panel {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.board-top-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.board-current-category {
+  font-size: 14px;
+  color: #555;
+}
+
+.board-current-category .chip {
+  margin-left: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f1e7d8;
+  color: #6d5636;
+  font-size: 13px;
+}
+
+.board-count-info {
+  font-size: 13px;
+  color: #777;
+}
+
+
+.board-list-card {
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.06);
+  overflow: hidden;
 }
 
 .post-header {
   display: flex;
-  padding: 12px 0;
-  border-bottom: 2px solid #888;
-  font-weight: bold;
-  font-size: 17px;
-  color: #333;
+  padding: 14px 20px;
+  background: #fdf5e8;
+  border-bottom: 1px solid #f0e2d4;
+  font-weight: 600;
+  font-size: 15px;
 }
 
 .col-category { width: 10%; text-align: center; }
@@ -147,60 +227,85 @@
 
 .post-row {
   display: flex;
-  padding: 15px 0;
-  font-size: 16px;
-  border-bottom: 1px solid #eee;
+  padding: 15px 20px;
+  border-bottom: 1px solid #f3eee5;
   cursor: pointer;
-  transition: 0.15s;
+  transition: 0.22s;
+  font-size: 15px;
 }
+
+.post-row:last-child { border-bottom: none; }
 
 .post-row:hover {
-  background: #f8fbff;
+  background: #fff9f0;
+  transform: translateX(4px);
 }
 
-.post-row div {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.comment-count {
+  color: #ff4d4f;
+  font-weight: bold;
+  margin-left: 6px;
+}
+
+/* 게시글 없음 */
+
+.no-posts {
+  padding: 40px;
+  text-align: center;
+  color: #777;
 }
 
 .pagination {
   display: flex;
   justify-content: center;
-  margin-top: 25px;
-  gap: 8px;
+  margin-top: 20px;
+  gap: 6px;
+  font-size: 14px;
 }
 
 .pagination span {
-  padding: 5px 10px;
+  padding: 4px 8px;
   cursor: pointer;
-  color: #555;
-}
-
-.pagination span:hover {
-  color: #1e90ff;
 }
 
 .active-page {
-  font-weight: bold;
-  color: #a68b6a !important;
-  border-bottom: 2px solid #a68b6a !important;
+  font-weight: 700;
+  color: #a68b6a;
+  border-bottom: 2px solid #a68b6a;
 }
 
 .write-btn {
-  margin-top: 20px;
-  padding: 12px 20px;
+  margin-top: 4px;
+  align-self: flex-end;
+  padding: 10px 20px;
   border: none;
-  background: #8d7456 !important; /* 푸른색에서 차분한 브라운으로 */
+  background: #8d7456;
   color: white;
-  border-radius: 6px;
-  font-size: 15px;
+  border-radius: 999px;
+  font-size: 14px;
   cursor: pointer;
   transition: 0.2s;
-  display: block;
-  margin-left: auto;
 }
 
 .write-btn:hover {
-  background: #766148 !important;
+  background: #765f45;
+}
+
+
+@media (max-width: 1024px) {
+
+  .board-banner-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .board-layout {
+    flex-direction: column;
+  }
+
+  .left-panel {
+    width: 100%;
+    max-width: 360px;
+    margin-top: 0;   
+  }
 }

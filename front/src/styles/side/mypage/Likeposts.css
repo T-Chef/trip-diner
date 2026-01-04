@@ -1,49 +1,65 @@
-.likes-wrapper {
-  width: 100%;
-  max-width: 1100px;
-  margin: 40px auto;
-  padding: 10px 20px;
-  font-family: "Pretendard", sans-serif;
+/* ===== 전체 컨테이너 ===== */
+.likes-box {
+  width: 85%;
+  max-width: 1400px;
+  margin: 0 auto 70px auto;
+  background: white;
+  border-radius: 18px;
+  padding: 45px 45px 55px 45px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
 }
 
+/* 제목 */
 .likes-title {
-  font-size: 26px;
-  margin-bottom: 25px;
-  color: #222;
-  text-align: left;
+  font-size: 30px;
+  margin-bottom: 35px;
+  color: #111;
+  text-align: center;
 }
 
-
+/* ===== 카드 그리드 (4 x 2) ===== */
 .like-grid {
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
+  grid-template-columns: repeat(4, 1fr);
   gap: 25px;
-  padding-bottom: 40px;
 }
 
+/* 카드 */
 .like-card {
   background: #fff;
-  border-radius: 16px; 
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-  transition: all 0.3s ease;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  position: relative; 
-  height: 100%; 
+  position: relative;
+  transition: all 0.3s ease;
 }
 
 .like-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
 }
 
+/* ❤️ 버튼 (LikePlaces 동일) */
+.like-remove-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  border: 0;
+  background: rgba(255,255,255,0.9);
+  border-radius: 999px;
+  padding: 6px 8px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* 이미지 */
 .like-img-wrapper {
   width: 100%;
-  height: 180px; 
+  height: 170px;
+  background: #f3f3f3;
   overflow: hidden;
-  background-color: #f5f5f5; 
 }
 
 .like-img {
@@ -52,45 +68,48 @@
   object-fit: cover;
 }
 
+/* 내용 */
 .like-info {
-  padding: 20px;
-  text-align: left;
-  flex-grow: 1; 
-  display: flex;
-  flex-direction: column;
+  padding: 14px 16px;
 }
 
 .like-post-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
-  color: #222;
-  margin: 0 0 10px 0;
+  color: #111;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.like-post-content {
-  font-size: 14px;
-  color: #666;
-  line-height: 1.5;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+/* ===== 페이지네이션 ===== */
+.likes-pagination {
+  margin-top: 35px;
+  text-align: center;
 }
 
-.like-arrow {
-  position: absolute;
-  right: 15px;
-  bottom: 15px;
-  font-size: 18px;
-  color: #bbb;
-  font-weight: 300;
-  transition: color 0.2s;
+.likes-pagination button {
+  padding: 6px 11px;
+  margin: 0 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fff;
+  cursor: pointer;
 }
 
-.like-card:hover .like-arrow {
-  color: #333; 
+.likes-pagination button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.likes-pagination span {
+  padding: 6px 11px;
+  margin: 0 4px;
+  cursor: pointer;
+}
+
+.likes-pagination span.active {
+  background: #000;
+  color: white;
+  border-radius: 6px;
 }

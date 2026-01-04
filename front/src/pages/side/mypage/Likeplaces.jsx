@@ -6,7 +6,9 @@ import "../../../styles/side/mypage/Likeplaces.css";
 export default function LikePlaces({ userId }) {
   const [places, setPlaces] = useState([]);
   const fallback = process.env.PUBLIC_URL + "/assets/images/default-thumb.jpg";
-  const [clearingAll, setClearingAll] = useState(false);
+
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 8;
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,47 +22,22 @@ export default function LikePlaces({ userId }) {
       .catch((err) => console.error("여행지 좋아요 불러오기 에러:", err));
   }, [userId]);
 
-  const makeOverview = (title, address) => {
-  const t = (title || "").trim();
-  const a = (address || "").trim();
-  if (a && t) return `${a}에 위치한 "${t}" 장소입니다.`;
-  if (t) return `"${t}"에 대한 소개가 아직 준비 중인 장소입니다.`;
-  return "이 장소에 대한 소개가 아직 준비 중입니다.";
-};
+  const totalPages = Math.ceil(places.length / itemsPerPage);
+  const startIndex = (page - 1) * itemsPerPage;
+  const currentPlaces = places.slice(startIndex, startIndex + itemsPerPage);
 
-  const handleCardClick = (likeRow) => {
-    const p = likeRow?.place;
+  const handleCardClick = (row) => {
+    const p = row?.place;
     if (!p) return;
 
     const contentId = p.external_id ? String(p.external_id) : null;
     if (!contentId) return;
 
-    const typeFromDb = p.content_type_id ?? null;
-
-    const basePlace = {
-      contentId,
-      title: p.name || "",
-      address: p.address || "",
-      image: p.image_url || null,
-      latitude: p.lat ?? null,
-      longitude: p.lng ?? null,
-      tags: p.category ? [p.category] : ["여행지"],
-      tel: p.tel || "",
-      overview: makeOverview(p.name, p.address),   
-      contentTypeId: typeFromDb,
-    };
-
-    const params = new URLSearchParams(location.search);
-    if (typeFromDb && !params.get("type")) params.set("type", String(typeFromDb));
-
-    navigate(`/place/${contentId}${params.toString() ? `?${params.toString()}` : ""}`, {
-      state: { basePlace, from: location },
-    });
+    navigate(`/place/${contentId}`, { state: { from: location } });
   };
 
   const handleUnlike = async (e, row) => {
-    e.stopPropagation(); 
-
+    e.stopPropagation();
     const p = row?.place;
     if (!p) return;
 
@@ -72,95 +49,105 @@ export default function LikePlaces({ userId }) {
         userId,
         contentId,
         liked: false,
-        title: p.name,
-        address: p.address,
-        image: p.image_url,
-        lat: p.lat,
-        lng: p.lng,
-        category: p.category,
-        cityId: p.city_id ?? null,
-        contentTypeId: p.content_type_id ?? null,
       });
 
       setPlaces((prev) => prev.filter((x) => x.like_id !== row.like_id));
-    } catch (err) {
-      console.error("좋아요 취소 실패", err);
-      alert("취소에 실패했어요. 잠시 후 다시 시도해주세요.");
+    } catch {
+      alert("취소 실패! 잠시 후 다시 시도해주세요.");
     }
   };
 
-  const handleClearAll = async () => {
-    if (!userId) return;
-    if (places.length === 0) return;
-
-  const ok = window.confirm(`좋아요 ${places.length}개를 전부 취소할까요?`);
-  if (!ok) return;
-
-  setClearingAll(true);
-
-  try {
-    await placeLikesApi.clearAll(userId);
-    setPlaces([]);
-  } catch (err) {
-    console.error("전체 취소 실패", err);
-    alert("전체 취소 중 오류가 발생했어요.");
-  } finally {
-    setClearingAll(false);
-  }
-};
-
   return (
-    <div className="likes-wrapper">
-      <h2 className="likes-title">좋아요한 여행지</h2>
-       <button
-        type="button"
-        className="likes-clear-btn"
-        onClick={handleClearAll}
-        disabled={clearingAll || places.length === 0}
-      >
-        {clearingAll ? "취소 중..." : "전체 취소"}
-      </button>
+    <div
+      className="places-like-bg"
+      style={{
+        backgroundImage: 'url("/assets/images/trip-bg.png")',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      {/* 어두운 레이어 */}
+      <div className="places-like-overlay" />
 
-      <div className="like-grid">
-        {places.length === 0 && (
-          <p className="empty-msg">아직 좋아요한 여행지가 없어요.</p>
-        )}
+      {/* 🔥 상단 TripDiner 헤더 영역 (MyComments / MyPosts 동일 구조) */}
+      <div className="mypage-topbar">
+        <img
+          src="/assets/images/logo.png"
+          alt="TripDiner"
+          className="mypage-logo"
+          onClick={() => navigate("/")}
+        />
+        <img
+          src="/assets/images/plate.png"
+          alt="icon"
+          className="mypage-icon"
+        />
+      </div>
 
-        {places.map((row) => (
-          <div
-            className="like-card"
-            key={row.like_id}
-            onClick={() => handleCardClick(row)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleCardClick(row);
-            }}
-          >
-            <button
-              type="button"
-              className="like-remove-btn"
-              onClick={(e) => handleUnlike(e, row)}
-              aria-label="좋아요 취소"
-              title="좋아요 취소"
+      {/* 🔥 흰 박스 */}
+      <div className="places-like-box">
+        <h2 className="likes-title">좋아요한 여행지</h2>
+
+        <div className="like-grid">
+          {currentPlaces.length === 0 && (
+            <p className="empty-msg">아직 좋아요한 여행지가 없어요.</p>
+          )}
+
+          {currentPlaces.map((row) => (
+            <div
+              className="like-card"
+              key={row.like_id}
+              onClick={() => handleCardClick(row)}
             >
-              ❤️
+              <button
+                type="button"
+                className="like-remove-btn"
+                onClick={(e) => handleUnlike(e, row)}
+              >
+                ❤️
+              </button>
+
+              <img
+                src={row.place?.image_url || fallback}
+                className="like-img"
+                alt={row.place?.name}
+                onError={(e) => (e.currentTarget.src = fallback)}
+              />
+
+              <div className="like-info">
+                <h4>{row.place?.name}</h4>
+                <p>{row.place?.address}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* 페이지네이션 */}
+        {totalPages > 1 && (
+          <div className="pagination">
+            <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+              {"<"}
             </button>
 
-            <img
-              src={row.place?.image_url || fallback}
-              className="like-img"
-              alt={row.place?.name || "place"}
-              onError={(e) => (e.currentTarget.src = fallback)}
-            />
-            <div className="like-info">
-              <h4>{row.place?.name}</h4>
-              <p>{row.place?.address}</p>
-            </div>
+            {[...Array(totalPages)].map((_, i) => (
+              <button
+                key={i}
+                className={page === i + 1 ? "active" : ""}
+                onClick={() => setPage(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              disabled={page === totalPages}
+              onClick={() => setPage(page + 1)}
+            >
+              {">"}
+            </button>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
 }
-
