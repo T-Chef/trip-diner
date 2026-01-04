@@ -222,4 +222,43 @@ router.get("/user/:id", async (req, res) => {
   }
 });
 
+/* ---------------------------------------
+   비밀번호 재설정 실행 (추가되는 부분)
+---------------------------------------- */
+router.post("/reset-password", async (req, res) => {
+  const { token, password } = req.body;
+
+  try {
+    // 1. 토큰 검증 (forgot-password에서 사용한 secretkey와 일치해야 함)
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
+
+    if (!decoded || !decoded.user_id) {
+      return res.status(400).json({
+        success: false,
+        message: "유효하지 않거나 만료된 토큰입니다.",
+      });
+    }
+
+    // 2. 새 비밀번호 암호화
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 3. DB 업데이트
+    await prisma.user.update({
+      where: { user_id: BigInt(decoded.user_id) },
+      data: { password: hashedPassword },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "비밀번호가 성공적으로 변경되었습니다.",
+    });
+  } catch (err) {
+    console.error("비밀번호 재설정 오류:", err);
+    return res.status(400).json({
+      success: false,
+      message: "링크가 만료되었거나 유효하지 않습니다.",
+    });
+  }
+});
+
 export default router;

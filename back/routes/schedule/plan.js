@@ -7,20 +7,30 @@ const saveLockByUser = new Map(); // key: userId(string) -> true
 
 router.get("/my", requireAuth, async (req, res) => {
   try {
-    const userId = req.user.user_id; 
+    const userId = req.user.user_id;
 
     const plans = await prisma.plan.findMany({
       where: { user_id: userId },
-      select: { plan_id: true, title: true, start_date: true, end_date: true },
       orderBy: { created_at: "desc" },
+
+      include: {
+        city: { select: { name: true } },
+
+        plan_day: {
+          orderBy: { day_index: "asc" },
+          include: {
+            plan_item: {
+              orderBy: { order_index: "asc" },
+              include: {
+                place: true, // 여기 안에 image_url이 있어야 프론트가 썸네일 뽑음
+              },
+            },
+          },
+        },
+      },
     });
 
-    const safe = plans.map(p => ({
-      ...p,
-      plan_id: p.plan_id.toString(),
-    }));
-
-    res.json({ success: true, plans: safe });
+    res.json({ success: true, plans: plans.map(toSafePlan) });
   } catch (e) {
     console.error(e);
     res.status(500).json({ success: false, message: "조회 실패" });

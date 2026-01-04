@@ -2,10 +2,9 @@
   width: 100%;
   margin: 0;
   padding: 16px 14px 16px;
-  display:flex;
-  flex-direction:column;
+  display: flex;
+  flex-direction: column;
   gap: 18px;
-
   border-radius: 18px;
 }
 
@@ -20,7 +19,7 @@
   border-radius: 999px;
   background: rgba(255,255,255,0.72);
   border: 1px solid rgba(42,32,24,0.12);
-  cursor:pointer;
+  cursor: pointer;
   font-size: 13px;
   color: rgba(42,32,24,0.78);
   transition: transform .10s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
@@ -33,6 +32,7 @@
   box-shadow: 0 10px 18px rgba(0,0,0,0.08);
 }
 
+/* ✅ 기본(active) - 메인 영역은 기존 스타일 유지(화이트 텍스트) */
 .city-tag.active {
   background: linear-gradient(180deg, rgba(215,176,106,0.96), rgba(176,122,58,0.94));
   border-color: rgba(176,122,58,0.80);
@@ -52,12 +52,12 @@
   border-radius: 12px;
   background: rgba(255,255,255,0.70);
   border: 1px solid rgba(42,32,24,0.12);
-  cursor:pointer;
+  cursor: pointer;
   font-size: 13px;
   color: rgba(42,32,24,0.78);
-  text-align:center;
+  text-align: center;
   white-space: nowrap;
-  overflow:hidden;
+  overflow: hidden;
   text-overflow: ellipsis;
   transition: transform .10s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
 }
@@ -69,6 +69,7 @@
   box-shadow: 0 10px 18px rgba(0,0,0,0.08);
 }
 
+/* ✅ 기본(active) - 메인 영역은 기존 스타일 유지(화이트 텍스트) */
 .district-tag.active {
   background: linear-gradient(180deg, rgba(215,176,106,0.96), rgba(176,122,58,0.94));
   border-color: rgba(176,122,58,0.80);
@@ -76,18 +77,113 @@
   font-weight: 800;
 }
 
+
+/* =========================================================
+   ✅ RIGHT PANEL (floating-right) - 페이퍼 카드 + 고급 active
+========================================================= */
+
 .floating-right .ai-filter-wrapper {
-  background: #ffffff;
   padding: 18px 16px 20px;
   border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  max-height: 78vh;
+
+  max-height: 80vh;
   overflow-y: auto;
+  overflow-x: hidden;
+
   scrollbar-width: none;
+
+  background:
+    radial-gradient(900px 520px at 28% 0%,
+      rgba(255,255,255,0.78),
+      rgba(255,255,255,0.28)
+    ),
+    linear-gradient(180deg,
+      rgba(255,252,246,0.92),
+      rgba(246,236,224,0.88)
+    );
+
+  border: 1px solid rgba(215,176,106,0.28);
+  box-shadow:
+    0 18px 42px rgba(0,0,0,0.14),
+    inset 0 1px 0 rgba(255,255,255,0.55);
+
+  position: relative;
+  clip-path: inset(0 round 16px);
+}
+
+.floating-right .ai-filter-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.22;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      rgba(255,255,255,0.10) 0px,
+      rgba(255,255,255,0.10) 2px,
+      rgba(0,0,0,0.00) 2px,
+      rgba(0,0,0,0.00) 7px
+    );
+  z-index: 0;
+}
+
+/* ✅ 패턴이 글씨 위에 올라타지 않도록 */
+.floating-right .ai-filter-wrapper > * {
+  position: relative;
+  z-index: 1;
 }
 
 .floating-right .ai-filter-wrapper::-webkit-scrollbar {
-  display: none; /* Chrome, Edge, Safari */
+  display: none;
+}
+
+/* 기본 칩(우측) */
+.floating-right .city-tag,
+.floating-right .district-tag {
+  background: rgba(255,255,255,0.52);
+  border: 1px solid rgba(42,32,24,0.10);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.50);
+}
+
+.floating-right .city-tag:hover,
+.floating-right .district-tag:hover {
+  background: rgba(255,255,255,0.70);
+  border-color: rgba(215,176,106,0.34);
+  box-shadow:
+    0 10px 18px rgba(0,0,0,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.55);
+}
+
+/* ✅ 우측 active: 더 진한 메탈 골드 + 브라운 잉크 + 볼륨 */
+.floating-right .city-tag.active,
+.floating-right .district-tag.active {
+  background:
+    linear-gradient(180deg,
+      rgba(255,236,186,0.98) 0%,
+      rgba(215,176,106,0.96) 45%,
+      rgba(140, 92, 44,0.92) 100%
+    );
+  border-color: rgba(140, 92, 44, 0.85);
+
+  color: rgba(42,32,24,0.94);
+  font-weight: 900;
+  letter-spacing: 0.2px;
+
+  box-shadow:
+    0 12px 22px rgba(0,0,0,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -2px 0 rgba(0,0,0,0.10);
+}
+
+/* active hover 시 살짝 더 살아나게 */
+.floating-right .city-tag.active:hover,
+.floating-right .district-tag.active:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 16px 26px rgba(0,0,0,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.60),
+    inset 0 -2px 0 rgba(0,0,0,0.12);
 }
 
 /* 좁은 패널용 사이즈 조정 */
@@ -101,7 +197,22 @@
   font-size: 13px;
 }
 
-/* 좁은 너비에 맞게 2열로 */
 .floating-right .ai-filter-district-grid {
   grid-template-columns: repeat(2, 1fr);
+  padding-bottom: 12px;
 }
+
+/* ✅ 서울/경기 + 구 많을 때만 3열 */
+.floating-right .ai-filter-district-grid.dense-3 {
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 6px;
+  row-gap: 8px;
+}
+
+/* ✅ 3열일 때 버튼을 조금 더 촘촘하게 */
+.floating-right .ai-filter-district-grid.dense-3 .district-tag {
+  padding: 5px 6px;
+  font-size: 12px;
+  border-radius: 10px;
+}
+

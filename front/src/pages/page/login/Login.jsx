@@ -11,10 +11,8 @@ function Login({ setUser }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-   const res = await api.post("/auth/login", { email, password });
-
+      const res = await api.post("/auth/login", { email, password });
       const user = res.data.user;
       const accessToken = res.data.accessToken;
       localStorage.setItem("accessToken", accessToken);
@@ -27,8 +25,6 @@ function Login({ setUser }) {
       };
 
       toast.success(`환영합니다, ${normalizedUser.name}님!`);
-
-      // 🔹 전역 상태 + 로컬스토리지에 같은 형태로 저장
       setUser(normalizedUser);
       localStorage.setItem("user", JSON.stringify(normalizedUser));
 
@@ -46,8 +42,17 @@ function Login({ setUser }) {
     }
   };
 
+  // 배경 이미지 경로 설정 (public 폴더 기준)
+  const bgStyle = {
+    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/assets/images/login.png')`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    backgroundAttachment: 'fixed'
+  };
+
   return (
-    <div className="login-container">
+    <div className="login-container" style={bgStyle}>
       <div className="login-box">
         <h2 className="login-title">Trip Diner 로그인</h2>
 
@@ -59,6 +64,8 @@ function Login({ setUser }) {
               placeholder="이메일을 입력하세요"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
+
             />
           </div>
 
@@ -69,6 +76,7 @@ function Login({ setUser }) {
               placeholder="비밀번호를 입력하세요"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
           </div>
 

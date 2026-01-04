@@ -1,124 +1,175 @@
+/* ✅ 핵심: overflow/튀어나옴 방지 */
+.weather-box,
+.weather-box * {
+  box-sizing: border-box;
+}
+
 .weather-box {
   width: 100%;
-  padding: 16px 16px 12px;
+  padding: 14px;
   border-radius: 18px;
 
   background:
     radial-gradient(700px 260px at 30% 0%, rgba(255,255,255,0.75), rgba(255,255,255,0.40)),
     rgba(255,252,246,0.82);
+
   border: 1px solid rgba(42,32,24,0.10);
   box-shadow: 0 14px 34px rgba(0,0,0,0.12);
-}
 
-.weather-box{
-  display:flex;
-  flex-wrap: wrap;
-  align-items:center;
-  justify-content: space-between;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
+
+  overflow: hidden;
 }
 
-.weather-left .temp {
-  font-size: 26px;
-  font-weight: 900;
-  color: #2a2018;
-  letter-spacing: -0.2px;
+.weather-head{
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.weather-left .condition {
-  font-size: 13px;
-  color: rgba(42,32,24,0.70);
-  margin-top: 2px;
-  font-weight: 700;
+/* ✅ 헤더 라인(짤림 방지 버전) */
+.weather-line{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;   /* ✅ 좌/우 분리 */
+  gap: 10px;
+
+  padding: 10px 10px;
+  border-radius: 14px;
+
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(42,32,24,0.10);
+
+  font-size: 15px;
+  font-weight: 800;
+  color: rgba(42,32,24,0.86);
+
+  overflow: hidden;               /* ✅ 전체는 숨기되 */
 }
 
-.weather-left .location {
-  font-size: 12.5px;
-  color: rgba(70,55,45,0.62);
-  margin-top: 2px;
+/* ✅ 왼쪽 묶음: 줄어들 수 있게 */
+.weather-line .w-left{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;                   /* ✅ ellipsis 필수 */
+  flex: 1 1 auto;
 }
 
-/* 오른쪽 아이콘 영역 */
-.weather-right img {
-   width: 46px;
-  height: 46px;
-  filter: drop-shadow(0 6px 10px rgba(0,0,0,0.18));
+/* ✅ 오른쪽 묶음: 절대 줄어들지 않게 */
+.weather-line .w-right{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
 }
 
-.weather-right.placeholder {
-  width: 60px;
-  height: 60px;
-  background: #f3f3f3;
-  border-radius: 50%;
+/* ✅ 도시 */
+.weather-line .w-city{
+  font-weight: 950;
+  color: rgba(42,32,24,0.96);
+  white-space: nowrap;
 }
 
-/* ✅ 3시간 예보 */
+/* ✅ 설명: 여기만 ellipsis */
+.weather-line .w-desc{
+  font-weight: 800;
+  color: rgba(42,32,24,0.62);
+
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 점(·) 톤 다운 */
+.weather-line .w-dot{
+  opacity: 0.35;
+  font-weight: 800;
+  flex: 0 0 auto;
+}
+
+/* ✅ 온도: 브라운/골드 강조 */
+.weather-line .w-temp{
+  font-weight: 950;
+  color: #a6793b;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.55);
+  white-space: nowrap;
+}
+
+/* ✅ 아이콘 */
+.weather-line .w-icon{
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+
+  filter:
+    drop-shadow(0 6px 10px rgba(0,0,0,0.18))
+    drop-shadow(0 1px 0 rgba(255,255,255,0.55));
+}
+
+/* ✅ 예보 영역 */
 .forecast-box{
   width: 100%;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px dashed rgba(42,32,24,0.16);
+  margin-top: 4px;
 
-  /* ⬇️ AIFilter처럼 아래로 내려가며 스크롤 */
-  max-height: 220px;      /* 필요하면 180~260 사이로 조절 */
-  overflow-y: auto;
-  scrollbar-width: none;
+  padding: 10px;
+  padding-bottom: 14px;
+  border-radius: 16px;
+
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(42,32,24,0.10);
 
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-.forecast-box::-webkit-scrollbar{ display:none; }
 
+  max-height: none;
+  overflow: visible;
+}
+
+/* ✅ 각 시간 카드 */
 .forecast-item{
   width: 100%;
-  padding: 10px 12px;
+  padding: 8px 10px;
   border-radius: 14px;
 
-  background: rgba(255,255,255,0.62);
+  background: rgba(255,255,255,0.72);
   border: 1px solid rgba(42,32,24,0.10);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.06);
 
-  display: flex;
+  display: grid;
+  grid-template-columns: 52px 1fr 30px;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  column-gap: 8px;
 
-  box-shadow: 0 10px 18px rgba(0,0,0,0.07);
-}
-
-.forecast-item div:first-child{
-  font-size: 12px;
-  font-weight: 900;
-  color: rgba(42,32,24,0.72);
-}
-
-.forecast-item div:nth-child(2){
-  margin-top: 4px;
-  font-size: 13px;
-  font-weight: 900;
-  color: #2a2018;
-}
-
-.forecast-item img{
-  width: 34px;
-  height: 34px;
-  margin-top: 2px;
+  position: relative;
+  transform: translateZ(0);
+  will-change: transform, box-shadow, background;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease;
+  cursor: default;
 }
 
 .f-time{
   font-size: 12px;
   font-weight: 900;
   color: rgba(42,32,24,0.72);
-  min-width: 44px;
+  white-space: nowrap;
 }
 
 .f-mid{
-  flex: 1;
   min-width: 0;
 }
 
 .f-temp{
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 900;
   color: #2a2018;
   line-height: 1.1;
@@ -126,15 +177,119 @@
 
 .f-desc{
   margin-top: 2px;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
   color: rgba(70,55,45,0.62);
+
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .f-icon{
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
+  justify-self: end;
+}
+
+/* Hover 모션 */
+.forecast-item:hover{
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 16px 26px rgba(0,0,0,0.10);
+  border-color: rgba(42,32,24,0.16);
+  background: rgba(255,255,255,0.82);
+}
+
+.forecast-item:active{
+  transform: translateY(-1px) scale(1.005);
+  box-shadow: 0 12px 18px rgba(0,0,0,0.09);
+}
+
+.forecast-item::after{
+  content:"";
+  position:absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(260px 120px at 20% 0%, rgba(255,255,255,0.65), transparent 60%);
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.forecast-item:hover::after{
+  opacity: 1;
+}
+
+.forecast-item .f-icon{
+  transition: transform 180ms ease, filter 180ms ease;
+  transform-origin: center;
+}
+
+.forecast-item:hover .f-icon{
+  transform: translateY(-2px) scale(1.06);
+  filter: drop-shadow(0 8px 14px rgba(0,0,0,0.18));
+}
+
+.forecast-item:hover .f-desc{
+  color: rgba(70,55,45,0.72);
+}
+
+/* ===========================
+   ✅ Overview(전체) 모드
+=========================== */
+
+.weather-overview .weather-empty{
+  padding: 14px 10px;
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.wx-mini-grid{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.wx-mini-item{
+  appearance: none;
+  border: 1px solid rgba(42,32,24,0.10);
+  background: rgba(255,255,255,0.60);
+  border-radius: 14px;
+  padding: 10px 10px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.55);
+  transition: transform .12s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+}
+
+.wx-mini-item:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.78);
+  border-color: rgba(215,176,106,0.35);
+  box-shadow: 0 12px 22px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.60);
+}
+
+.wx-mini-city{
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(42,32,24,0.86);
+}
+
+.wx-mini-temp{
+  font-size: 13px;
+  font-weight: 900;
+  color: rgba(42,32,24,0.82);
+  margin-left: auto;
+}
+
+.wx-mini-ico{
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
 }

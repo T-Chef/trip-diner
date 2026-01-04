@@ -1,29 +1,30 @@
-
+/* 컨테이너 기본 구조 */
 .login-container {
   width: 100%;
-  min-height: calc(100vh - 80px);
+  min-height: 100vh; /* 네비게이션 바가 없다면 100vh, 있다면 calc 사용 */
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #f5f6fa;
   padding: 40px 0;
 }
 
+/* 로그인 박스 (투명도 조절로 배경 투과) */
 .login-box {
   width: 420px;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.92); /* 배경이 살짝 비치는 고급스러운 효과 */
   padding: 48px 50px;
-  border-radius: 18px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   gap: 22px;
+  backdrop-filter: blur(5px); /* 배경을 살짝 흐리게 해서 가독성 업 */
 }
 
 .login-title {
   font-size: 26px;
   font-weight: 700;
-  color: #333;
+  color: #1a1a1a;
   text-align: center;
   margin-bottom: 10px;
 }
@@ -31,13 +32,14 @@
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .input-group label {
   font-size: 14px;
   font-weight: 600;
   color: #444;
+  text-align: left;
 }
 
 .input-group input {
@@ -47,18 +49,21 @@
   border-radius: 10px;
   font-size: 15px;
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
+/* 포커스 시 메인 브라운 테마 적용 */
 .input-group input:focus {
-  border-color: #497bff;
-  box-shadow: 0 0 0 3px rgba(73, 123, 255, 0.25);
+  border-color: #a68b6a;
+  box-shadow: 0 0 0 3px rgba(166, 139, 106, 0.2);
   outline: none;
 }
 
+/* 로그인 버튼 (메인 브라운 테마) */
 .login-btn {
   width: 100%;
   padding: 14px 0;
-  background-color: #497bff;
+  background-color: #8d7456;
   color: white;
   border: none;
   border-radius: 12px;
@@ -70,17 +75,18 @@
 }
 
 .login-btn:hover {
-  background-color: #3a68db;
+  background-color: #766148;
+  transform: translateY(-1px);
 }
 
 .login-footer {
   font-size: 14px;
   text-align: center;
-  color: #000; 
+  color: #444; 
 }
 
 .login-footer .link {
-  color: #497bff;
+  color: #a68b6a;
   font-weight: 600;
   cursor: pointer;
 }
@@ -98,19 +104,18 @@
 
 .forgot-link {
   font-size: 14px;
-  color: #6b7280;
-  cursor: pointer;
+  color: #888;
   text-decoration: none;
 }
 
 .forgot-link:hover {
+  color: #a68b6a;
   text-decoration: underline;
 }
 
-
 @media (max-width: 480px) {
   .login-box {
-    width: 88%;
-    padding: 40px 28px;
+    width: 90%;
+    padding: 40px 25px;
   }
 }

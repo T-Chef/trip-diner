@@ -9,11 +9,11 @@ const isCanceled = (err) =>
   err?.name === "CanceledError" || err?.code === "ERR_CANCELED";
 
 // ===============================
-// ✅ Cities cache + inflight (옵션이지만 StrictMode 중복요청 줄이기 좋음)
+// ✅ Cities cache + inflight
 // ===============================
-const _citiesCache = new Map(); // "cities" -> { v, exp }
-const _citiesInflight = new Map(); // "cities" -> { ctrl, promise, refs }
-const CITIES_TTL = 5 * 60 * 1000; // 5분
+const _citiesCache = new Map();
+const _citiesInflight = new Map();
+const CITIES_TTL = 5 * 60 * 1000;
 
 function getCache(map, key) {
   const hit = map.get(key);
@@ -65,16 +65,13 @@ function releaseShared(key, inflightMap) {
 }
 
 // ===============================
-// ✅ Districts cache + inflight (핵심)
+// ✅ Districts cache + inflight
 // ===============================
-const _districtCache = new Map();   // areaCode -> { v, exp }
-const _districtInflight = new Map(); // areaCode -> { ctrl, promise, refs }
-const DISTRICT_TTL = 60 * 1000; // 60초
+const _districtCache = new Map();
+const _districtInflight = new Map();
+const DISTRICT_TTL = 60 * 1000;
 
-export default function AIFilter({
-  value,    // { areaCode, sigunguCode }
-  onChange, // (patch) => void
-}) {
+export default function AIFilter({ value, onChange, onCitiesLoaded }) {
   const areaCode = value?.areaCode ?? null;
   const sigunguCode = value?.sigunguCode ?? null;
 
@@ -83,7 +80,9 @@ export default function AIFilter({
   const [loadingCities, setLoadingCities] = useState(false);
   const [loadingDistricts, setLoadingDistricts] = useState(false);
 
-  // 1) ✅ 도시 목록 1회(공유 + 캐시)
+  const DENSE3_AREAS = new Set([1, 31, 35, 36, 38]);
+  const dense3 = DENSE3_AREAS.has(Number(areaCode)) && districts.length >= 14;
+
   useEffect(() => {
     let alive = true;
 
@@ -104,6 +103,8 @@ export default function AIFilter({
         const list = await promise;
         if (!alive) return;
         setCities(list);
+
+        onCitiesLoaded?.(list);
       } catch (e) {
         if (!alive) return;
         if (isCanceled(e)) return;
@@ -118,9 +119,8 @@ export default function AIFilter({
       alive = false;
       release();
     };
-  }, []);
+  }, [onCitiesLoaded]);
 
-  // 2) ✅ areaCode 변경 시 시군구 목록(공유 + 캐시 + refCount abort)
   useEffect(() => {
     if (!areaCode) {
       setDistricts([]);
@@ -128,8 +128,6 @@ export default function AIFilter({
     }
 
     let alive = true;
-
-    // UX: 도시 바뀌면 목록 즉시 비우고 로딩 표시 (원하면 비우지 않고 유지해도 됨)
     setDistricts([]);
 
     const key = String(areaCode);
@@ -165,18 +163,22 @@ export default function AIFilter({
 
     return () => {
       alive = false;
-      release(); // ✅ refs--, 필요 시 abort
+      release();
     };
   }, [areaCode]);
 
-  // 3) 클릭 핸들러들
   const handleCityClick = useCallback(
-    (nextAreaCode) => {
-      // ✅ 도시 바꾸면 시군구는 초기화
-      onChange?.({ areaCode: Number(nextAreaCode), sigunguCode: null });
-    },
-    [onChange]
-  );
+  (nextAreaCode) => {
+    // ✅ 전체
+    if (nextAreaCode == null) {
+      onChange?.({ areaCode: null, sigunguCode: null });
+      return;
+    }
+    // ✅ 도시 선택
+    onChange?.({ areaCode: Number(nextAreaCode), sigunguCode: null });
+  },
+  [onChange]
+);
 
   const handleAllDistrict = useCallback(() => {
     onChange?.({ sigunguCode: null });
@@ -193,28 +195,37 @@ export default function AIFilter({
 
   return (
     <div className="ai-filter-wrapper">
-      {/* 광역시/도 */}
       <div className="ai-filter-city-tags">
         {loadingCities ? (
           <div className="city-loading">도시 불러오는 중...</div>
         ) : (
-          cityTags.map((city) => (
+          <>
+            {/* ✅ 전체 */}
             <div
-              key={city.areaCode}
-              className={`city-tag ${
-                Number(city.areaCode) === Number(areaCode) ? "active" : ""
-              }`}
-              onClick={() => handleCityClick(city.areaCode)}
+              className={`city-tag ${areaCode == null ? "active" : ""}`}
+              onClick={() => handleCityClick(null)}
             >
-              #{city.name}
+              #전체
             </div>
-          ))
+
+            {cityTags.map((city) => (
+              <div
+                key={city.areaCode}
+                className={`city-tag ${
+                  Number(city.areaCode) === Number(areaCode) ? "active" : ""
+                }`}
+                onClick={() => handleCityClick(city.areaCode)}
+              >
+                #{city.name}
+              </div>
+            ))}
+          </>
         )}
       </div>
 
-      {/* 시군구 */}
+
       {!!areaCode && (
-        <div className="ai-filter-district-grid">
+        <div className={`ai-filter-district-grid ${dense3 ? "dense-3" : ""}`}>
           <div
             className={`district-tag ${sigunguCode == null ? "active" : ""}`}
             onClick={handleAllDistrict}

@@ -1,51 +1,106 @@
 import React, { useState } from "react";
 import { resetPassword } from "./PwApi.js";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+// 공용 스타일 로드
+import "../../styles/page/Login.css"; 
 
 function ResetPassword() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const token = searchParams.get("token");
 
   const [password, setPassword] = useState("");
 
+  // 🎨 로그인 테마 배경 설정
+  const bgStyle = {
+    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/assets/images/login.png')`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    backgroundAttachment: 'fixed',
+    width: '100%',
+    minHeight: '100vh',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '40px 0'
+  };
+
   const handleReset = async () => {
+    // 토큰이 없는 상태로 접근했을 때 방어 코드
+    if (!token) {
+      Swal.fire("오류", "유효하지 않은 접근입니다. 다시 메일을 요청해주세요.", "error");
+      return;
+    }
+
+    if (!password) {
+      Swal.fire("알림", "새로운 비밀번호를 입력해주세요.", "info");
+      return;
+    }
+
     try {
       const res = await resetPassword(token, password);
 
       if (res.data.success) {
-        Swal.fire("완료", "비밀번호가 변경되었습니다.", "success");
+        Swal.fire({
+          title: "변경 완료",
+          text: "비밀번호가 성공적으로 변경되었습니다.",
+          icon: "success",
+          confirmButtonText: "로그인하러 가기"
+        }).then(() => {
+          navigate("/login"); // 성공 후 로그인 페이지로 이동
+        });
       } else {
-        Swal.fire("오류", res.data.message, "error");
+        Swal.fire("오류", res.data.message || "비밀번호 변경에 실패했습니다.", "error");
       }
     } catch (err) {
-      Swal.fire("오류", "문제가 발생했습니다.", "error");
+      // 서버에서 온 에러 메시지가 있다면 출력, 없다면 기본 메시지
+      const errorMsg = err.response?.data?.message || "링크가 만료되었거나 서버 오류가 발생했습니다.";
+      Swal.fire("오류", errorMsg, "error");
     }
   };
 
   return (
-    <div style={{ width: "300px", margin: "20px auto" }}>
-      <h2>새 비밀번호 설정</h2>
+    <div className="login-container" style={bgStyle}>
+      <div className="login-box">
+        <h2 className="login-title">새 비밀번호 설정</h2>
+        
+        <p style={{ 
+          fontSize: '14px', 
+          color: '#666', 
+          marginBottom: '25px', 
+          textAlign: 'center',
+          lineHeight: '1.5'
+        }}>
+          새롭게 사용할 비밀번호를<br/>안전하게 입력해주세요.
+        </p>
 
-      <input
-        type="password"
-        placeholder="새 비밀번호 입력"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        style={{ width: "100%", padding: "8px", marginBottom: "8px" }}
-      />
+        <div className="input-group">
+          <label>새 비밀번호</label>
+          <input
+            type="password"
+            placeholder="새 비밀번호 입력"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="login-input"
+          />
+        </div>
 
-      <button
-        onClick={handleReset}
-        style={{
-          width: "100%",
-          padding: "8px",
-          background: "#2ecc71",
-          color: "#fff",
-        }}
-      >
-        비밀번호 변경
-      </button>
+        <button
+          onClick={handleReset}
+          className="login-btn"
+          style={{ marginTop: "15px" }}
+        >
+          비밀번호 변경
+        </button>
+
+        <div className="login-footer">
+          <span className="link" onClick={() => navigate("/login")}>
+            취소하고 돌아가기
+          </span>
+        </div>
+      </div>
     </div>
   );
 }

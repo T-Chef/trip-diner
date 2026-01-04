@@ -99,6 +99,10 @@
     backdrop-filter: blur(6px);
   }
 
+  .floating-left > .weather-box{
+  width: 270px;    
+  }
+
   .city-hero{
     margin: 14px 0 18px;
     padding: 18px 18px 14px;
@@ -107,6 +111,38 @@
     border: none;
     box-shadow: none;
   }
+
+  /* ✅ 가운데 타이틀 + 양옆 라인 (이미 있으면 덮어써도 OK) */
+.city-section-head.center{
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 12px 0 16px; /* 섹션 타이틀 아래 간격 살짝 확보 */
+}
+
+/* ✅ 라인 */
+.city-section-head.center::before,
+.city-section-head.center::after{
+  content: "";
+  flex: 1;
+  height: 1px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(42,32,24,0.00),
+    rgba(215,176,106,0.60),
+    rgba(42,32,24,0.12),
+    rgba(42,32,24,0.00)
+  );
+  opacity: 0.9;
+}
+
+/* ✅ 타이틀이 라인 위에서 더 또렷하게(가독성 + 고급 느낌) */
+.city-section-head.center .city-section-title{
+  padding: 4px 10px;
+}
 
   .city-section-head.center,
   .city-head-center {
@@ -318,3 +354,90 @@
       display: none;   
     }
   }
+
+  /* ==========================
+   후기 카드 그리드 및 아이템
+   ========================== */
+.city-review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2열로 정렬 */
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.city-post-card {
+  background: var(--city-paper-2);
+  border: 1px solid var(--city-line);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.city-post-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px var(--city-shadow);
+  border-color: var(--city-accent-2);
+}
+
+.city-post-img {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  background-color: #f0f0f0;
+}
+
+.city-post-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.city-post-body {
+  padding: 16px;
+  flex: 1;
+}
+
+.city-post-body h4 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--city-ink);
+  /* 한 줄까지만 표시 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.city-post-body p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--city-muted);
+  line-height: 1.5;
+  height: 3em; /* 두 줄 정도 높이 */
+  line-clamp: 2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.city-post-footer {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--city-line);
+  font-size: 12px;
+  color: var(--city-accent);
+  display: flex;
+  gap: 10px;
+}
+
+/* 후기가 없을 때 메시지 */
+.city-review-section p.center {
+  grid-column: span 2;
+  padding: 40px 0;
+  color: var(--city-muted);
+  font-style: italic;
+}
