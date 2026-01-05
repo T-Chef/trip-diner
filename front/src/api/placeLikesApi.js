@@ -1,25 +1,13 @@
-// front/src/api/placeLikesApi.js
-import axios from "axios";
-
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
+// src/api/placeLikesApi.js
+import { http } from "./http";
 
 function lsKey(userId) {
   return `likedPlaces_${userId || "guest"}`;
 }
 
-function getToken() {
-  return localStorage.getItem("accessToken");
-}
-
-function authHeaders() {
-  const token = getToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
 function setLocalLike(userId, contentId, liked) {
   const key = lsKey(userId);
   const saved = JSON.parse(localStorage.getItem(key) || "[]").map(String);
-
   const cid = String(contentId);
 
   const updated = liked
@@ -27,46 +15,44 @@ function setLocalLike(userId, contentId, liked) {
     : saved.filter((id) => id !== cid);
 
   localStorage.setItem(key, JSON.stringify(updated));
-
-  window.dispatchEvent(
-    new CustomEvent("placeLikesChanged", { detail: { userId } })
-  );
+  window.dispatchEvent(new CustomEvent("placeLikesChanged", { detail: { userId } }));
 }
 
 function clearLocalLikes(userId) {
   const key = lsKey(userId);
   localStorage.setItem(key, JSON.stringify([]));
-  window.dispatchEvent(
-    new CustomEvent("placeLikesChanged", { detail: { userId } })
-  );
+  window.dispatchEvent(new CustomEvent("placeLikesChanged", { detail: { userId } }));
+}
+
+/** 서버 응답에서 배열만 뽑기 */
+function extractList(res) {
+  const raw = res?.data;
+  if (Array.isArray(raw)) return raw;
+  if (Array.isArray(raw?.data)) return raw.data;
+  if (Array.isArray(raw?.items)) return raw.items;
+  if (Array.isArray(raw?.list)) return raw.list;
+  return [];
 }
 
 export const placeLikesApi = {
   toggle: async (payload) => {
-    const res = await axios.post(`${API_BASE}/place/likes`, payload, {
-      headers: authHeaders(),
-    });
+    // ✅ http를 쓰면 토큰 자동으로 붙음
+    const res = await http.post("/place/likes", payload);
 
     setLocalLike(payload.userId, payload.contentId, payload.liked);
     return res;
   },
 
-  meta: (params) =>
-    axios.get(`${API_BASE}/place/likes/meta`, {
-      params,
-      headers: authHeaders(),
-    }),
+  meta: (params) => http.get("/place/likes/meta", { params }),
 
-  listByUser: (userId) =>
-    axios.get(`${API_BASE}/place/likes/user/${userId}`, {
-      headers: authHeaders(),
-    }),
+  /** ✅ listByUser는 배열을 반환 */
+  listByUser: async (userId) => {
+    const res = await http.get(`/place/likes/user/${userId}`);
+    return extractList(res);
+  },
 
   clearAll: async (userId) => {
-    const res = await axios.delete(`${API_BASE}/place/likes/user/${userId}`, {
-      headers: authHeaders(),
-    });
-
+    const res = await http.delete(`/place/likes/user/${userId}`);
     clearLocalLikes(userId);
     return res;
   },

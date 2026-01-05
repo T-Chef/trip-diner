@@ -437,6 +437,7 @@ const handleSaveMyPlan = () => {
     mapFilter === "ALL" ? aiPlan.days : [aiPlan.days[activeDayIdx]];
 
     return (
+  <div className="summary-bg">
     <div className="summary-page">
       {/* ✅ 지도는 PDF 제외 (캡쳐 안정성) */}
       <section className="summary-map-section" data-html2canvas-ignore="true">
@@ -588,6 +589,7 @@ const handleSaveMyPlan = () => {
 </button>
         </div>
       </footer>
+    </div>
     </div>
   );
 }

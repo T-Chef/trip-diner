@@ -12,69 +12,78 @@ export default function AdminSideMenu({ menuOpen, setMenuOpen }) {
   };
 
   return (
-    <div className="layout-wrapper">
+    <>
       <div className={`side-menu ${menuOpen ? "open" : ""}`}>
-        <button className="close-btn" onClick={() => setMenuOpen(false)}>
-          X
-        </button>
+        <div className="side-menu__header">
+          <div>
+            <span className="side-menu__brandTitle">Trip • Diner</span>
+            <span className="side-menu__brandSub">Admin Panel</span>
+          </div>
 
-        <ul>
-          <li className="menu-item">
-            <Link
-              to="/admin"
-              className="menu-link full-click"
-              onClick={() => setMenuOpen(false)}
-            >
-              관리자님 반갑습니다
-            </Link>
-          </li>
+          <button className="close-btn" onClick={() => setMenuOpen(false)}>
+            ✕
+          </button>
+        </div>
 
-          <li className="menu-item">
-            <button
-              type="button"
-              className="menu-link logout-btn"
-              onClick={handleLogout}
-            >
-              로그아웃
-            </button>
-          </li>
+        <div className="side-menu__paper">
+          <ul className="side-menu__list">
+            <li className="menu-item menu-item--welcome">
+              <span className="menu-link">
+                <span className="menu-text">관리자님 반갑습니다. </span>
+              </span>
+            </li>
 
-          <li className="menu-item">
-            <Link
-              to="/admin/users"
-              className="menu-link"
-              onClick={() => setMenuOpen(false)}
-            >
-              회원 관리
-            </Link>
-          </li>
+            <div className="side-menu__divider" />
 
-          <li className="menu-item">
-            <Link
-              to="/admin/posts"
-              className="menu-link"
-              onClick={() => setMenuOpen(false)}
-            >
-              게시글 관리
-            </Link>
-          </li>
+            <li className="menu-item">
+              <Link
+                to="/admin/users"
+                className="menu-link"
+                onClick={() => setMenuOpen(false)}
+              >
+                회원 관리
+              </Link>
+            </li>
 
-          <li className="menu-item">
-            <Link
-              to="/admin/qna"
-              className="menu-link"
-              onClick={() => setMenuOpen(false)}
-            >
-              1:1 문의 답변
-            </Link>
-          </li>
-        </ul>
+            <li className="menu-item">
+              <Link
+                to="/admin/posts"
+                className="menu-link"
+                onClick={() => setMenuOpen(false)}
+              >
+                게시글 관리
+              </Link>
+            </li>
+
+            <li className="menu-item">
+              <Link
+                to="/admin/qna"
+                className="menu-link"
+                onClick={() => setMenuOpen(false)}
+              >
+                1:1 문의 답변
+              </Link>
+            </li>
+
+            <div className="side-menu__divider" />
+
+            <li className="menu-item">
+              <button
+                type="button"
+                className="menu-link logout-btn"
+                onClick={handleLogout}
+              >
+                로그아웃
+              </button>
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div
         className={`overlay ${menuOpen ? "show" : ""}`}
         onClick={() => setMenuOpen(false)}
       />
-    </div>
+    </>
   );
 }

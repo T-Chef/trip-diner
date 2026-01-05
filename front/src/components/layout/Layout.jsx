@@ -13,20 +13,24 @@ export default function Layout({ children, user, setUser }) {
     setMenuOpen(false);
   }, [location.pathname]);
 
-  // ✅ 마이페이지 계열: 헤더 숨김
-  const hideHeaderPaths = ["/profile", "/like", "/calendar", "/withdraw"];
+  // ✅ 마이페이지 계열: 헤더 숨김 + QnA 추가
+  const hideHeaderPaths = [
+    "/profile",
+    "/like",
+    "/calendar",
+    "/withdraw",
+    "/qna",
+  ];
   const hideHeader = hideHeaderPaths.some((p) =>
     location.pathname.startsWith(p)
   );
 
   return (
     <>
-      {/* ✅ 마이페이지/좋아요/캘린더/탈퇴에서는 Header 숨김 */}
       {!hideHeader && (
         <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} user={user} />
       )}
 
-      {/* ✅ SideMenu는 항상 렌더 */}
       <SideMenu
         menuOpen={menuOpen}
         setMenuOpen={setMenuOpen}
@@ -34,7 +38,6 @@ export default function Layout({ children, user, setUser }) {
         setUser={setUser}
       />
 
-      {/* 페이지 내용 */}
       <main className="layout-main">{children}</main>
     </>
   );

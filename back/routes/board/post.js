@@ -155,9 +155,35 @@ router.get("/latest", async (req, res) => {
   }
 });
 
-/* -------------------------------------------------------
-   게시글 상세 (⭐ 삭제된 글 접근 차단)
-------------------------------------------------------- */
+router.get("/user/:userId", async (req, res) => {
+  try {
+    const userId = Number(req.params.userId);
+
+    const myPosts = await prisma.post.findMany({
+      where: {
+        user_id: userId,
+        deleted: 0
+      },
+      orderBy: { created_at: "desc" },
+      include: {
+        _count: { select: { comment: true } }
+      }
+    });
+
+    const result = myPosts.map(p => ({
+      ...p,
+      post_id: p.post_id.toString(),
+      user_id: p.user_id.toString(),
+      comment_count: p._count?.comment || 0
+    }));
+
+    return res.json(result);
+  } catch (err) {
+    console.error("내 게시글 로드 오류:", err);
+    return res.status(500).json({ error: "서버 오류" });
+  }
+});
+
 router.get("/:id", async (req, res) => {
   try {
     const postId = Number(req.params.id);

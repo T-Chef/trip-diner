@@ -1,230 +1,191 @@
-/* =========================
-   MyTrips (내 일정) 전용
-   - 전역 충돌 방지: 전부 .mytrips-wrap 스코프
-   - 중복 제거 / !important 제거
-========================= */
-
-/* 페이지 래퍼 */
 .mytrips-wrap {
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 1100px;
+  margin: 40px auto 100px auto;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 40px 50px;
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+  backdrop-filter: blur(7px);
 }
 
-/* 헤더 */
-.mytrips-wrap .mytrips-head {
+/* 상단 영역 */
+.mytrips-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 25px;
 }
 
-/* 그리드: 기본 2열 */
-.mytrips-wrap .mytrips-grid {
+.mytrips-head h2 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.mytrips-head button.danger {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #c0392b;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.mytrips-head button.danger:hover {
+  background: #a5281a;
+}
+
+/* 카드 전체 배치 (2개 고정) */
+.mytrips-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
-  align-items: stretch;
+  column-gap: 30px;
+  row-gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .mytrips-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* 카드 */
 .mytrips-wrap .trip-card {
   position: relative;
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  border-radius: 16px;
   overflow: hidden;
-
+  box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+  transition: all 0.25s ease;
   display: flex;
-  flex-direction: row;
-  gap: 16px;
-
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-
-  padding: 18px;
-  min-height: 270px; /* 한 화면에 3~4개 정도 보이게 */
+  flex-direction: column;
+  min-height: auto !important; /* 가운데 공백 강제 제거 */
 }
 
-/* 왼쪽 이미지 영역 */
+.mytrips-wrap .trip-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 25px 45px rgba(0,0,0,0.18);
+}
+
+/* X 버튼 */
+.mytrips-wrap .trip-card .xbtn {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  color: #ffffff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.mytrips-wrap .trip-card .xbtn:hover {
+  background: rgba(0,0,0,0.7);
+}
+
+/* 썸네일 */
 .mytrips-wrap .trip-hero {
-  flex: 0 0 240px;
-  width: 240px;
-  height: 210px;
-  border-radius: 14px;
-  overflow: hidden;
-  background: #eee;
+  flex: 0 0 auto;
 }
 
 .mytrips-wrap .trip-hero img {
   width: 100%;
-  height: 100%;
+  height: 140px !important;    /* 이미지 높이 줄여서 전체 카드 높이↓ */
   object-fit: cover;
   display: block;
 }
 
 /* 본문 */
 .mytrips-wrap .trip-body {
-  flex: 1;
-  min-width: 0; /* 텍스트가 칸 뚫고 나오는 것 방지 */
-  padding: 0;
-
+  padding: 14px 18px 16px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  gap: 6px;
+  min-height: auto !important; /* 예전 min-height 덮어쓰기 */
 }
 
-/* 뱃지/텍스트 */
-.mytrips-wrap .badge {
-  display: inline-block;
-  background: #2f6fff;
-  color: #fff;
-  padding: 4px 10px;
-  border-radius: 10px;
-  font-size: 12px;
-  margin-bottom: 8px;
-}
-.mytrips-wrap .badge-row{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  margin-bottom: 8px;
-  
-}
-
-/* 기존 badge가 margin-bottom:8px라 줄맞춤 깨질 수 있어서 */
-.mytrips-wrap .badge{
-  margin-bottom: 0;
-}
-
-.mytrips-wrap .date-range{
-  font-size: 12px;
-  opacity: 0.7;
-  white-space: nowrap;   /* ✅ 줄바꿈 방지 */
-  line-height: 1;        /* ✅ 뱃지랑 세로 정렬 깔끔 */
-}
-
-.mytrips-wrap .title {
-  margin: 0 0 6px;
-  font-size: 17px;
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.mytrips-wrap .sub,
-.mytrips-wrap .meta {
-  font-size: 12px;
-  opacity: 0.7;
-  margin-bottom: 6px;
-}
-
-/* 태그: 1줄만 */
-.mytrips-wrap .tags {
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.mytrips-wrap .tags span {
-  display: inline-block;
-  margin-right: 6px;
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-/* 아래 미리보기 + 버튼 */
-.mytrips-wrap .thumbs {
+/* 일정 정보줄 */
+.mytrips-wrap .badge-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 10px;
 }
 
-.mytrips-wrap .thumbs img {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  object-fit: cover;
+.mytrips-wrap .badge {
+  background: #f4c27b;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 14px;
 }
 
-.mytrips-wrap .more {
-  margin-left: auto;
-  border: none;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: #111;
-  color: #fff;
-  cursor: pointer;
+.mytrips-wrap .date-range {
+  font-size: 13px;
+  color: #555;
+}
+
+/* 제목 */
+.mytrips-wrap .title {
+  margin: 2px 0;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.mytrips-wrap .sub {
+  color: #777;
+  font-size: 14px;
+}
+
+.mytrips-wrap .meta {
+  margin-top: 2px;
+  font-size: 13px;
+  color: #999;
+}
+
+/* 태그 */
+.mytrips-wrap .tags span {
+  margin-right: 6px;
   font-size: 13px;
 }
 
-/* X 버튼 */
-.mytrips-wrap .xbtn {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 36px;
-  height: 36px;
-  background: transparent;
-  border: none;
-  padding: 0;
-  color: #000;
-  font-size: 26px;
-  font-weight: 700;
-  line-height: 1;
-
+/* 미리보기 + 버튼 */
+.mytrips-wrap .thumbs {
+  margin-top: 6px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-
-  z-index: 10;
+  gap: 6px;
 }
 
-.mytrips-wrap .xbtn:hover {
-  opacity: 0.6;
+.mytrips-wrap .thumbs img {
+  width: 52px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
-/* 기타 */
-.mytrips-wrap .danger {
+/* 자세히보기 버튼 */
+.mytrips-wrap .more {
+  margin-left: auto;
   border: none;
-  background: transparent;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #8a6b46;
+  color: #ffffff;
   cursor: pointer;
+  transition: 0.2s;
 }
 
+.mytrips-wrap .more:hover {
+  background: #715432;
+}
+
+/* 일정 없을 때 */
 .mytrips-wrap .empty {
-  padding: 40px;
   text-align: center;
-  opacity: 0.7;
-}
-
-/* 반응형: 1100px 아래는 1열 */
-@media (max-width: 1100px) {
-  .mytrips-wrap .mytrips-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .mytrips-wrap .trip-hero {
-    width: 280px;
-    flex-basis: 280px;
-    height: 190px;
-  }
-}
-
-/* 반응형: 900px 아래는 카드 세로 */
-@media (max-width: 900px) {
-  .mytrips-wrap .trip-card {
-    flex-direction: column;
-  }
-
-  .mytrips-wrap .trip-hero {
-    width: 100%;
-    flex: none;
-    height: 220px;
-  }
+  padding: 80px 0;
+  font-size: 17px;
+  color: #555;
 }
