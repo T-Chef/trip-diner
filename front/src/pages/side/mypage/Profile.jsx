@@ -210,7 +210,7 @@ export default function Profile({ user, setUser }) {
               </button>
             </div>
             <span className="panel-sub">
-              가까운 여행 일정 최대 3개까지 보여드려요.
+              가까운 여행 일정 최대 4개까지 보여드려요.
             </span>
           </div>
 
