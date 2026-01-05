@@ -1,0 +1,50 @@
+.mypage-table-container {
+  width: 80%;
+  margin: 50px auto;
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+}
+
+.mypage-title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.mypage-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.mypage-table thead {
+  background: #f8f2e8;
+}
+
+.mypage-table th {
+  padding: 12px 0;
+  border-bottom: 2px solid #ddd;
+}
+
+.mypage-table td {
+  text-align: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.mypage-table tr:hover {
+  background: #faf6ef;
+  transition: 0.2s;
+}
+
+.mypage-title-cell {
+  text-align: left;
+  padding-left: 10px;
+}
+
+.empty-text {
+  text-align: center;
+  padding: 40px 0;
+  font-size: 16px;
+  color: #777;
+}

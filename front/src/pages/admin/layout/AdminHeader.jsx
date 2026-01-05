@@ -7,11 +7,19 @@ export default function AdminHeader({ setMenuOpen }) {
     <header className="header">
       <div className="header-inner">
         <Link to="/admin" className="logo">
-          Trip - Diner <span style={{ color: "#ff3b3b" }}>관리자</span>
+          <img
+            src="/assets/textures/logo.jpg"
+            alt="Trip Diner"
+            className="logo-img"
+          />
         </Link>
 
-        <button className="ham-btn" onClick={() => setMenuOpen(true)}>
-          ☰
+        <button className="menu-btn" onClick={() => setMenuOpen(true)}>
+          <img
+            src="/assets/textures/sidemenu.jpg"
+            alt="menu"
+            className="menu-icon-img"
+          />
         </button>
       </div>
     </header>

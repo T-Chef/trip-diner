@@ -78,6 +78,29 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+router.get("/user/:userId", async (req, res) => {
+  try {
+    const userId = Number(req.params.userId);
+
+    const comments = await prisma.comment.findMany({
+      where: {
+        user_id: userId
+      },
+      orderBy: { created_at: "desc" },
+      include: {
+        post: {
+          select: { post_id: true, title: true }
+        }
+      }
+    });
+
+    res.json(safeJson(comments));
+  } catch (error) {
+    console.error("내 댓글 불러오기 실패:", error);
+    res.status(500).json({ error: "서버 오류" });
+  }
+});
+
 router.delete("/:id", async (req, res) => {
   try {
     const user_id = Number(req.query.user_id); 

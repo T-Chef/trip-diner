@@ -6,15 +6,31 @@ import "../../../styles/side/city/CityList.css";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 
-// ✅ TTL cache
-const _placeCache = new Map(); // key -> { v, exp }
-const PLACE_TTL = 10 * 1000; // 개발용 10초(429/부하 많으면 30~60초 추천)
-
-// ✅ refCount 기반 inflight 공유(AbortController 공유)
-const _placeInflight = new Map(); // key -> { ctrl, promise, refs }
+const _placeCache = new Map();
+const PLACE_TTL = 10 * 1000;
+const _placeInflight = new Map();
 
 const isCanceled = (err) =>
   err?.name === "CanceledError" || err?.code === "ERR_CANCELED";
+
+const normalizeAreaCode = (v) => {
+  if (v === null || v === undefined) return null;
+  const s = String(v).trim();
+  if (!s) return null;
+  if (s === "0") return null;
+  if (s.toLowerCase() === "all") return null;
+  const n = Number(s);
+  return Number.isFinite(n) && n > 0 ? n : null;
+};
+
+const normalizeSigunguCode = (areaCode, v) => {
+  if (areaCode == null) return null;
+  if (v === null || v === undefined) return null;
+  const s = String(v).trim();
+  if (!s) return null;
+  const n = Number(s);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+};
 
 function getPlaceCache(key) {
   const hit = _placeCache.get(key);
@@ -30,9 +46,8 @@ function normalizePlaceResponse(raw) {
   let list = [];
   let message = null;
 
-  if (Array.isArray(raw)) {
-    list = raw;
-  } else if (raw && Array.isArray(raw.data)) {
+  if (Array.isArray(raw)) list = raw;
+  else if (raw && Array.isArray(raw.data)) {
     list = raw.data;
     if (raw.message) message = raw.message;
   } else if (raw && raw.ok === false) {
@@ -46,37 +61,18 @@ function normalizePlaceResponse(raw) {
   return { list, message };
 }
 
-/**
- * ✅ acquire: 같은 key 요청을 1번만 보내고, refs++로 공유
- * - 캐시가 있으면 즉시 resolve + release no-op
- * - inflight가 있으면 그 promise를 공유
- * - 새로 만들면 AbortController도 공유
- */
 function acquirePlacesRequest(key, makeRequest) {
   const cached = getPlaceCache(key);
-  if (cached) {
-    return {
-      promise: Promise.resolve(cached),
-      release: () => {},
-    };
-  }
+  if (cached) return { promise: Promise.resolve(cached), release: () => {} };
 
   const existing = _placeInflight.get(key);
   if (existing) {
     existing.refs += 1;
-    return {
-      promise: existing.promise,
-      release: () => releasePlacesRequest(key),
-    };
+    return { promise: existing.promise, release: () => releasePlacesRequest(key) };
   }
 
   const ctrl = new AbortController();
-
-  const entry = {
-    ctrl,
-    refs: 1,
-    promise: null,
-  };
+  const entry = { ctrl, refs: 1, promise: null };
 
   entry.promise = (async () => {
     try {
@@ -84,22 +80,14 @@ function acquirePlacesRequest(key, makeRequest) {
       _placeCache.set(key, { v: normalized, exp: Date.now() + PLACE_TTL });
       return normalized;
     } finally {
-      // 요청이 끝나면 inflight 정리(refs가 남아있어도 promise는 각자가 들고 있음)
       _placeInflight.delete(key);
     }
   })();
 
   _placeInflight.set(key, entry);
-
-  return {
-    promise: entry.promise,
-    release: () => releasePlacesRequest(key),
-  };
+  return { promise: entry.promise, release: () => releasePlacesRequest(key) };
 }
 
-/**
- * ✅ release: refs--, 0이면 abort
- */
 function releasePlacesRequest(key) {
   const entry = _placeInflight.get(key);
   if (!entry) return;
@@ -119,21 +107,47 @@ export default function CityList({ areaCode, sigunguCode, keyword, userId }) {
   const safeKeyword = useMemo(() => (keyword ?? "").trim(), [keyword]);
 
   useEffect(() => {
-    if (!areaCode) {
-      setPlaces([]);
-      setErrorMsg(null);
-      return;
-    }
-
     let alive = true;
 
-    const key = `place/places|${areaCode || ""}|${sigunguCode || ""}|${safeKeyword || ""}`;
+    const normArea = normalizeAreaCode(areaCode);
+    const hasArea = normArea != null;
+    const normSigungu = normalizeSigunguCode(normArea, sigunguCode);
+
+    const AI_ON = true;
+    const ENHANCE_ON = false;
+
+    // ✅ 항상 인기순 고정 + Tour API도 조회수 정렬
+    const ARRANGE = "D";
+    const RANDOM_OFF = 0;
+    const TOP_BUCKET = 50;
+
+    const key = [
+      "place/places:vFinal",
+      hasArea ? normArea : "all",
+      normSigungu ?? "",
+      safeKeyword || "",
+      `arr:${ARRANGE}`,
+      `ai:${AI_ON ? 1 : 0}`,
+      `e:${ENHANCE_ON ? 1 : 0}`,
+      `rnd:${RANDOM_OFF}`,
+      `tb:${TOP_BUCKET}`,
+    ].join("|");
 
     const { promise, release } = acquirePlacesRequest(key, async (signal) => {
-      const res = await axios.get(`${API_BASE}/place/places`, {
-        params: { areaCode, sigunguCode, keyword: safeKeyword ?? "" },
-        signal,
-      });
+      const params = {};
+
+      if (hasArea) params.areaCode = normArea;
+      if (hasArea && normSigungu != null) params.sigunguCode = normSigungu;
+      if (safeKeyword) params.keyword = safeKeyword;
+
+      params.arrange = ARRANGE;
+      params.random = RANDOM_OFF;
+      params.topBucket = TOP_BUCKET;
+
+      if (AI_ON) params.ai = 1;
+      if (ENHANCE_ON) params.enhance = 1;
+
+      const res = await axios.get(`${API_BASE}/place/places`, { params, signal });
       return normalizePlaceResponse(res.data);
     });
 
@@ -146,17 +160,22 @@ export default function CityList({ areaCode, sigunguCode, keyword, userId }) {
         if (!alive) return;
 
         if (message) setErrorMsg(message);
-        setPlaces(list.slice(0, 10));
+
+        // 방어 정렬(지역은 물론, 전국도 후보 순서가 이미 골고루지만 readcount로 한번 더 정리)
+        const sorted = [...list].sort(
+          (a, b) => Number(b.readcount ?? 0) - Number(a.readcount ?? 0)
+        );
+
+        setPlaces(sorted.slice(0, 10));
       } catch (err) {
         if (!alive) return;
-        if (isCanceled(err)) return; // ✅ abort/취소는 정상 흐름
+        if (isCanceled(err)) return;
 
         console.error("🔥 관광지 목록 로드 실패:", err);
         setErrorMsg(
           err.response?.data?.message ||
             "지금 여행지 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요."
         );
-        // ✅ 실패해도 기존 places 유지
       } finally {
         if (alive) setLoading(false);
       }
@@ -164,17 +183,9 @@ export default function CityList({ areaCode, sigunguCode, keyword, userId }) {
 
     return () => {
       alive = false;
-      release(); // ✅ refs--, 필요시 abort
+      release();
     };
   }, [areaCode, sigunguCode, safeKeyword]);
-
-  if (!areaCode) {
-    return (
-      <div className="city-list-empty">
-        지역을 선택하면 인기 많은 여행지를 보여드릴게요.
-      </div>
-    );
-  }
 
   if (loading) {
     return (
@@ -204,7 +215,7 @@ export default function CityList({ areaCode, sigunguCode, keyword, userId }) {
           </>
         ) : (
           <>
-            이 지역에 아직 보여줄 여행지가 없어요.
+            아직 보여줄 여행지가 없어요.
             <br />
             다른 도시나 키워드로 검색해볼까요?
           </>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import "../../styles/page/Login.css"; // ★ 회원 로그인 CSS 그대로 재사용
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -17,7 +18,6 @@ export default function AdminLogin() {
         password,
       });
 
-      // 관리자 토큰 저장시키기(사이드 메뉴 추가했으니 문제 X)
       localStorage.setItem("adminToken", res.data.token);
 
       toast.success("관리자 로그인 성공");
@@ -28,29 +28,48 @@ export default function AdminLogin() {
     }
   };
 
+  const bgStyle = {
+    backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+       url('/assets/images/login.png')`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    backgroundAttachment: "fixed",
+  };
+
   return (
-    <div className="admin-login-container">
-      <h2>관리자 로그인</h2>
+    <div className="login-container" style={bgStyle}>
+      <div className="login-box">
+        <h2 className="login-title">관리자 로그인</h2>
 
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="관리자 이메일"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+        <form onSubmit={handleLogin}>
+          <div className="input-group">
+            <label>관리자 이메일</label>
+            <input
+              type="email"
+              placeholder="관리자 이메일을 입력하세요"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
 
-        <input
-          type="password"
-          placeholder="비밀번호"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+          <div className="input-group">
+            <label>비밀번호</label>
+            <input
+              type="password"
+              placeholder="비밀번호를 입력하세요"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
 
-        <button type="submit">로그인</button>
-      </form>
+          <button type="submit" className="login-btn">
+            로그인
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

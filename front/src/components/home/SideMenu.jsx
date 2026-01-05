@@ -168,7 +168,10 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
 
   return (
     <div className="layout-wrapper">
-      <aside className={`side-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
+      <aside
+        className={`side-menu ${menuOpen ? "open" : ""}`}
+        aria-hidden={!menuOpen}
+      >
         <div className="side-menu__header">
           <div className="side-menu__brand">
             <span className="side-menu__brandTitle">Trip · Diner</span>
@@ -187,7 +190,9 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
                 <li className="menu-item menu-item--welcome">
                   <Link
                     to="/profile"
-                    className={`menu-link ${isActive("/profile") ? "is-active" : ""}`}
+                    className={`menu-link ${
+                      isActive("/profile") ? "is-active" : ""
+                    }`}
                     aria-current={isActive("/profile") ? "page" : undefined}
                     onClick={close}
                   >
@@ -201,7 +206,11 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
                 </li>
 
                 <li className="menu-item">
-                  <button type="button" className="menu-link logout-btn" onClick={handleLogout}>
+                  <button
+                    type="button"
+                    className="menu-link logout-btn"
+                    onClick={handleLogout}
+                  >
                     <span className="menu-link__left">
                       <Icon type="logout" />
                       <span className="menu-text">로그아웃</span>
@@ -231,6 +240,7 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
               active={isActive("/schedule")}
               onClick={close}
             />
+
             <NavItem
               to="/city"
               label="도시별 여행 정보"
@@ -238,6 +248,7 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
               active={isActive("/city")}
               onClick={close}
             />
+
             <NavItem
               to="/board"
               label="게시판"
@@ -245,11 +256,12 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
               active={isActive("/board")}
               onClick={close}
             />
+
             <NavItem
-              to="/contract"
+              to="/qna/write"
               label="문의하기"
               icon="contact"
-              active={isActive("/contract")}
+              active={isActive("/qna/write")}
               onClick={close}
             />
           </ul>

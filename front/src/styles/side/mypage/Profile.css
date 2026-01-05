@@ -1,26 +1,47 @@
-.profile-container {
+.profile-container-new {
   width: 100%;
   padding: 40px 60px;
   box-sizing: border-box;
   background: #f7f9fc;
 }
 
-/* 프로필 */
-.profile-header {
+/* ================= 상단 프로필 카드 ================= */
+.profile-card {
+  width: 100%;
+  background: #e5dfd4;
+  padding: 35px 40px;
+  border-radius: 22px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+  margin-bottom: 50px;
+
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  background: #e5dfd4;   /* 진호 색깔 */
-  padding: 35px 40px;
-  border-radius: 20px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-  margin-bottom: 50px;
   gap: 40px;
+
+  box-sizing: border-box;
+  overflow: hidden;          
+}
+
+/* 왼쪽 영역 */
+.profile-left {
+  display: flex;
+  align-items: center;
+  gap: 35px;
+  flex: 1;
+  min-width: 0;               /* ★ flex 수축 충돌 방지 */
+}
+
+/* 오른쪽 상단 메뉴 */
+.profile-right-menu {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+
+  flex-shrink: 0;             /* ★ 크기 줄어들지 않게 */
+  margin-left: auto;
 }
 
 .profile-photo-box {
-  display: flex;
-  align-items: center;
   cursor: pointer;
 }
 
@@ -29,34 +50,26 @@
   height: 150px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #eee;
-}
-
-/* 프로필 정보 */
-.profile-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 30px;
+  border: 3px solid #fff;
 }
 
 .profile-info h2 {
-  font-size: 40px;
-  margin: 0;
+  font-size: 32px;
+  margin: 0 0 16px;
 }
 
 .highlight {
-  color: #2878ff;
+  color: #533b1c;
+  font-weight: 700;
 }
 
-/* 버튼 */
 .profile-buttons {
   display: flex;
-  gap: 12px;
+  gap: 10px;
 }
 
 .profile-buttons button {
-  background: white;
+  background: #fff;
   border: 1px solid #ddd;
   padding: 8px 18px;
   border-radius: 12px;
@@ -65,24 +78,22 @@
 }
 
 .profile-buttons button:hover {
-  background: #f3f6ff;
-  border-color: #2878ff;
+  background: #fff6e9;
+  border-color: #c4a168;
 }
 
-/* ---------------------------------------------- */
-/* 홈, 일정, 문의하기                 */
-/* ---------------------------------------------- */
 .profile-right-menu {
   display: flex;
-  flex-direction: row;
-  gap: 50px;
-  margin-left: auto;
+  gap: 22px;
+  align-items: center;
+  padding-right: 10px;
+  flex-shrink: 0;
 }
 
 .menu-box {
-  background: white;
+  background: #fff;
   border-radius: 16px;
-  padding: 18px 22px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -94,69 +105,221 @@
 
 .menu-box:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.12);
 }
 
 .menu-box .menu-icon {
   font-size: 26px;
-  color: #1e6bff;
+  color: #9a6a3c;
   margin-bottom: 6px;
 }
 
 .menu-box span {
-  font-size: 15px;
+  font-size: 14px;
   color: #333;
 }
 
-/* ---------------------------------------------- */
-/* 달력                                           */
-/* ---------------------------------------------- */
-.profile-calendar-section {
-  background: #e5dfd4;
-  padding: 18px px;
-  border-radius: 20px;
-  margin-bottom: 50px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-}
-
-.calendar-header {
+.profile-calendar-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  gap: 30px;
+  align-items: stretch;
+  margin-bottom: 45px;
 }
 
-.calendar-box {
+.profile-trips-panel,
+.profile-calendar-section-new {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-trips-panel {
+  background: #e5dfd4;
+  padding: 24px 26px;
+  border-radius: 18px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+}
+
+.panel-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.panel-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-header h3,
+.calendar-title h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #3d2b16;
+}
+
+.panel-sub {
+  font-size: 13px;
+  color: #7b6a54;
+}
+
+.more-btn {
+  background: #ffffff;
+  border: 1px solid #c7b8a3;
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.more-btn:hover {
+  background: #fff6e9;
+  border-color: #9a6a3c;
+  color: #9a6a3c;
+}
+
+.upcoming-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 4px;
+}
+
+.upcoming-trip-box {
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.upcoming-trip-box:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.12);
+}
+
+.upcoming-img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}
+
+.upcoming-text {
+  padding: 10px 14px 12px;
+}
+
+.upcoming-name {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.upcoming-date {
+  font-size: 12px;
+  color: #6d604d;
+}
+
+.empty-box {
+  padding: 32px 0;
+  text-align: center;
+  color: #777;
+  font-size: 14px;
+}
+
+.profile-calendar-section-new {
+  background: #e5dfd4;
+  padding: 28px 30px;
+  border-radius: 22px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+}
+
+.calendar-title h3 {
+  margin: 0 0 6px;
+  color: #3d2b16;
+}
+
+.calendar-sub {
+  font-size: 13px;
+  color: #7b6a54;
+}
+
+.calendar-wrapper {
+  margin-top: 16px;
+}
+
+.profile-grid-new {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
   margin-top: 35px;
 }
 
-/* ---------------------------------------------- */
-/*  좋아요 한 게시글, 좋아요 한 여행지 */
-/* ---------------------------------------------- */
-.profile-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 25px;
-}
-
-.grid-item {
+.profile-grid-new .grid-item {
   background: #e5dfd4;
-  padding: 26px 28px;
   border-radius: 18px;
-  font-size: 18px;
+  padding: 26px 28px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+  font-size: 18px;
+  color: #3b2b1b;
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-  transition: transform 0.15s ease, box-shadow 0.25s ease;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  transition: 0.25s ease;
 }
 
-.grid-item:hover {
+.profile-grid-new .grid-item:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.15);
+  background: #efe6d8;
 }
 
-.grid-item svg {
-  font-size: 26px;
-  color: #2878ff;
+.profile-grid-new svg {
+  font-size: 28px;
+  color: #9a6a3c;
+}
+
+@media (max-width: 1024px) {
+  .profile-container-new {
+    padding: 28px 20px;
+  }
+
+  .profile-card {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .profile-calendar-row {
+    flex-direction: column;
+  }
+
+  .profile-grid-new {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .profile-container-new {
+    padding: 24px 14px;
+  }
+
+  .profile-photo {
+    width: 110px;
+    height: 110px;
+  }
+
+  .profile-info h2 {
+    font-size: 24px;
+  }
+
+  .upcoming-grid {
+    grid-template-columns: 1fr;
+  }
 }

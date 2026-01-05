@@ -116,8 +116,74 @@ router.get("/", async (req, res) => {
 });
 
 /* -------------------------------------------------------
-   게시글 상세 (⭐ 삭제된 글 접근 차단)
+   카테고리 '후기' 중 '좋아요' 많은 순 베스트 가져오기
 ------------------------------------------------------- */
+router.get("/latest", async (req, res) => {
+  try {
+    // 지역 필터링(areaCode)을 무시하고 전체에서 가져옵니다.
+    const posts = await prisma.post.findMany({
+      where: {
+        deleted: 0,
+        category: "후기", // ⭐ 카테고리가 '후기'인 글만 필터링
+      },
+      take: 2, // 상위 2개만
+      orderBy: [
+        {
+          post_like: {
+            _count: 'desc' // 1순위: 좋아요 많은 순
+          }
+        },
+        {
+          created_at: 'desc' // 2순위: 최신순
+        }
+      ],
+      include: {
+        user: { select: { name: true } },
+        _count: {
+          select: { 
+            post_like: true, 
+            comment: true 
+          },
+        },
+      },
+    });
+
+    return res.json(safeJson(posts));
+  } catch (err) {
+    console.error("Best 후기 로드 에러:", err.message);
+    return res.status(500).json({ error: "데이터 로드 실패" });
+  }
+});
+
+router.get("/user/:userId", async (req, res) => {
+  try {
+    const userId = Number(req.params.userId);
+
+    const myPosts = await prisma.post.findMany({
+      where: {
+        user_id: userId,
+        deleted: 0
+      },
+      orderBy: { created_at: "desc" },
+      include: {
+        _count: { select: { comment: true } }
+      }
+    });
+
+    const result = myPosts.map(p => ({
+      ...p,
+      post_id: p.post_id.toString(),
+      user_id: p.user_id.toString(),
+      comment_count: p._count?.comment || 0
+    }));
+
+    return res.json(result);
+  } catch (err) {
+    console.error("내 게시글 로드 오류:", err);
+    return res.status(500).json({ error: "서버 오류" });
+  }
+});
+
 router.get("/:id", async (req, res) => {
   try {
     const postId = Number(req.params.id);

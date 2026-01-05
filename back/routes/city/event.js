@@ -65,7 +65,8 @@ router.use((req, res, next) => {
 // 1) 이벤트 목록
 // -------------------------------------------------------
 router.get("/list", async (req, res) => {
-  const { areaCode, sigunguCode } = req.query;
+  const areaCode = req.query.areaCode;
+  const sigunguCode = areaCode ? req.query.sigunguCode : undefined;
 
   const today = new Date();
   const after30 = new Date();
@@ -89,11 +90,11 @@ router.get("/list", async (req, res) => {
 
   try {
     const events = await fetchEventList({
-      areaCode,
-      sigunguCode,
-      eventStartDate,
-      eventEndDate,
-    });
+    areaCode,
+    sigunguCode,
+    eventStartDate,
+    eventEndDate,
+  });
 
     return setAndReturnJson(res, key, events, 5 * 60 * 1000);
   } catch (err) {

@@ -1,59 +1,71 @@
 import { useState } from "react";
 import axios from "axios";
+import "../../../styles/side/mypage/UserQnA.css";
 
 export default function UserQnA() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const submitQna = async () => {
+  const handleSubmit = async () => {
+    if (!title.trim() || !content.trim()) {
+      alert("제목과 내용을 입력해주세요.");
+      return;
+    }
+
     try {
       const token = localStorage.getItem("accessToken");
-
-      if (!token) {
-        alert("로그인이 필요합니다.");
-        return;
-      }
 
       await axios.post(
         "http://localhost:4000/api/qna",
         { title, content },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
       alert("문의가 등록되었습니다.");
-      setTitle("");
-      setContent("");
+      window.location.href = "/mypage/qna";
     } catch (err) {
-      console.error(err);
+      console.error("문의 등록 오류:", err);
       alert("문의 등록 실패");
     }
   };
 
+  // ⭐ public 이미지 배경 적용 (정석 + 100% 동작)
+  const bgStyle = {
+    backgroundImage: `url(${process.env.PUBLIC_URL}/assets/images/trip-bg.png)`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+  };
+
   return (
-    <div style={{ maxWidth: 600, margin: "80px auto" }}>
-      <h2>문의하기</h2>
+    <div className="qna-write-wrapper" style={bgStyle}>
+      <div className="qna-write-card">
+        <h2 className="qna-write-title">문의하기</h2>
 
-      <input
-        placeholder="제목"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        style={{ width: "100%", marginBottom: 10 }}
-      />
+        <p className="qna-write-sub">
+          궁금한 점이 있으신가요? 언제든 편하게 남겨주세요.
+        </p>
 
-      <textarea
-        placeholder="문의 내용을 입력하세요"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        style={{ width: "100%", height: 200 }}
-      />
+        <input
+          className="qna-input"
+          placeholder="제목을 입력하세요"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
 
-      <button onClick={submitQna} style={{ marginTop: 10 }}>
-        문의 등록
-      </button>
+        <textarea
+          className="qna-textarea"
+          placeholder="문의 내용을 입력하세요"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+        />
+
+        <button className="qna-submit-btn" onClick={handleSubmit}>
+          문의 등록
+        </button>
+      </div>
     </div>
   );
 }
