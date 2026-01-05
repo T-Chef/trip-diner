@@ -1,8 +1,8 @@
 /* ===== 전체 컨테이너 ===== */
 .likes-box {
-  width: 85%;
+  width: 55%;
   max-width: 1400px;
-  margin: 0 auto 70px auto;
+  margin: 0;
   background: white;
   border-radius: 18px;
   padding: 45px 45px 55px 45px;
@@ -112,4 +112,42 @@
   background: #000;
   color: white;
   border-radius: 6px;
+}
+
+.likes-bg{
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  background-color: #000; 
+}
+
+.likes-overlay{
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1;
+}
+
+.mypage-topbar{
+  position: relative;
+  z-index: 10;
+}
+
+.likes-content{
+  position: relative;
+  z-index: 3;
+
+  height: 100%;
+  padding-top: 155px;
+  padding-bottom: 18px;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.likes-pagination button.active{
+  background: #000;
+  color: #fff;
+  border-color: #000;
 }

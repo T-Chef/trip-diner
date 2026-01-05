@@ -9,12 +9,9 @@ const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 const isCanceled = (err) =>
   err?.name === "CanceledError" || err?.code === "ERR_CANCELED";
 
-// ✅ TTL cache
-const _eventCache = new Map(); // key -> { v, exp }
-const EVENT_TTL = 10 * 1000; // 개발용 10초 (운영이면 30~60초 추천)
-
-// ✅ refCount 기반 inflight 공유(AbortController 공유)
-const _eventInflight = new Map(); // key -> { ctrl, promise, refs }
+const _eventCache = new Map();
+const EVENT_TTL = 10 * 1000;
+const _eventInflight = new Map();
 
 function getCache(key) {
   const hit = _eventCache.get(key);
@@ -27,7 +24,6 @@ function getCache(key) {
 }
 
 function normalizeEventResponse(raw) {
-  // 백엔드가 배열, {data:[]}, {ok:false,data:[]} 등 여러 형태 대비
   let list = [];
   let message = null;
 
@@ -49,9 +45,7 @@ function normalizeEventResponse(raw) {
 
 function acquireEventRequest(key, makeRequest) {
   const cached = getCache(key);
-  if (cached) {
-    return { promise: Promise.resolve(cached), release: () => {} };
-  }
+  if (cached) return { promise: Promise.resolve(cached), release: () => {} };
 
   const existing = _eventInflight.get(key);
   if (existing) {
@@ -73,7 +67,6 @@ function acquireEventRequest(key, makeRequest) {
   })();
 
   _eventInflight.set(key, entry);
-
   return { promise: entry.promise, release: () => releaseEventRequest(key) };
 }
 
@@ -94,21 +87,19 @@ export default function EventList({ areaCode, sigunguCode }) {
   const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
-    if (!areaCode) {
-      setEvents([]);
-      setErrorMsg(null);
-      return;
-    }
-
     let alive = true;
 
-    const key = `event/list|${areaCode || ""}|${sigunguCode || ""}`;
+    const hasArea = areaCode != null;
+    const safeSigungu = hasArea ? sigunguCode : null;
+
+    const key = `event/list|${hasArea ? areaCode : "all"}|${safeSigungu || "all"}`;
 
     const { promise, release } = acquireEventRequest(key, async (signal) => {
-      const res = await axios.get(`${API_BASE}/event/list`, {
-        params: { areaCode, sigunguCode },
-        signal,
-      });
+      const params = {};
+      if (hasArea) params.areaCode = areaCode;
+      if (hasArea && safeSigungu != null) params.sigunguCode = safeSigungu;
+
+      const res = await axios.get(`${API_BASE}/event/list`, { params, signal });
       return normalizeEventResponse(res.data);
     });
 
@@ -124,14 +115,13 @@ export default function EventList({ areaCode, sigunguCode }) {
         setEvents(list.slice(0, 6));
       } catch (err) {
         if (!alive) return;
-        if (isCanceled(err)) return; // ✅ abort/취소는 정상 흐름
+        if (isCanceled(err)) return;
 
         console.error("🔥 이벤트 목록 로드 실패:", err);
         setErrorMsg(
           err.response?.data?.message ||
             "지금 이벤트 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요."
         );
-        // ✅ 실패해도 기존 events 유지(UX)
       } finally {
         if (alive) setLoading(false);
       }
@@ -139,24 +129,16 @@ export default function EventList({ areaCode, sigunguCode }) {
 
     return () => {
       alive = false;
-      release(); // ✅ refs--, 필요 시 abort
+      release();
     };
   }, [areaCode, sigunguCode]);
-
-  if (!areaCode) {
-    return (
-      <div className="event-empty">
-        지역을 선택하면 진행 중인 축제·이벤트를 보여드릴게요.
-      </div>
-    );
-  }
 
   if (loading) return <div className="event-loading">이벤트 불러오는 중...</div>;
 
   if (!events.length) {
     return (
       <div className="event-empty">
-        {errorMsg ? errorMsg : "현재 선택한 지역에 진행 중인 이벤트가 없습니다."}
+        {errorMsg ? errorMsg : "현재 표시할 이벤트가 없습니다."}
       </div>
     );
   }

@@ -24,7 +24,7 @@ export default function AdminUsers() {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUsers(res.data);
-      } catch (err) {
+      } catch {
         toast.error("유저 목록을 불러오지 못했습니다.");
       }
     };
@@ -57,57 +57,69 @@ export default function AdminUsers() {
   };
 
   return (
-    <div className="admin-container">
-      <h2 className="admin-title">회원 관리</h2>
+    <div
+      className="admin-users-bg"
+      style={{
+        backgroundImage: "url('/assets/images/trip-back.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="admin-users-overlay" />
 
-      <div className="admin-table-wrapper">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>이메일</th>
-              <th>이름</th>
-              <th>상태</th>
-              <th>관리</th>
-            </tr>
-          </thead>
+      <div className="admin-users-wrapper">
+        <h2 className="admin-title">회원 관리</h2>
 
-          <tbody>
-            {users.map((u) => (
-              <tr key={u.user_id}>
-                <td>{u.user_id}</td>
-                <td>{u.email}</td>
-                <td>{u.name || "-"}</td>
-
-                <td>
-                  {u.deleted ? (
-                    <span className="status disabled">비활성</span>
-                  ) : (
-                    <span className="status active">활성</span>
-                  )}
-                </td>
-
-                <td>
-                  {u.deleted ? (
-                    <button
-                      className="admin-btn activate"
-                      onClick={() => updateUserStatus(u.user_id, 1)}
-                    >
-                      활성화
-                    </button>
-                  ) : (
-                    <button
-                      className="admin-btn delete"
-                      onClick={() => updateUserStatus(u.user_id, 0)}
-                    >
-                      비활성화
-                    </button>
-                  )}
-                </td>
+        <div className="admin-table-card">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>이메일</th>
+                <th>이름</th>
+                <th>상태</th>
+                <th>관리</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {users.map((u) => (
+                <tr key={u.user_id}>
+                  <td>{u.user_id}</td>
+                  <td>{u.email}</td>
+                  <td>{u.name || "-"}</td>
+
+                  <td>
+                    {u.deleted ? (
+                      <span className="status disabled">비활성</span>
+                    ) : (
+                      <span className="status active">활성</span>
+                    )}
+                  </td>
+
+                  <td>
+                    {u.deleted ? (
+                      <button
+                        className="admin-btn activate"
+                        onClick={() => updateUserStatus(u.user_id, 1)}
+                      >
+                        활성화
+                      </button>
+                    ) : (
+                      <button
+                        className="admin-btn delete"
+                        onClick={() => updateUserStatus(u.user_id, 0)}
+                      >
+                        비활성화
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

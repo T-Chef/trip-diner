@@ -10,79 +10,94 @@ export default function MyPosts() {
 
   const [posts, setPosts] = useState([]);
 
+  // ⭐ 페이지네이션 상태
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+
   useEffect(() => {
     if (!user_id) return;
 
     axios
       .get(`http://localhost:4000/api/posts/user/${user_id}`)
-      .then((res) => setPosts(res.data))
+      .then((res) => setPosts(Array.isArray(res.data) ? res.data : []))
       .catch((err) => console.error("내 글 불러오기 실패:", err));
   }, [user_id]);
 
+  // ⭐ 전체 페이지 수
+  const totalPages = Math.ceil(posts.length / pageSize);
+
+  // ⭐ 현재 페이지 데이터
+  const currentPosts = posts.slice((page - 1) * pageSize, page * pageSize);
+
   return (
-    <>
-      {/* 전체 배경 + 오버레이 */}
-      <div
-        style={{
-          position: "relative",
-          width: "100%",
-          minHeight: "auto", // 🔥 100vh 제거
-          backgroundImage: `url("/assets/images/trip-bg.png")`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          paddingBottom: "40px", // 🔥 살짝만 여백 유지
-        }}
-      >
-        {/* 어두운 오버레이 */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: "rgba(0,0,0,0.45)",
-          }}
-        />
+    <div className="mypage-bg">
+      <div className="mypage-overlay" />
 
-        {/* 실제 콘텐츠 */}
-        <div style={{ position: "relative", zIndex: 2, paddingTop: "80px" }}>
-          <div className="mypage-table-container">
-            <h2 className="mypage-title">내가 쓴 게시글</h2>
+      <div className="mypage-content">
+        <div className="mypage-table-container">
+          <h2 className="mypage-title">내가 쓴 게시글</h2>
 
-            <table className="mypage-table">
-              <thead>
-                <tr>
-                  <th>종류</th>
-                  <th>제목</th>
-                  <th>작성일</th>
-                  <th>조회</th>
-                </tr>
-              </thead>
+          <table className="mypage-table">
+            <thead>
+              <tr>
+                <th>종류</th>
+                <th>제목</th>
+                <th>작성일</th>
+                <th>조회</th>
+              </tr>
+            </thead>
 
-              <tbody>
-                {posts.length > 0 ? (
-                  posts.map((p) => (
-                    <tr
-                      key={p.post_id}
-                      onClick={() => navigate(`/board/${p.post_id}`)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <td>{p.category}</td>
-                      <td className="mypage-title-cell">{p.title}</td>
-                      <td>{p.created_at?.slice(0, 10)}</td>
-                      <td>{p.views}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="4" className="empty-text">
-                      아직 작성한 게시글이 없습니다.
-                    </td>
+            <tbody>
+              {currentPosts.length > 0 ? (
+                currentPosts.map((p) => (
+                  <tr
+                    key={p.post_id}
+                    onClick={() => navigate(`/board/${p.post_id}`)}
+                    className="mypage-row"
+                  >
+                    <td>{p.category}</td>
+                    <td className="mypage-title-cell">{p.title}</td>
+                    <td>{p.created_at?.slice(0, 10)}</td>
+                    <td>{p.views}</td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="empty-text">
+                    아직 작성한 게시글이 없습니다.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+          {/* ⭐ 페이지네이션 영역 */}
+          {totalPages > 1 && (
+            <div className="mypage-pagination">
+              <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+                &lt;
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPage(i + 1)}
+                  className={page === i + 1 ? "active" : ""}
+                >
+                  {i + 1}
+                </button>
+              ))}
+
+              <button
+                disabled={page === totalPages}
+                onClick={() => setPage(page + 1)}
+              >
+                &gt;
+              </button>
+            </div>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 }

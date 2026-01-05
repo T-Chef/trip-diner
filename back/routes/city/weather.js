@@ -14,26 +14,77 @@ const router = express.Router();
 const OPENWEATHER_KEY =
   process.env.OPENWEATHER_API_KEY || process.env.WEATHER_API_KEY;
 
-// areaCode -> cityName (OpenWeather q 값)
 const AREA_CODE_TO_CITY = {
-  1: "Seoul",
-  2: "Incheon",
-  3: "Daejeon",
-  4: "Daegu",
-  5: "Gwangju",
-  6: "Busan",
-  7: "Ulsan",
-  8: "Sejong",
-  31: "Suwon",
-  32: "Gangneung",
-  33: "Chungju",
-  34: "Cheonan",
-  35: "Gyeongju",
-  36: "Changwon",
-  37: "Jeonju",
-  38: "Yeosu",
-  39: "Jeju",
+  1: { q: "Seoul,KR", ko: "서울" },
+  2: { q: "Incheon,KR", ko: "인천" },
+  3: { q: "Daejeon,KR", ko: "대전" },
+  4: { q: "Daegu,KR", ko: "대구" },
+  5: { q: "Gwangju,KR", ko: "광주" },
+  6: { q: "Busan,KR", ko: "부산" },
+  7: { q: "Ulsan,KR", ko: "울산" },
+  8: { q: "Sejong,KR", ko: "세종" },
+  31: { q: "Suwon,KR", ko: "수원" },
+  32: { q: "Gangneung,KR", ko: "강릉" },
+  33: { q: "Chungju,KR", ko: "충주" },
+  34: { q: "Cheonan,KR", ko: "천안" },
+  35: { q: "Gyeongju,KR", ko: "경주" },
+  36: { q: "Changwon,KR", ko: "창원" },
+  37: { q: "Jeonju,KR", ko: "전주" },
+  38: { q: "Yeosu,KR", ko: "여수" },
+  39: { q: "Jeju City,KR", ko: "제주" },
 };
+
+// ✅ overview에 보여줄 "주요 도시"
+const OVERVIEW_AREAS = [1, 2, 6, 4, 5, 39]; // 서울, 인천, 부산, 대구, 광주, 제주
+
+// ✅ current-only cache + inflight (overview 전용)
+const _wxCurCache = new Map();
+const _wxCurInflight = new Map();
+
+const CUR_TTL_MS = 10 * 60 * 1000;
+const CUR_STALE_TTL_MS = 60 * 60 * 1000;
+
+function getCurCache(key) {
+  const hit = _wxCurCache.get(key);
+  if (!hit) return null;
+
+  const now = Date.now();
+  if (now <= hit.exp) return { type: "fresh", value: hit.v };
+  if (now <= hit.staleExp) return { type: "stale", value: hit.v };
+
+  _wxCurCache.delete(key);
+  return null;
+}
+
+function setCurCache(key, value) {
+  const now = Date.now();
+  _wxCurCache.set(key, {
+    v: value,
+    exp: now + CUR_TTL_MS,
+    staleExp: now + CUR_STALE_TTL_MS,
+  });
+}
+
+async function fetchCurrentOnly(cityObj) {
+  const base = "https://api.openweathermap.org/data/2.5";
+  const common = {
+    q: cityObj.q,
+    appid: OPENWEATHER_KEY,
+    units: "metric",
+    lang: "kr",
+  };
+
+  const cur = await axios.get(`${base}/weather`, { params: common, timeout: 8000 });
+
+  return {
+    areaCode: cityObj.areaCode,
+    city: cityObj.ko || cur.data.name,
+    temp: Math.round(cur.data.main.temp),
+    desc: cur.data.weather?.[0]?.description ?? "",
+    icon: `https://openweathermap.org/img/w/${cur.data.weather?.[0]?.icon}.png`,
+  };
+}
+
 
 // ✅ 캐시 + in-flight(동시요청 dedupe)
 const _wxCache = new Map(); // key -> { v, exp, staleExp }
@@ -67,11 +118,79 @@ function setCache(key, value) {
 }
 
 function normalizeCity({ city, areaCode }) {
-  if (city && String(city).trim()) return String(city).trim();
+  // city 쿼리를 직접 주면: 그대로 사용(표시명은 그대로/원하면 ko로 따로 내려도 됨)
+  if (city && String(city).trim()) {
+    const c = String(city).trim();
+    return { q: c, ko: c };
+  }
+
   const code = areaCode != null ? Number(areaCode) : null;
   if (!code) return null;
+
   return AREA_CODE_TO_CITY[code] || null;
 }
+
+router.get("/overview", async (req, res) => {
+  try {
+    if (!OPENWEATHER_KEY) {
+      return res.status(500).json({
+        ok: false,
+        message: "OPENWEATHER_API_KEY(또는 WEATHER_API_KEY)가 서버 .env에 없습니다.",
+      });
+    }
+
+    const results = await Promise.all(
+      OVERVIEW_AREAS.map(async (ac) => {
+        const base = AREA_CODE_TO_CITY[ac];
+        if (!base) return null;
+
+        const cityObj = { ...base, areaCode: ac };
+        const key = `wxcur|${String(cityObj.q).trim().toLowerCase().replace(/\s+/g, "_")}`;
+
+        // 1) fresh cache
+        const cached = getCurCache(key);
+        if (cached?.type === "fresh") return cached.value;
+
+        // 2) inflight dedupe
+        if (_wxCurInflight.has(key)) {
+          try {
+            return await _wxCurInflight.get(key);
+          } catch (e) {
+            _wxCurInflight.delete(key);
+            throw e;
+          }
+        }
+
+        const p = (async () => {
+          const value = await fetchCurrentOnly(cityObj);
+          setCurCache(key, value);
+          return value;
+        })();
+
+        _wxCurInflight.set(key, p);
+
+        try {
+          return await p;
+        } catch (err) {
+          const status = err?.response?.status;
+          const stale = getCurCache(key);
+
+          if (status === 429 && stale?.value) return stale.value;
+          return null;
+        } finally {
+          _wxCurInflight.delete(key);
+        }
+      })
+    );
+
+    const list = results.filter(Boolean);
+    res.set("Cache-Control", "public, max-age=60");
+    return res.json({ ok: true, list });
+  } catch (e) {
+    console.error("weather overview error:", e);
+    return res.status(500).json({ ok: false, message: "서버 오류" });
+  }
+});
 
 /**
  * GET /api/weather?areaCode=6
@@ -87,15 +206,15 @@ router.get("/", async (req, res) => {
       });
     }
 
-    const city = normalizeCity(req.query);
-    if (!city) {
-      return res.status(400).json({
-        ok: false,
-        message: "city 또는 areaCode가 필요합니다. (예: ?areaCode=6)",
-      });
+    const cityObj = normalizeCity(req.query);
+    if (!cityObj) {
+      return res.status(400).json({ ok:false, message:"city 또는 areaCode 필요" });
     }
 
-    const key = `wx|${city.toLowerCase()}`;
+    const key = `wx|${String(cityObj.q || cityObj.ko)
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "_")}`;
 
     // 1) fresh 캐시 있으면 즉시 반환
     const cached = getCache(key);
@@ -106,39 +225,66 @@ router.get("/", async (req, res) => {
 
     // 2) 동시 요청 dedupe
     if (_wxInflight.has(key)) {
-      const value = await _wxInflight.get(key);
-      res.set("Cache-Control", "public, max-age=60");
-      return res.json({ ok: true, source: "inflight", ...value });
+      try {
+        const value = await _wxInflight.get(key);
+        res.set("Cache-Control", "public, max-age=60");
+        return res.json({ ok: true, source: "inflight", ...value });
+      } catch (e) {
+        _wxInflight.delete(key);
+        throw e;
+      }
     }
 
     // 3) 실제 호출(2건: weather + forecast)
     const p = (async () => {
-      const base = "https://api.openweathermap.org/data/2.5";
-      const common = {
-        q: city,
-        appid: OPENWEATHER_KEY,
-        units: "metric",
-        lang: "kr",
-      };
+    const base = "https://api.openweathermap.org/data/2.5";
+    const common = {
+      q: cityObj.q,
+      appid: OPENWEATHER_KEY,
+      units: "metric",
+      lang: "kr",
+    };
 
-      const [cur, fc] = await Promise.all([
-        axios.get(`${base}/weather`, { params: common, timeout: 8000 }),
-        axios.get(`${base}/forecast`, { params: common, timeout: 8000 }),
-      ]);
+    const [cur, fc] = await Promise.all([
+      axios.get(`${base}/weather`, { params: common, timeout: 8000 }),
+      axios.get(`${base}/forecast`, { params: common, timeout: 8000 }),
+    ]);
 
-      const weather = {
-        temp: Math.round(cur.data.main.temp),
-        desc: cur.data.weather?.[0]?.description ?? "",
-        icon: `https://openweathermap.org/img/w/${cur.data.weather?.[0]?.icon}.png`,
-        city: cur.data.name,
-      };
+    const weather = {
+      temp: Math.round(cur.data.main.temp),
+      desc: cur.data.weather?.[0]?.description ?? "",
+      icon: `https://openweathermap.org/img/w/${cur.data.weather?.[0]?.icon}.png`,
+      city: cityObj.ko || cur.data.name,
+    };
 
-      const forecast = (fc.data.list || []).slice(0, 5);
+      const tzSec = fc.data.city?.timezone ?? 0;
 
-      const value = { weather, forecast };
-      setCache(key, value);
-      return value;
-    })();
+      // "도시 기준 오늘" (UTC 메서드로 안전하게)
+      const nowLocal = new Date(Date.now() + tzSec * 1000);
+      const y = nowLocal.getUTCFullYear();
+      const m = nowLocal.getUTCMonth();
+      const d = nowLocal.getUTCDate();
+
+      const slots = new Set([6, 9, 12, 15, 18, 21]);
+
+      const forecast = (fc.data.list || []).filter((item) => {
+      const dtLocal = new Date((item.dt + tzSec) * 1000);
+      const sameDay =
+        dtLocal.getUTCFullYear() === y &&
+        dtLocal.getUTCMonth() === m &&
+        dtLocal.getUTCDate() === d;
+
+      const hour = dtLocal.getUTCHours();
+      return sameDay && slots.has(hour);
+    });
+    const value = { weather, forecast };
+
+    // ✅ 캐시 저장
+    setCache(key, value);
+
+    // ✅ 반드시 return
+    return value;
+  })();
 
     _wxInflight.set(key, p);
 

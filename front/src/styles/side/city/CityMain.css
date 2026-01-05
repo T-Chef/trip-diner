@@ -99,6 +99,10 @@
     backdrop-filter: blur(6px);
   }
 
+  .floating-left > .weather-box{
+  width: 270px;    
+  }
+
   .city-hero{
     margin: 14px 0 18px;
     padding: 18px 18px 14px;
@@ -107,6 +111,38 @@
     border: none;
     box-shadow: none;
   }
+
+  /* ✅ 가운데 타이틀 + 양옆 라인 (이미 있으면 덮어써도 OK) */
+.city-section-head.center{
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 12px 0 16px; /* 섹션 타이틀 아래 간격 살짝 확보 */
+}
+
+/* ✅ 라인 */
+.city-section-head.center::before,
+.city-section-head.center::after{
+  content: "";
+  flex: 1;
+  height: 1px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(42,32,24,0.00),
+    rgba(215,176,106,0.60),
+    rgba(42,32,24,0.12),
+    rgba(42,32,24,0.00)
+  );
+  opacity: 0.9;
+}
+
+/* ✅ 타이틀이 라인 위에서 더 또렷하게(가독성 + 고급 느낌) */
+.city-section-head.center .city-section-title{
+  padding: 4px 10px;
+}
 
   .city-section-head.center,
   .city-head-center {
@@ -381,6 +417,7 @@
   color: var(--city-muted);
   line-height: 1.5;
   height: 3em; /* 두 줄 정도 높이 */
+  line-clamp: 2;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;

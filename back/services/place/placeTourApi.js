@@ -10,6 +10,8 @@ const BASE_PARAMS = {
   _type: "json",
 };
 
+const hasValue = (v) => v !== null && v !== undefined && String(v).trim() !== "";
+
 export async function fetchPlaceList({
   areaCode,
   sigunguCode,
@@ -23,9 +25,12 @@ export async function fetchPlaceList({
     numOfRows: String(numOfRows ?? 50),
     pageNo: String(pageNo ?? 1),
     areaCode: String(areaCode),
-    arrange: String(arrange ?? "B"),
-    ...(sigunguCode ? { sigunguCode: String(sigunguCode) } : {}),
-    ...(contentTypeId ? { contentTypeId: String(contentTypeId) } : {}),
+
+    // ✅ 기본 인기(조회수) 정렬
+    arrange: String(arrange ?? "D"),
+
+    ...(hasValue(sigunguCode) ? { sigunguCode: String(sigunguCode) } : {}),
+    ...(hasValue(contentTypeId) ? { contentTypeId: String(contentTypeId) } : {}),
   });
 
   const json = await fetchTourJson(url, { quotaBlockMs: 60 * 1000 });

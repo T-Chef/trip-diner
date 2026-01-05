@@ -107,7 +107,7 @@ export default function Profile({ user, setUser }) {
   const handleProfileClick = () => fileInputRef.current?.click();
 
   const handleFileChange = async (e) => {
-    const file = e.target.files[0];
+    const file = e.target?.files?.[0];
     if (!file || !user) return;
 
     try {
@@ -139,6 +139,8 @@ export default function Profile({ user, setUser }) {
     } catch (err) {
       console.error(err);
       alert("프로필 이미지 업로드 중 오류가 발생했습니다.");
+    } finally {
+      e.target.value = "";
     }
   };
 
@@ -148,7 +150,7 @@ export default function Profile({ user, setUser }) {
     <div className="profile-container-new">
       <div className="profile-card">
         <div className="profile-left">
-          <div className="profile-photo-box" onClick={handleFileChange}>
+          <div className="profile-photo-box" onClick={handleProfileClick}>
             <img
               src={profileImg || "http://localhost:4000/profile.png"}
               className="profile-photo"

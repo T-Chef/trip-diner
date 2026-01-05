@@ -1,19 +1,54 @@
+/* ===== 공통 마이페이지 배경 ===== */
+.mypage-bg{
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+
+  background-image: url("/public/assets/images/trip-bg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #000; 
+}
+
+.mypage-overlay{
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1;
+}
+
+.mypage-content{
+  position: relative;
+  z-index: 2;
+  padding-top: 110px;
+  padding-bottom: 40px;
+}
+
+.mypage-title-center {
+  text-align: center;
+  color: white;
+  font-size: 28px;
+  margin-bottom: 30px;
+}
+
+
+/* ===== 중앙 컨텐츠 박스 (축소 + 정렬 안정화) ===== */
 .mypage-table-container {
-  width: 80%;
-  max-width: 1200px;
-  margin: 40px auto 0 auto;   /* 🔥 아래 여백 0으로 설정 */
+  width: 60%;
+  max-width: 1100px;
+  margin: 30px auto 0;
+
   background: white;
-  border-radius: 16px;
-  padding: 30px;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+  border-radius: 18px;
+  padding: 30px 40px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
   box-sizing: border-box;
 }
 
-.mypage-title {
-  text-align: center;
-  margin-bottom: 20px;
-}
 
+/* ===== 테이블 기본 ===== */
 .mypage-table {
   width: 100%;
   border-collapse: collapse;
@@ -51,68 +86,31 @@
   color: #777;
 }
 
-.mypage-title-center {
-  text-align: center;
-  color: white;
-  font-size: 28px;
-  margin-bottom: 30px;
-}
-
-/* 카드 5개씩 정렬 */
-.post-grid {
-  width: 80%;
-  max-width: 1300px;
-  margin: 0 auto 80px auto;
-
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 25px;
-}
-
-/* 카드 디자인 */
-.post-card {
-  background: white;
-  border-radius: 14px;
-  padding: 18px;
+.mypage-row{
   cursor: pointer;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-
-  transition: all 0.25s ease-in-out;
+}
+.mypage-pagination{
+  text-align: center;
+  margin-top: 22px;
 }
 
-.post-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+.mypage-pagination button{
+  padding: 6px 12px;
+  margin: 0 4px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  background: #fff;
+  cursor: pointer;
 }
 
-/* 카드 내부 내용 */
-.post-card-body {
-  width: 85%;
+.mypage-pagination button:disabled{
+  opacity: .4;
+  cursor: default;
 }
 
-.post-category {
-  font-size: 13px;
-  color: #888;
+.mypage-pagination button.active{
+  background: #000;
+  color: #fff;
+  border-color: #000;
 }
 
-.post-title {
-  margin: 10px 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
-}
-
-.post-info {
-  font-size: 13px;
-  color: #666;
-  display: flex;
-  justify-content: space-between;
-}
-
-.post-arrow {
-  font-size: 24px;
-  color: #555;
-}
