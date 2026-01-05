@@ -240,7 +240,6 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
               active={isActive("/schedule")}
               onClick={close}
             />
-
             <NavItem
               to="/city"
               label="도시별 여행 정보"
@@ -248,7 +247,6 @@ export default function SideMenu({ user, setUser, menuOpen, setMenuOpen }) {
               active={isActive("/city")}
               onClick={close}
             />
-
             <NavItem
               to="/board"
               label="게시판"

@@ -10,6 +10,10 @@ export default function MyPosts() {
 
   const [posts, setPosts] = useState([]);
 
+  // ⭐ 페이지네이션 상태
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+
   useEffect(() => {
     if (!user_id) return;
 
@@ -18,6 +22,12 @@ export default function MyPosts() {
       .then((res) => setPosts(Array.isArray(res.data) ? res.data : []))
       .catch((err) => console.error("내 글 불러오기 실패:", err));
   }, [user_id]);
+
+  // ⭐ 전체 페이지 수
+  const totalPages = Math.ceil(posts.length / pageSize);
+
+  // ⭐ 현재 페이지 데이터
+  const currentPosts = posts.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <div className="mypage-bg">
@@ -38,8 +48,8 @@ export default function MyPosts() {
             </thead>
 
             <tbody>
-              {posts.length > 0 ? (
-                posts.map((p) => (
+              {currentPosts.length > 0 ? (
+                currentPosts.map((p) => (
                   <tr
                     key={p.post_id}
                     onClick={() => navigate(`/board/${p.post_id}`)}
@@ -60,6 +70,32 @@ export default function MyPosts() {
               )}
             </tbody>
           </table>
+
+          {/* ⭐ 페이지네이션 영역 */}
+          {totalPages > 1 && (
+            <div className="mypage-pagination">
+              <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+                &lt;
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPage(i + 1)}
+                  className={page === i + 1 ? "active" : ""}
+                >
+                  {i + 1}
+                </button>
+              ))}
+
+              <button
+                disabled={page === totalPages}
+                onClick={() => setPage(page + 1)}
+              >
+                &gt;
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

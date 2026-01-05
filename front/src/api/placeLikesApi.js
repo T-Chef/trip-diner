@@ -8,6 +8,7 @@ function lsKey(userId) {
 function setLocalLike(userId, contentId, liked) {
   const key = lsKey(userId);
   const saved = JSON.parse(localStorage.getItem(key) || "[]").map(String);
+
   const cid = String(contentId);
 
   const updated = liked
@@ -15,12 +16,15 @@ function setLocalLike(userId, contentId, liked) {
     : saved.filter((id) => id !== cid);
 
   localStorage.setItem(key, JSON.stringify(updated));
+
   window.dispatchEvent(new CustomEvent("placeLikesChanged", { detail: { userId } }));
+
 }
 
 function clearLocalLikes(userId) {
   const key = lsKey(userId);
   localStorage.setItem(key, JSON.stringify([]));
+
   window.dispatchEvent(new CustomEvent("placeLikesChanged", { detail: { userId } }));
 }
 
@@ -53,6 +57,7 @@ export const placeLikesApi = {
 
   clearAll: async (userId) => {
     const res = await http.delete(`/place/likes/user/${userId}`);
+
     clearLocalLikes(userId);
     return res;
   },

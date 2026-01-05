@@ -266,8 +266,11 @@ export async function getPlaces(reqQuery) {
     `tb:${topBucket == null ? "" : String(topBucket)}`,
   ].join("|");
 
-  const cached = getCache(cacheKey);
-  if (cached) return { fromCache: true, data: cached };
+  const cachedBase = getCache(cacheKey);
+  if (cachedBase) {
+    const out = postProcess(cachedBase, { keyword, random, topBucket });
+    return { fromCache: true, data: out };
+  }
 
   if (isQuotaBlocked()) return { quotaBlocked: true, data: [] };
 

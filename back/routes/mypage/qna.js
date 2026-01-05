@@ -25,7 +25,6 @@ router.post("/", userAuth, async (req, res) => {
     });
 
     res.json({ success: true });
-
   } catch (err) {
     console.error("QnA 등록 오류:", err);
     res.status(500).json({ success: false });

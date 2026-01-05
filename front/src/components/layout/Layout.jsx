@@ -21,6 +21,7 @@ export default function Layout({ children, user, setUser }) {
     "/withdraw",
     "/qna",
   ];
+
   const hideHeader = hideHeaderPaths.some((p) =>
     location.pathname.startsWith(p)
   );
