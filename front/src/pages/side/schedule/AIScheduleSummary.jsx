@@ -124,6 +124,10 @@ function toProxyImage(url) {
 }
 
 export default function AIScheduleSummary() {
+  useEffect(() => {
+    document.body.classList.add("summary-mode");
+    return () => document.body.classList.remove("summary-mode");
+  }, []);
   const pdfRef = useRef(null);
 
   const location = useLocation();
@@ -217,12 +221,46 @@ async function waitForImages(rootEl) {
   const heroEl = root.querySelector(".summary-hero");
   const daySections = Array.from(root.querySelectorAll(".summary-day-section"));
 
-  // 🔥 원하는 형태 선택:
-  // A) 1페이지: hero / 2페이지: Day1 / 3페이지: Day2 ... (가장 간단, 확실)
-  const chunks = [
-    ...(heroEl ? [heroEl] : []),
-    ...daySections,
-  ];
+  // ✅ 1페이지에 hero + Day1 같이 넣기
+let firstWrapper = null;
+let heroPh = null;
+let day1Ph = null;
+
+const chunks = [];
+
+if (heroEl && daySections.length > 0) {
+  const day1 = daySections[0];
+
+  // 원래 위치 복구용 placeholder 2개
+  heroPh = document.createElement("div");
+  heroPh.style.display = "none";
+  heroEl.parentNode.insertBefore(heroPh, heroEl);
+
+  day1Ph = document.createElement("div");
+  day1Ph.style.display = "none";
+  day1.parentNode.insertBefore(day1Ph, day1);
+
+  // hero + day1 묶을 wrapper
+  firstWrapper = document.createElement("div");
+  firstWrapper.className = "pdf-firstpage";
+
+  // hero 자리(placeholder 위치)에 wrapper 삽입
+  heroPh.parentNode.insertBefore(firstWrapper, heroPh);
+
+  // hero + day1을 wrapper로 이동
+  firstWrapper.appendChild(heroEl);
+  firstWrapper.appendChild(day1);
+
+  // 첫 페이지 chunk는 wrapper
+  chunks.push(firstWrapper);
+
+  // 나머지 Day들만 따로 페이지
+  for (let i = 1; i < daySections.length; i++) chunks.push(daySections[i]);
+} else {
+  // fallback: 기존처럼
+  if (heroEl) chunks.push(heroEl);
+  chunks.push(...daySections);
+}
 
   // (선택) B) 1페이지에 hero+Day1 같이 넣고 싶으면 말해줘. 그 버전도 줄게.
 
@@ -289,9 +327,24 @@ async function waitForImages(rootEl) {
     console.error(e);
     alert("PDF 저장 중 오류가 발생했습니다. 콘솔을 확인해주세요.");
   } finally {
-    root.classList.remove("pdf-capture");
-    window.scrollTo(0, prevScrollY);
-  }
+  // ✅ hero/day1 원래 자리로 복구
+  try {
+    if (firstWrapper && heroPh && day1Ph) {
+      const hero = firstWrapper.querySelector(".summary-hero");
+      const day1 = firstWrapper.querySelector(".summary-day-section");
+
+      if (hero) heroPh.parentNode.insertBefore(hero, heroPh);
+      if (day1) day1Ph.parentNode.insertBefore(day1, day1Ph);
+
+      heroPh.remove();
+      day1Ph.remove();
+      firstWrapper.remove();
+    }
+  } catch {}
+
+  root.classList.remove("pdf-capture");
+  window.scrollTo(0, prevScrollY);
+}
 };
   
   const [loading, setLoading] = useState(false);
@@ -437,17 +490,25 @@ const handleSaveMyPlan = () => {
     mapFilter === "ALL" ? aiPlan.days : [aiPlan.days[activeDayIdx]];
 
     return (
-  <div className="summary-bg">
-    <div className="summary-page">
-      {/* ✅ 지도는 PDF 제외 (캡쳐 안정성) */}
-      <section className="summary-map-section" data-html2canvas-ignore="true">
-        <AIScheduleMap
-          aiPlan={aiPlan}
-          activePlace={null}
-          onSelectPlace={() => {}}
-          selectedDayExternal={mapFilter}
-        />
-      </section>
+  <div
+  className="summary-bg"
+  style={{
+    backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${process.env.PUBLIC_URL}/assets/images/trip-bg.png)`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+  }}
+>
+  <div className="summary-page">
+    {/* ✅ 지도는 PDF 제외 (캡쳐 안정성) */}
+    <section className="summary-map-section" data-html2canvas-ignore="true">
+      <AIScheduleMap
+        aiPlan={aiPlan}
+        activePlace={null}
+        onSelectPlace={() => {}}
+        selectedDayExternal={mapFilter}
+      />
+    </section>
 
       {/* ✅ 여기부터 PDF로 저장될 영역 */}
       <div ref={pdfRef}>

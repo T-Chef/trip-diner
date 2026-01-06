@@ -74,13 +74,49 @@ export default function AIScheduleResult() {
 
   console.log("📌 AI PLAN RESULT (state):", aiPlan);
 
-  const [highlight, setHighlight] = useState({ day: null, index: null });
+  const [highlight, setHighlight] = useState(null); // {day, index} 또는 null
   const [selectedPlace, setSelectedPlace] = useState(null);
   const API_BASE = "http://localhost:4000/api";
 
   // ✅ selectedPlace의 (dayIdx, placeIdx)도 같이 기억해야 "aiPlan 안에" description을 저장할 수 있음
   const [selectedPos, setSelectedPos] = useState(null);
   const [descLoading, setDescLoading] = useState(false);
+  const handleSelectFromMap = (...args) => {
+  // ✅ Map이 보내는 형태가 2가지일 수 있음
+  // 1) (dayIdx, placeIdx)
+  // 2) (place, dayIdx, placeIdx)
+  let place = null;
+  let dayIdx = null;
+  let placeIdx = null;
+
+  if (typeof args[0] === "number") {
+    dayIdx = args[0];
+    placeIdx = args[1];
+  } else {
+    place = args[0];
+    dayIdx = args[1];
+    placeIdx = args[2];
+  }
+
+  // ✅ dayIdx가 1부터 오는 경우(1일차=1)까지 방어
+  if (
+    Number.isInteger(dayIdx) &&
+    aiPlan?.days &&
+    !aiPlan.days[dayIdx] &&
+    aiPlan.days[dayIdx - 1]
+  ) {
+    dayIdx = dayIdx - 1;
+  }
+
+  if (!Number.isInteger(dayIdx) || !Number.isInteger(placeIdx)) return;
+
+  const p = place ?? aiPlan?.days?.[dayIdx]?.places?.[placeIdx];
+  if (!p) return;
+
+  setHighlight({ day: dayIdx, index: placeIdx });
+  setSelectedPos({ dayIdx, placeIdx });
+  setSelectedPlace(p);
+};
 
   // ✅ place.description이 없을 때만 호출
   const fetchDesc = async (place) => {
@@ -642,9 +678,7 @@ export default function AIScheduleResult() {
                     key={stableKey}
                     id={`place-${dayIdx}-${placeIdx}`}
                     className={`place-item ${isDragOver ? "drag-over" : ""} ${
-                      highlight.day === dayIdx && highlight.index === placeIdx
-                        ? "active"
-                        : ""
+                      highlight?.day === dayIdx && highlight?.index === placeIdx ? "active" : ""
                     } ${editMode ? "draggable" : ""}`}
                     draggable={!!editMode}
                     onDragStart={() => {
@@ -787,14 +821,10 @@ export default function AIScheduleResult() {
           </div>
 
           <AIScheduleMap
-            aiPlan={aiPlan}
-            activePlace={highlight}
-            onSelectPlace={(dayIdx, placeIdx) => {
-              setHighlight({ day: dayIdx, index: placeIdx });
-              setSelectedPos({ dayIdx, placeIdx });
-              setSelectedPlace(aiPlan.days[dayIdx].places[placeIdx]);
-            }}
-          />
+  aiPlan={aiPlan}
+  activePlace={highlight}
+  onSelectPlace={handleSelectFromMap}
+/>
         </div>
 
         <div className={`slide-panel ${selectedPlace ? "open" : ""}`}>

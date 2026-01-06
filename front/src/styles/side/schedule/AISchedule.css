@@ -208,3 +208,104 @@ h2 {
     opacity: 1;
   }
 }
+.nav-buttons button { cursor: pointer; }
+.nav-buttons button:disabled { cursor: not-allowed; }
+/* ================================
+   ✅ 2번 사진 느낌(브라운톤) 통일
+   맨 아래에 추가해서 기존 스타일 덮어쓰기
+================================ */
+
+/* 도시 버튼(동그라미) */
+.btn-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px;
+  justify-content:center;
+  margin:20px 0;
+}
+
+.btn-grid button{
+  width:80px;
+  height:80px;
+  border-radius:999px;
+  border:2px solid rgba(160,120,80,0.35);
+  background: rgba(255,255,255,0.75);
+  color:#3a2a1a;
+  font-weight:800;
+  cursor:pointer;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+  backdrop-filter: blur(6px);
+
+  /* 글자 깨짐 방지 유지 */
+  white-space: normal;
+  word-break: keep-all;
+  line-height: 1.15;
+  padding: 8px;
+}
+
+.btn-grid button:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+  border-color: rgba(160,120,80,0.7);
+}
+
+.btn-grid button.active{
+  background:#8b5a2b;
+  color:#fff;
+  border-color:#8b5a2b;
+  box-shadow: 0 12px 26px rgba(139,90,43,0.35);
+}
+
+.btn-grid button:disabled{
+  opacity:0.55;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:none;
+}
+
+/* 네비게이션 버튼(이전/다음) */
+.nav-buttons{
+  margin-top:25px;
+  display:flex;
+  gap:14px;
+  width:100%;
+}
+
+.nav-buttons button{
+  flex:1;
+  height:54px;
+  border:none;
+  border-radius:14px;
+  font-weight:800;
+  font-size:16px;
+  cursor:pointer;
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+
+/* 다음(진한 브라운) */
+.nav-buttons .next{
+  background:#8b5a2b;
+  color:#fff;
+}
+
+/* 이전(조금 연한 브라운) */
+.nav-buttons .back{
+  background: rgba(139,90,43,0.75);
+  color:#fff;
+}
+
+.nav-buttons .next:hover,
+.nav-buttons .back:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(0,0,0,0.18);
+  filter: brightness(1.03);
+}
+
+/* disabled */
+.nav-buttons button:disabled{
+  opacity:0.55;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:none;
+  filter:none;
+}

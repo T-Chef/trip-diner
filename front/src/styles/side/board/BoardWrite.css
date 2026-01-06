@@ -1,20 +1,21 @@
+/* 1. 전체 페이지 레이아웃 */
 .write-page {
   width: 100%;
-  max-width: 1400px; 
+  max-width: 1400px;
   margin: 0 auto;
   padding: 40px 20px;
-  /* 메인 페이지와 통일된 따뜻한 베이지 톤 */
-  background-color: #f4f1ea !important; 
+  background-color: #f4f1ea !important;
   min-height: 100vh;
 }
 
 .write-layout {
   display: grid;
-  grid-template-columns: 7.5fr 2.5fr; /* 본문과 사이드바 비율 */
+  grid-template-columns: 7.5fr 2.5fr;
   gap: 40px;
   align-items: start;
 }
 
+/* 2. 메인 작성 영역 */
 .write-main {
   min-width: 0;
   background: #fff;
@@ -31,7 +32,7 @@
   color: #111;
 }
 
-/* 2. 에디터 및 입력 그룹 */
+/* 3. 입력 그룹 및 에디터 */
 .input-group {
   margin-bottom: 25px;
 }
@@ -55,11 +56,10 @@
   box-sizing: border-box;
 }
 
-/* 포커스 시 강조색을 메인 브라운 톤으로 변경 */
 .input-group input:focus, 
 .input-group select:focus {
   outline: none;
-  border-color: #a68b6a; 
+  border-color: #a68b6a;
   box-shadow: 0 0 0 3px rgba(166, 139, 106, 0.1);
 }
 
@@ -68,7 +68,6 @@
   margin-bottom: 30px;
 }
 
-/* 3. Quill 에디터 래퍼 스타일 */
 .quill-wrap {
   border: 1px solid #e2e8f0;
   border-radius: 15px;
@@ -77,6 +76,7 @@
   overflow: hidden;
 }
 
+/* 4. 사이드바 (내 여행 일정) */
 .write-sidebar {
   background: #fff;
   border: 1px solid #f1f5f9;
@@ -92,23 +92,37 @@
   font-weight: 800;
   margin-bottom: 20px;
   padding-bottom: 12px;
-  border-bottom: 3px solid #a68b6a; 
+  border-bottom: 3px solid #a68b6a;
   color: #1e293b;
 }
 
+/* 일정 리스트 영역 - 스크롤바 활성화 */
 .sidebar-list {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  max-height: 75vh;
+  gap: 15px;
+  max-height: calc(100vh - 200px); /* 화면 높이에 맞춰 높이 제한 */
   overflow-y: auto;
-  padding-right: 5px;
+  padding-right: 8px;
 }
 
-/* 스크롤바 디자인 */
-.sidebar-list::-webkit-scrollbar { width: 5px; }
-.sidebar-list::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+/* 갈색 스크롤바 디자인 */
+.sidebar-list::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+.sidebar-list::-webkit-scrollbar-thumb {
+  background: #a68b6a;
+  border-radius: 10px;
+}
+.sidebar-list::-webkit-scrollbar-thumb:hover {
+  background: #8d7456;
+}
 
+/* 일정 카드 - 이미지 찌그러짐 방지 적용 */
 .side-trip-card {
   border: 1px solid #f1f5f9;
   border-radius: 16px;
@@ -117,46 +131,49 @@
   position: relative;
   transition: all 0.3s ease;
   background: #fff;
-  display: flex; 
+  display: flex;
   flex-direction: column;
+  min-height: 160px; /* 카드의 최소 높이 확보 */
 }
 
 .side-trip-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 20px rgba(166, 139, 106, 0.15); 
+  box-shadow: 0 12px 20px rgba(166, 139, 106, 0.15);
 }
 
-.side-card-img { 
-  width: 100%; 
-  height: 120px; 
+.side-card-img {
+  width: 100%;
+  height: 100px !important; /* 이미지 높이 고정 */
   overflow: hidden;
+  flex-shrink: 0; /* 공간 부족해도 이미지가 줄어들지 않음 */
 }
 
-.side-card-img img { 
-  width: 100%; 
-  height: 100%; 
-  object-fit: cover; 
+.side-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover !important; /* 이미지 비율 유지 핵심 */
+  display: block;
 }
 
-.side-card-info { 
-  padding: 12px 15px; 
-  background: #fff; 
+.side-card-info {
+  padding: 12px 15px;
+  background: #fff;
   text-align: left;
-  min-height: 60px;
+  flex-grow: 1;
 }
 
 .side-card-title {
-  font-weight: 700; 
+  font-weight: 700;
   font-size: 14px;
-  margin: 0 0 5px 0; 
+  margin: 0 0 5px 0;
   color: #1e293b;
-  white-space: nowrap; 
-  overflow: hidden; 
+  white-space: nowrap;
+  overflow: hidden;
   text-overflow: ellipsis;
   display: block;
 }
 
-.side-card-date { 
+.side-card-date {
   font-size: 13px;
   color: #94a3b8;
   display: flex;
@@ -166,13 +183,13 @@
 
 .side-card-date .duration,
 .side-card-date strong {
-  color: #a68b6a; 
+  color: #a68b6a;
   font-weight: 600;
 }
 
 .side-hover-msg {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(166, 139, 106, 0.9); 
+  background: rgba(166, 139, 106, 0.9);
   color: #fff; display: flex; align-items: center; justify-content: center;
   font-weight: 700; opacity: 0; transition: opacity 0.3s;
   z-index: 2;
@@ -180,25 +197,18 @@
 
 .side-trip-card:hover .side-hover-msg { opacity: 1; }
 
-/* 5. 태그 입력 영역 (통합 수정본) */
+/* 5. 태그 및 버튼 영역 */
 .tag-box {
   margin-top: 10px;
   margin-bottom: 30px;
   padding: 12px 18px;
-  background-color: #fdfbf8; 
+  background-color: #fdfbf8;
   border-radius: 12px;
   border: 1px solid #e9e0d5;
   min-height: 56px;
   display: flex;
   align-items: center;
   cursor: text;
-  transition: all 0.2s ease;
-}
-
-.tag-box:focus-within {
-  border-color: #a68b6a;
-  background-color: #fff;
-  box-shadow: 0 0 0 3px rgba(166, 139, 106, 0.05);
 }
 
 .tag-list {
@@ -210,7 +220,7 @@
 }
 
 .tag-item {
-  background-color: #a68b6a; 
+  background-color: #a68b6a;
   color: #fff;
   padding: 6px 14px;
   border-radius: 100px;
@@ -219,17 +229,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 2px 6px rgba(166, 139, 106, 0.2);
 }
 
-.tag-remove { 
-  cursor: pointer; 
-  font-size: 16px; 
-  line-height: 1; 
-  transition: opacity 0.2s;
-}
-
-.tag-remove:hover { opacity: 0.7; }
+.tag-remove { cursor: pointer; font-size: 16px; }
 
 .tag-input {
   border: none !important;
@@ -239,18 +241,12 @@
   font-size: 14px;
   flex: 1;
   min-width: 150px;
-  color: #334155;
-  box-shadow: none !important;
 }
 
-/* 6. 등록 버튼 */
 .submit-btn {
   margin-top: 20px;
   padding: 12px 35px;
-  width: auto;
-  min-width: 140px;
-  border: none;
-  background: #8d7456; 
+  background: #8d7456;
   color: white;
   border-radius: 8px;
   font-size: 16px;
@@ -259,17 +255,8 @@
   transition: all 0.2s ease;
   display: block;
   margin-left: auto;
-  box-shadow: 0 4px 10px rgba(141, 116, 86, 0.2);
 }
 
-.submit-btn:hover {
-  background: #766148; 
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(118, 97, 72, 0.4);
-}
+.submit-btn:hover { background: #766148; transform: translateY(-2px); }
 
-.submit-btn:active { transform: scale(0.98); }
-
-.ql-align-center {
-  text-align: center !important;
-}
+.ql-align-center { text-align: center !important; }

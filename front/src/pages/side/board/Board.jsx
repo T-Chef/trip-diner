@@ -39,6 +39,7 @@ export default function Board() {
     } else {
       setCategory("전체");
     }
+
     setCurrentPage(1);
   }, [urlCategory]);
 
