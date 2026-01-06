@@ -6,6 +6,7 @@ export default function AdminPosts() {
   const [posts, setPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+
   const perPage = 8;
   const indexOfLast = currentPage * perPage;
   const indexOfFirst = indexOfLast - perPage;
@@ -35,12 +36,15 @@ export default function AdminPosts() {
     fetchPosts();
   };
 
-  const openPostDetail = async (postId) => {
+  const openPostDetail = async (postId, deleted) => {
+    if (deleted === 1) {
+      alert("임시 삭제된 게시글은 내용을 확인할 수 없습니다.");
+      return;
+    }
+
     const res = await axios.get(`http://localhost:4000/api/posts/${postId}`);
     setSelectedPost(res.data);
   };
-
-  const closeModal = () => setSelectedPost(null);
 
   const bgStyle = {
     backgroundImage: `url(${process.env.PUBLIC_URL}/assets/images/trip-back.png)`,
@@ -79,15 +83,8 @@ export default function AdminPosts() {
 
                   <td
                     className="post-title-link"
-                    onClick={() => {
-                      if (post.deleted === 1) {
-                        alert(
-                          "임시 삭제된 게시글은 내용을 확인할 수 없습니다."
-                        );
-                        return;
-                      }
-                      openPostDetail(post.post_id);
-                    }}
+                    onClick={() => openPostDetail(post.post_id, post.deleted)}
+                    style={{ cursor: "pointer", color: "#6b5dff" }}
                   >
                     {post.title}
                   </td>
@@ -146,34 +143,45 @@ export default function AdminPosts() {
         </div>
 
         {selectedPost && (
-          <div className="modal-overlay" onClick={closeModal}>
-            <div className="modal" onClick={(e) => e.stopPropagation()}>
-              <h2 className="modal-title">{selectedPost.title}</h2>
+          <div className="admin-modal-back">
+            <div className="admin-modal">
+              <h2>{selectedPost.title}</h2>
 
-              <div className="modal-meta">
-                <span>카테고리: {selectedPost.category}</span>
-                <span>작성자: {selectedPost.user?.name}</span>
-                <span>작성일: {selectedPost.created_at?.slice(0, 10)}</span>
-              </div>
+              <p style={{ color: "#666" }}>
+                카테고리: {selectedPost.category} / 작성자:{" "}
+                {selectedPost.user?.name} / 작성일:{" "}
+                {selectedPost.created_at?.slice(0, 10)}
+              </p>
 
               {selectedPost.image_url && (
                 <img
                   src={`http://localhost:4000${selectedPost.image_url}`}
                   alt="게시글 이미지"
-                  className="modal-image"
+                  style={{
+                    maxWidth: "350px",
+                    borderRadius: "8px",
+                    margin: "10px 0",
+                  }}
                 />
               )}
 
               <div
-                className="modal-content"
                 dangerouslySetInnerHTML={{ __html: selectedPost.content }}
+                style={{
+                  marginTop: "15px",
+                  padding: "10px",
+                  borderRadius: "10px",
+                  background: "#fafafa",
+                  border: "1px solid #ddd",
+                }}
               />
 
-              <div className="modal-actions">
-                <button className="close-btn" onClick={closeModal}>
-                  닫기
-                </button>
-              </div>
+              <button
+                className="admin-modal-close"
+                onClick={() => setSelectedPost(null)}
+              >
+                닫기
+              </button>
             </div>
           </div>
         )}
