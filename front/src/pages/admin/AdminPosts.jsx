@@ -5,8 +5,6 @@ import "../../styles/admin/AdminPosts.css";
 export default function AdminPosts() {
   const [posts, setPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
-
-  // ⭐ 페이지네이션
   const [currentPage, setCurrentPage] = useState(1);
   const perPage = 8;
   const indexOfLast = currentPage * perPage;

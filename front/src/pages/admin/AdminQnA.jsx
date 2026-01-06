@@ -28,56 +28,67 @@ export default function AdminQna() {
     fetchQna();
   }, []);
 
+  const bgStyle = {
+    backgroundImage: `url(${process.env.PUBLIC_URL}/assets/images/trip-back.png)`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+  };
+
   return (
-    <div className="admin-qna-page">
-      <h1 className="admin-title">1:1 문의 관리</h1>
+    <div className="admin-bg" style={bgStyle}>
+      <div className="admin-overlay" />
 
-      <div className="admin-card">
-        {loading ? (
-          <p className="admin-empty">불러오는 중입니다...</p>
-        ) : qnas.length === 0 ? (
-          <p className="admin-empty">등록된 문의가 없습니다.</p>
-        ) : (
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>제목</th>
-                <th>작성자</th>
-                <th>상태</th>
-                <th>작성일</th>
-              </tr>
-            </thead>
+      <div className="admin-qna-wrapper">
+        <h1 className="admin-title">1:1 문의 관리</h1>
 
-            <tbody>
-              {qnas.map((qna) => (
-                <tr key={qna.qna_id}>
-                  <td>{qna.qna_id}</td>
-
-                  <td className="qna-title">
-                    <Link to={`/admin/qna/${qna.qna_id}`}>{qna.title}</Link>
-                  </td>
-
-                  <td>{qna.user?.name || "탈퇴회원"}</td>
-
-                  <td>
-                    <span
-                      className={
-                        qna.status === "DONE"
-                          ? "badge answered"
-                          : "badge pending"
-                      }
-                    >
-                      {qna.status === "DONE" ? "답변완료" : "대기중"}
-                    </span>
-                  </td>
-
-                  <td>{qna.created_at?.slice(0, 10)}</td>
+        <div className="admin-card">
+          {loading ? (
+            <p className="admin-empty">불러오는 중입니다...</p>
+          ) : qnas.length === 0 ? (
+            <p className="admin-empty">등록된 문의가 없습니다.</p>
+          ) : (
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>제목</th>
+                  <th>작성자</th>
+                  <th>상태</th>
+                  <th>작성일</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+
+              <tbody>
+                {qnas.map((qna) => (
+                  <tr key={qna.qna_id}>
+                    <td>{qna.qna_id}</td>
+
+                    <td className="qna-title">
+                      <Link to={`/admin/qna/${qna.qna_id}`}>{qna.title}</Link>
+                    </td>
+
+                    <td>{qna.user?.name || "탈퇴회원"}</td>
+
+                    <td>
+                      <span
+                        className={
+                          qna.status === "DONE"
+                            ? "badge answered"
+                            : "badge pending"
+                        }
+                      >
+                        {qna.status === "DONE" ? "답변완료" : "대기중"}
+                      </span>
+                    </td>
+
+                    <td>{qna.created_at?.slice(0, 10)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
     </div>
   );

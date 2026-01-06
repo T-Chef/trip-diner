@@ -36,6 +36,19 @@ body{
   box-sizing:border-box;
 }
 
+.admin-detail-wrapper{
+  position: relative;
+  z-index: 2;
+
+  width:65%;
+  max-width:1150px;
+
+  margin-top:150px;
+  margin-bottom:80px;
+
+  background:transparent;
+}
+
 .admin-title {
   text-align: center;
   font-size: 24px;
@@ -89,4 +102,21 @@ body{
   text-align: center;
   color: #666;
   padding: 40px 0;
+}
+
+.admin-answer-box{
+  background:white;
+  border-radius:14px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.08);
+  border:1px solid #ddd;
+  padding:18px;
+  margin-top:10px;
+}
+
+.admin-answer-box textarea{
+  width:100%;
+  box-sizing:border-box;
+  border-radius:10px;
+  border:1px solid #ccc;
+  resize:none;
 }
