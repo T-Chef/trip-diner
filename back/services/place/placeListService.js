@@ -146,14 +146,14 @@ function roundRobinMerge(grouped, limit) {
 function postProcessNational(baseList, { keyword, random, topBucket }, rows) {
   const hasKeyword = Boolean((keyword ?? "").trim());
 
-  // ✅ 키워드 검색은 전국이어도 “전체 인기순”이 자연스러움
+  // ✅ 키워드 검색은 전국이어도 “전체 인기순”
   if (hasKeyword) {
     return [...baseList].sort(
       (a, b) => Number(b.readcount ?? 0) - Number(a.readcount ?? 0)
     );
   }
 
-  // ✅ 기본(요청사항): 전국은 골고루 인기(라운드로빈)
+  // ✅ 기본: 전국은 골고루 인기(라운드로빈)
   const grouped = {};
   for (const it of baseList) {
     const ac = Number(it?._areaCode);
@@ -164,7 +164,7 @@ function postProcessNational(baseList, { keyword, random, topBucket }, rows) {
 
   const balanced = roundRobinMerge(grouped, Math.max(rows * 3, 80));
 
-  // random=1이면 상위 버킷만 살짝 섞기(옵션)
+  // random=1이면 상위 버킷만 섞기(옵션)
   const randomOn = String(random) === "1";
   if (!randomOn) return balanced;
 
@@ -208,6 +208,10 @@ async function retry(fn, { retries = 2, baseDelay = 250 } = {}) {
     }
   }
   throw lastErr;
+}
+
+function failPayload(message) {
+  return { ok: false, message, data: [] };
 }
 
 export async function getPlaces(reqQuery) {
@@ -266,26 +270,44 @@ export async function getPlaces(reqQuery) {
     `tb:${topBucket == null ? "" : String(topBucket)}`,
   ].join("|");
 
+  // ✅ 캐시 히트: 그대로 반환 (postProcess 호출 X)
   const cachedBase = getCache(cacheKey);
   if (cachedBase) {
-    const out = postProcess(cachedBase, { keyword, random, topBucket });
-    return { fromCache: true, data: out };
+    return { fromCache: true, data: cachedBase };
   }
 
-  if (isQuotaBlocked()) return { quotaBlocked: true, data: [] };
+  // ✅ quota 락이면 502 던지지 말고 ok:false로 내려주기
+  if (isQuotaBlocked()) {
+    return {
+      quotaBlocked: true,
+      data: failPayload("현재 TourAPI 호출 한도 초과 상태입니다. 잠시 후 다시 시도해 주세요."),
+    };
+  }
 
   let items = [];
 
-  // 1) Tour API fetch
+  // 1) Tour API fetch (✅ fetchPlaceList 감싸기)
   if (hasArea) {
-    items = await fetchPlaceList({
-      areaCode,
-      sigunguCode: safeSigungu,
-      contentTypeId,
-      numOfRows: rows,
-      pageNo: page,
-      arrange: arrangeMode,
-    });
+    try {
+      items = await fetchPlaceList({
+        areaCode,
+        sigunguCode: safeSigungu,
+        contentTypeId,
+        numOfRows: rows,
+        pageNo: page,
+        arrange: arrangeMode,
+      });
+    } catch (e) {
+      const msg =
+        e?.code === "TOUR_API_QUOTA_EXCEEDED"
+          ? "TourAPI 호출 한도 초과로 여행지 목록을 불러올 수 없습니다. 잠시 후 재시도해 주세요."
+          : "여행지 목록을 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.";
+
+      // ✅ 짧게 캐시해서 연속 호출 폭주 방지(선택)
+      setCache(cacheKey, failPayload(msg), 15 * 1000);
+
+      return { data: failPayload(msg) };
+    }
   } else {
     const per = NATIONAL_PER_AREA_ROWS;
 
