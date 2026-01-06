@@ -1,6 +1,9 @@
-// back/services/place/placeDetailService.js
 import { getCache, setCache } from "../../utils/cache.js";
-import { cleanText, cleanOverview, buildTagsFromCategory } from "../../utils/textUtils.js";
+import {
+  cleanText,
+  cleanOverview,
+  buildTagsFromCategory,
+} from "../../utils/textUtils.js";
 
 import { isQuotaBlocked } from "../tour/quotaGuard.js";
 import { fetchPlaceDetail } from "./placeTourApi.js";
@@ -33,7 +36,6 @@ export async function getPlaceDetail(reqQuery) {
   const cached = getCache(cacheKey);
   if (cached) return { fromCache: true, data: cached };
 
-  // ✅ quota 락이면 TourAPI 호출 X → 네이버 보강 + fallback
   if (isQuotaBlocked()) {
     let tel = fallbackTel || "";
     let tags = [];
@@ -44,7 +46,8 @@ export async function getPlaceDetail(reqQuery) {
         fallbackAddress || ""
       );
       if (!tel && extra.tel) tel = extra.tel;
-      if (extra.category) tags = buildTagsFromCategory(extra.category, contentTypeId);
+      if (extra.category)
+        tags = buildTagsFromCategory(extra.category, contentTypeId);
     } catch {}
 
     const fb = makePlaceDetailFallback({
@@ -55,7 +58,8 @@ export async function getPlaceDetail(reqQuery) {
       tel,
       tags,
       error: "TOUR_API_QUOTA_BLOCKED",
-      message: "현재 TourAPI 호출 한도 초과 상태입니다. 잠시 후 다시 시도해 주세요.",
+      message:
+        "현재 TourAPI 호출 한도 초과 상태입니다. 잠시 후 다시 시도해 주세요.",
     });
 
     setCache(cacheKey, fb, 30 * 1000);
@@ -65,15 +69,18 @@ export async function getPlaceDetail(reqQuery) {
   try {
     const info = await fetchPlaceDetail({ contentId, contentTypeId });
 
-    // 상세 없으면 fallback
     if (!info) {
       let tel = fallbackTel || "";
       let tags = [];
 
       try {
-        const extra = await enhanceWithNaverLocal(fallbackTitle || "", fallbackAddress || "");
+        const extra = await enhanceWithNaverLocal(
+          fallbackTitle || "",
+          fallbackAddress || ""
+        );
         if (!tel && extra.tel) tel = extra.tel;
-        if (extra.category) tags = buildTagsFromCategory(extra.category, contentTypeId);
+        if (extra.category)
+          tags = buildTagsFromCategory(extra.category, contentTypeId);
       } catch {}
 
       const fb = makePlaceDetailFallback({
@@ -91,7 +98,6 @@ export async function getPlaceDetail(reqQuery) {
       return { data: fb };
     }
 
-    // 전화/태그 보강(네이버)
     let tel = (info.tel || fallbackTel || "").trim();
     let tags = [];
 
@@ -102,15 +108,19 @@ export async function getPlaceDetail(reqQuery) {
       );
 
       if (!tel && extra.tel) tel = extra.tel;
-      if (extra.category) tags = buildTagsFromCategory(extra.category, contentTypeId);
+      if (extra.category)
+        tags = buildTagsFromCategory(extra.category, contentTypeId);
       if (!tel || tel === "-" || tel === "없음") tel = "";
     } catch {}
 
-    // 이미지 보강(1회)
     let finalImage = info.firstimage || null;
     try {
       if (!finalImage) {
-        const enhancedImg = await enhanceImage(info.title, info.mapy, info.mapx);
+        const enhancedImg = await enhanceImage(
+          info.title,
+          info.mapy,
+          info.mapx
+        );
         if (enhancedImg) finalImage = enhancedImg;
       }
     } catch {}
@@ -135,14 +145,17 @@ export async function getPlaceDetail(reqQuery) {
     setCache(cacheKey, out, 10 * 60 * 1000);
     return { data: out };
   } catch (e) {
-    // quota/기타 오류도 fallback
     let tel = fallbackTel || "";
     let tags = [];
 
     try {
-      const extra = await enhanceWithNaverLocal(fallbackTitle || "", fallbackAddress || "");
+      const extra = await enhanceWithNaverLocal(
+        fallbackTitle || "",
+        fallbackAddress || ""
+      );
       if (!tel && extra.tel) tel = extra.tel;
-      if (extra.category) tags = buildTagsFromCategory(extra.category, contentTypeId);
+      if (extra.category)
+        tags = buildTagsFromCategory(extra.category, contentTypeId);
     } catch {}
 
     const fb = makePlaceDetailFallback({

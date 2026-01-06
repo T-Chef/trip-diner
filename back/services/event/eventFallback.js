@@ -1,6 +1,3 @@
-// back/services/event/eventFallbackService.js
-// TourAPI 쿼터 초과 / 빈 상세일 때, 웹문서 + 네이버 로컬로 최대한 보강해서 내려주는 fallback 응답
-
 import { buildFallbackOverview, stripHtml } from "./eventUtils.js";
 import { getOfficialOverview } from "./eventOfficialOverviewService.js";
 import {
@@ -32,7 +29,7 @@ export async function buildEventFallback({
     message: "TourAPI 호출 한도 초과/빈상세 상태입니다. (fallback 표시 중)",
   };
 
-  // ✅ 1) 웹문서 우선 (축제는 로컬보다 정확도가 훨씬 좋음)
+  // 1. 웹문서 우선으로 보강
   try {
     const official = await getOfficialOverview({
       title: out.title || title,
@@ -45,10 +42,17 @@ export async function buildEventFallback({
     }
   } catch {}
 
-  // 2) 네이버 로컬로 좌표/홈페이지 보강
+  // 2. 네이버 로컬로 좌표/홈페이지 보강
   try {
-    const list = await naverSearchOnce(out.title || title, out.address || address);
-    const best = pickBestNaverItem(list, out.address || address, out.title || title);
+    const list = await naverSearchOnce(
+      out.title || title,
+      out.address || address
+    );
+    const best = pickBestNaverItem(
+      list,
+      out.address || address,
+      out.title || title
+    );
 
     if (best) {
       const link = best.link || best.searchUrl || "";

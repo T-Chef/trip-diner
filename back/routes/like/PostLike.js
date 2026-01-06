@@ -8,7 +8,8 @@ router.post("/post/:postId", async (req, res) => {
   const { postId } = req.params;
   const { user_id } = req.body;
 
-  if (!user_id || !postId) return res.status(400).json({ error: "데이터 부족" });
+  if (!user_id || !postId)
+    return res.status(400).json({ error: "데이터 부족" });
 
   try {
     const uid = BigInt(user_id);
@@ -37,11 +38,11 @@ router.get("/post/:postId/status", async (req, res) => {
   try {
     const pid = BigInt(postId);
     const count = await prisma.post_like.count({ where: { post_id: pid } });
-    
+
     let liked = false;
     if (user_id) {
       const exists = await prisma.post_like.findFirst({
-        where: { user_id: BigInt(user_id), post_id: pid }
+        where: { user_id: BigInt(user_id), post_id: pid },
       });
       liked = !!exists;
     }
@@ -62,11 +63,11 @@ router.get("/post/:userId", async (req, res) => {
       include: {
         post: {
           include: {
-            user: { select: { name: true } }
-          }
-        }
+            user: { select: { name: true } },
+          },
+        },
       },
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: "desc" },
     });
 
     const safeResult = JSON.parse(

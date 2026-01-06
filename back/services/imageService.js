@@ -1,20 +1,14 @@
-// back/services/imageService.js
 import axios from "axios";
 import { searchGoogleDetails } from "../apis/googlePlace.js";
 
-/**
- * 관광공사 이미지가 없을 때
- * Google Place + Naver 이미지 검색으로 썸네일 보강
- */
+// 장소 제목과 좌표를 받아서 이미지를 보강하는 함수
 export async function enhanceImage(title, lat, lng) {
   try {
     // 1) Google Place Details 기반 보강
     const g = await searchGoogleDetails(lat, lng, title);
 
     if (g?.photoRef) {
-      return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photoreference=${
-        g.photoRef
-      }&key=${process.env.GOOGLE_API_KEY}`;
+      return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photoreference=${g.photoRef}&key=${process.env.GOOGLE_API_KEY}`;
     }
 
     // 2) 그래도 없으면 Naver 이미지 검색
@@ -41,5 +35,3 @@ export async function enhanceImage(title, lat, lng) {
     return null;
   }
 }
-
-// 필요하면 나중에 다른 이미지 관련 함수들도 여기서 export 추가하면 됨

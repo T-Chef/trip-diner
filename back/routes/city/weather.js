@@ -1,16 +1,9 @@
-// back/routes/weather.js
 import express from "express";
 import axios from "axios";
 
 const router = express.Router();
 
-/**
- * ✅ ENV
- * - 서버에서는 REACT_APP_ 접두사 말고 서버용 키로 두는 게 좋아.
- * - .env에 아래 중 하나로 넣어줘:
- *   OPENWEATHER_API_KEY=xxxx
- *   WEATHER_API_KEY=xxxx
- */
+// OpenWeather API Key
 const OPENWEATHER_KEY =
   process.env.OPENWEATHER_API_KEY || process.env.WEATHER_API_KEY;
 
@@ -34,10 +27,8 @@ const AREA_CODE_TO_CITY = {
   39: { q: "Jeju City,KR", ko: "제주" },
 };
 
-// ✅ overview에 보여줄 "주요 도시"
-const OVERVIEW_AREAS = [1, 2, 6, 4, 5, 39]; // 서울, 인천, 부산, 대구, 광주, 제주
-
-// ✅ current-only cache + inflight (overview 전용)
+// overview에서 보여줄 주요 지역
+const OVERVIEW_AREAS = [1, 2, 6, 4, 5, 39];
 const _wxCurCache = new Map();
 const _wxCurInflight = new Map();
 
@@ -85,12 +76,8 @@ async function fetchCurrentOnly(cityObj) {
   };
 }
 
-
-// ✅ 캐시 + in-flight(동시요청 dedupe)
-const _wxCache = new Map(); // key -> { v, exp, staleExp }
-const _wxInflight = new Map(); // key -> Promise
-
-// TTL: 정상 캐시 10분 / 스테일(429일 때 fallback) 60분
+const _wxCache = new Map();
+const _wxInflight = new Map();
 const TTL_MS = 10 * 60 * 1000;
 const STALE_TTL_MS = 60 * 60 * 1000;
 
@@ -101,7 +88,6 @@ function getCache(key) {
   const now = Date.now();
   if (now <= hit.exp) return { type: "fresh", value: hit.v };
 
-  // fresh는 만료됐지만 stale 기간이면 fallback 가능
   if (now <= hit.staleExp) return { type: "stale", value: hit.v };
 
   _wxCache.delete(key);
@@ -118,7 +104,7 @@ function setCache(key, value) {
 }
 
 function normalizeCity({ city, areaCode }) {
-  // city 쿼리를 직접 주면: 그대로 사용(표시명은 그대로/원하면 ko로 따로 내려도 됨)
+
   if (city && String(city).trim()) {
     const c = String(city).trim();
     return { q: c, ko: c };
@@ -192,10 +178,6 @@ router.get("/overview", async (req, res) => {
   }
 });
 
-/**
- * GET /api/weather?areaCode=6
- * GET /api/weather?city=Busan
- */
 router.get("/", async (req, res) => {
   try {
     if (!OPENWEATHER_KEY) {
@@ -219,7 +201,7 @@ router.get("/", async (req, res) => {
     // 1) fresh 캐시 있으면 즉시 반환
     const cached = getCache(key);
     if (cached?.type === "fresh") {
-      res.set("Cache-Control", "public, max-age=60"); // 브라우저도 1분 정도 캐시
+      res.set("Cache-Control", "public, max-age=60");
       return res.json({ ok: true, source: "cache", ...cached.value });
     }
 
@@ -259,7 +241,7 @@ router.get("/", async (req, res) => {
 
       const tzSec = fc.data.city?.timezone ?? 0;
 
-      // "도시 기준 오늘" (UTC 메서드로 안전하게)
+      // "도시 기준 오늘" 로 출력할 수 있게 필터링
       const nowLocal = new Date(Date.now() + tzSec * 1000);
       const y = nowLocal.getUTCFullYear();
       const m = nowLocal.getUTCMonth();
@@ -279,11 +261,10 @@ router.get("/", async (req, res) => {
     });
     const value = { weather, forecast };
 
-    // ✅ 캐시 저장
     setCache(key, value);
 
-    // ✅ 반드시 return
     return value;
+
   })();
 
     _wxInflight.set(key, p);
@@ -293,7 +274,6 @@ router.get("/", async (req, res) => {
       res.set("Cache-Control", "public, max-age=60");
       return res.json({ ok: true, source: "live", ...value });
     } catch (err) {
-      // ✅ 429면 stale 캐시가 있으면 그걸로 방어
       const status = err?.response?.status;
       const stale = getCache(key);
 

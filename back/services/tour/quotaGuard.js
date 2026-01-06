@@ -1,4 +1,3 @@
-// back/services/tour/quotaGuard.js
 let quotaBlockedUntil = 0;
 
 export const isQuotaBlocked = () => Date.now() < quotaBlockedUntil;

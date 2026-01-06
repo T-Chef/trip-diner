@@ -1,4 +1,3 @@
-// back/routes/proxyImage.js
 import express from "express";
 import fetch from "node-fetch";
 
@@ -37,7 +36,7 @@ router.get("/image", async (req, res) => {
 
     const r = await fetch(u.toString(), {
       headers: {
-        // 일부 서버는 UA 없으면 차단함
+        // 일부 서버는 UA 없으면 차단하니까 조심
         "User-Agent": "Trip-Diner/1.0",
         Accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
         Referer: u.origin,

@@ -1,9 +1,10 @@
-// back/services/event/eventEnrichService.js
-// 상세 페이지 지도용 좌표 보강: Google(지오코딩/플레이스) → 없으면 Naver 로컬
-
 import axios from "axios";
 import { getCache, setCache } from "../../utils/cache.js";
-import { naverSearchOnce, pickBestNaverItem, normalizeNaverCoord } from "./eventNaverLocalService.js";
+import {
+  naverSearchOnce,
+  pickBestNaverItem,
+  normalizeNaverCoord,
+} from "./eventNaverLocalService.js";
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || "";
 
@@ -75,7 +76,14 @@ export async function enrichEventLocation({ title = "", address = "" }) {
     setCache(cacheKey, result, 10 * 60 * 1000);
     return result;
   } catch {
-    const result = { title, address, google: null, naver: null, lat: null, lng: null };
+    const result = {
+      title,
+      address,
+      google: null,
+      naver: null,
+      lat: null,
+      lng: null,
+    };
     setCache(cacheKey, result, 60 * 1000);
     return result;
   }

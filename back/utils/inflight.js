@@ -1,6 +1,3 @@
-// back/utils/inflight.js
-// 동일한 key로 동시에 여러 번 호출되는 비싼 작업(외부 API/스크래핑 등)을 1회만 수행하기 위한 dedupe
-
 const _inflight = new Map();
 
 /**

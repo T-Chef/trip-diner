@@ -1,9 +1,9 @@
-// back/services/event/eventUtils.js
-
 export const LOG_EVENT = process.env.DEBUG_EVENT_LOG === "1";
 
-
-export const stripHtml = (s = "") => String(s).replace(/<[^>]+>/g, "").trim();
+export const stripHtml = (s = "") =>
+  String(s)
+    .replace(/<[^>]+>/g, "")
+    .trim();
 
 export function guessCityName(address = "") {
   const first = String(address).split(" ")[0] || "";
@@ -89,4 +89,3 @@ export function formatDate(date) {
   const dd = String(date.getDate()).padStart(2, "0");
   return `${yyyy}${mm}${dd}`;
 }
-

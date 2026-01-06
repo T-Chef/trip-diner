@@ -7,7 +7,7 @@ import "../../../styles/side/city/CityList.css";
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 
 const _placeCache = new Map();
-const PLACE_TTL = 10 * 1000;
+const PLACE_TTL = 5 * 60 * 1000;;
 const _placeInflight = new Map();
 
 const isCanceled = (err) =>
@@ -113,7 +113,7 @@ export default function CityList({ areaCode, sigunguCode, keyword, userId }) {
     const hasArea = normArea != null;
     const normSigungu = normalizeSigunguCode(normArea, sigunguCode);
 
-    const AI_ON = true;
+    const AI_ON = false;
     const ENHANCE_ON = false;
 
     // ✅ 항상 인기순 고정 + Tour API도 조회수 정렬

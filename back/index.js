@@ -61,9 +61,7 @@ BigInt.prototype.toJSON = function () {
   return this.toString();
 };
 
-/* -------------------------------------------------------
-   보안
-------------------------------------------------------- */
+// 보안
 app.use(
   helmet({
     contentSecurityPolicy: false,
@@ -73,9 +71,7 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-/* -------------------------------------------------------
-   CORS
-------------------------------------------------------- */
+// CORS 설정
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -84,9 +80,7 @@ app.use(
   })
 );
 
-/* -------------------------------------------------------
-   Static
-------------------------------------------------------- */
+// Static 파일
 app.use(
   "/uploads",
   (req, res, next) => {
@@ -108,17 +102,12 @@ app.use(
   express.static(path.join(__dirname, "uploads/postImages"))
 );
 
-/* -------------------------------------------------------
-   테스트 API
-------------------------------------------------------- */
+// 기본 라우트
 app.get("/api/test", (req, res) => {
   res.json({ message: "server ok" });
 });
 
-/* -------------------------------------------------------
-   관리자 게시글 관리
-------------------------------------------------------- */
-
+// 관리자 게시글 조회, 삭제, 복구
 app.get("/api/admin/posts", async (req, res) => {
   try {
     const posts = await prisma.post.findMany({
@@ -171,9 +160,8 @@ app.patch("/api/admin/posts/:id/restore", async (req, res) => {
   }
 });
 
-/* -------------------------------------------------------
-   도메인 라우터
-------------------------------------------------------- */
+// 도메인 라우터
+
 // 인증 / 유저
 app.use("/api/auth", authSessionRoutes);
 app.use("/api/auth", usersRouter);
@@ -217,9 +205,7 @@ app.use("/api/plan", planRouter);
 // QnA
 app.use("/api/qna", qnaRouter);
 
-/* -------------------------------------------------------
-   서버 시작
-------------------------------------------------------- */
+// 서버 시작
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

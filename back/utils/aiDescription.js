@@ -1,15 +1,15 @@
-// back/utils/aiDescription.js
 import OpenAI from "openai";
 import "dotenv/config";
 
-// ✅ 모듈 스코프 싱글톤
 let client = null;
 
-// ✅ 간단 캐시 (같은 title/address는 반복 호출 방지)
-const DESC_CACHE = new Map(); // key -> { value, exp }
-const TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7일
+const DESC_CACHE = new Map();
+const TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
-const cleanText = (text) => String(text ?? "").replace(/\s+/g, " ").trim();
+const cleanText = (text) =>
+  String(text ?? "")
+    .replace(/\s+/g, " ")
+    .trim();
 
 function getClient() {
   if (client) return client;
@@ -43,7 +43,6 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-/** ✅ OpenAI SDK 에러 형태가 들쭉날쭉이라 최대한 안전하게 뽑기 */
 function pickErrMeta(err) {
   const status =
     err?.status ??
@@ -53,16 +52,10 @@ function pickErrMeta(err) {
     null;
 
   const code =
-    err?.code ??
-    err?.error?.code ??
-    err?.response?.data?.error?.code ??
-    null;
+    err?.code ?? err?.error?.code ?? err?.response?.data?.error?.code ?? null;
 
   const type =
-    err?.type ??
-    err?.error?.type ??
-    err?.response?.data?.error?.type ??
-    null;
+    err?.type ?? err?.error?.type ?? err?.response?.data?.error?.type ?? null;
 
   const message =
     err?.message ??
@@ -80,11 +73,10 @@ function pickErrMeta(err) {
 }
 
 function isRetryable({ status, code, message }) {
-  // 429 / 5xx
   if (status === 429) return true;
   if (status >= 500 && status <= 599) return true;
 
-  // 타임아웃/네트워크 계열(환경 따라 code가 다름)
+  // 타임아웃/네트워크 계열 오류
   const m = String(message || "").toLowerCase();
   if (code === "ETIMEDOUT" || code === "ECONNRESET") return true;
   if (m.includes("timeout") || m.includes("timed out")) return true;
@@ -104,7 +96,6 @@ async function withRetry(fn, { retries = 2, baseDelay = 250 } = {}) {
 
       if (!isRetryable(meta) || i === retries) throw e;
 
-      // 지수 백오프 + 살짝 지터
       const wait = baseDelay * Math.pow(2, i) + Math.floor(Math.random() * 120);
       await sleep(wait);
     }
@@ -156,7 +147,6 @@ export async function generateDescription(title, address) {
 
     const out = cleanText(completion?.choices?.[0]?.message?.content);
 
-    // ✅ 결과가 너무 짧거나 비면 실패 처리(캐시 X)
     if (!out || out.length < 6) return "";
 
     setCached(key, out);

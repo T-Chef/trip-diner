@@ -11,9 +11,7 @@ const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/* -------------------------------------------------------
-   업로드 폴더 세팅
-------------------------------------------------------- */
+// 업로드 폴더 설정
 const uploadDir = path.join(__dirname, "../../uploads/postImages");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -36,9 +34,7 @@ const safeJson = (obj) =>
     )
   );
 
-/* -------------------------------------------------------
-   이미지 업로드
-------------------------------------------------------- */
+// 이미지 업로드 
 router.post("/upload", upload.single("image"), (req, res) => {
   try {
     if (!req.file) {
@@ -53,9 +49,7 @@ router.post("/upload", upload.single("image"), (req, res) => {
   }
 });
 
-/* -------------------------------------------------------
-   게시글 작성
-------------------------------------------------------- */
+// 게시글 작성 
 router.post("/", upload.single("image"), async (req, res) => {
   try {
     const { user_id, title, content, category, tags } = req.body;
@@ -70,7 +64,7 @@ router.post("/", upload.single("image"), async (req, res) => {
         image_url: imageUrl,
         views: 0,
         tags,
-        deleted: 0, // ⭐ 명시
+        deleted: 0,
       },
     });
 
@@ -81,14 +75,12 @@ router.post("/", upload.single("image"), async (req, res) => {
   }
 });
 
-/* -------------------------------------------------------
-   게시글 목록 (⭐ 삭제된 글 제외)
-------------------------------------------------------- */
+// 전체 게시글 목록 가져오기
 router.get("/", async (req, res) => {
   try {
     const posts = await prisma.post.findMany({
       where: {
-        deleted: 0, // ⭐ 핵심
+        deleted: 0,
       },
       orderBy: { created_at: "desc" },
       include: {
@@ -115,26 +107,23 @@ router.get("/", async (req, res) => {
   }
 });
 
-/* -------------------------------------------------------
-   카테고리 '후기' 중 '좋아요' 많은 순 베스트 가져오기
-------------------------------------------------------- */
+// 후기 게시글 상위 2개 가져오기
 router.get("/latest", async (req, res) => {
   try {
-    // 지역 필터링(areaCode)을 무시하고 전체에서 가져옵니다.
     const posts = await prisma.post.findMany({
       where: {
         deleted: 0,
-        category: "후기", // ⭐ 카테고리가 '후기'인 글만 필터링
+        category: "후기",
       },
-      take: 2, // 상위 2개만
+      take: 2,
       orderBy: [
         {
           post_like: {
-            _count: 'desc' // 1순위: 좋아요 많은 순
+            _count: 'desc'
           }
         },
         {
-          created_at: 'desc' // 2순위: 최신순
+          created_at: 'desc'
         }
       ],
       include: {
@@ -184,15 +173,14 @@ router.get("/user/:userId", async (req, res) => {
   }
 });
 
+// 게시글 상세 조회
 router.get("/:id", async (req, res) => {
   try {
     const postId = Number(req.params.id);
-
-    // 🔒 삭제된 글은 조회 불가
     const post = await prisma.post.findFirst({
       where: {
         post_id: postId,
-        deleted: 0, // ⭐ 핵심
+        deleted: 0, // 삭제되지 않은 글만 조회
       },
       include: {
         user: {

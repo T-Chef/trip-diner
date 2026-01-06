@@ -4,7 +4,7 @@ import { adminAuth } from "../../middleware/adminAuth.js";
 
 const router = express.Router();
 
-/* 전체 유저 목록 */
+// 관리자 유저 목록 조회
 router.get("/", adminAuth, async (req, res) => {
   const users = await prisma.user.findMany({
     orderBy: { user_id: "desc" },
@@ -24,7 +24,7 @@ router.get("/", adminAuth, async (req, res) => {
   );
 });
 
-/* 비활성화 */
+// 비활성화
 router.patch("/:id/deactivate", adminAuth, async (req, res) => {
   await prisma.user.update({
     where: { user_id: BigInt(req.params.id) },
@@ -33,7 +33,7 @@ router.patch("/:id/deactivate", adminAuth, async (req, res) => {
   res.json({ success: true });
 });
 
-/* 활성화 */
+// 활성화
 router.patch("/:id/activate", adminAuth, async (req, res) => {
   await prisma.user.update({
     where: { user_id: BigInt(req.params.id) },

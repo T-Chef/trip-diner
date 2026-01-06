@@ -30,10 +30,25 @@ function CityListItemReal({ index, item, userId }) {
   const location = useLocation();
   const [liked, setLiked] = useState(false);
   const key = `likedPlaces_${userId || "guest"}`;
-
-  const thumbSrc = (item && item.image) || DEFAULT_THUMB;
-
   const contentId = item?.contentId;
+
+  const initialSrc = (item?.image && String(item.image).trim()) ? item.image : DEFAULT_THUMB;
+
+  const [imgSrc, setImgSrc] = useState(initialSrc);
+  const [imgFail, setImgFail] = useState(false);
+
+  useEffect(() => {
+    setImgSrc(initialSrc);
+    setImgFail(false);
+  }, [initialSrc]);
+
+  const handleImgError = () => {
+    if (imgSrc !== DEFAULT_THUMB) {
+      setImgSrc(DEFAULT_THUMB);
+      return;
+    }
+    setImgFail(true);
+  };
 
   useEffect(() => {
   if (!contentId) return;
@@ -166,20 +181,21 @@ function CityListItemReal({ index, item, userId }) {
         <p className="address">📍 {item.address || "주소 정보 없음"}</p>
       </div>
 
-      <div className="city-thumb">
-        <img
-          src={thumbSrc}
-          alt={item.title}
-          onError={(e) => {
-            // 기본 이미지도 깨졌을 때는 텍스트로 대체
-            if (!e.target.src.includes("default-thumb.jpg")) {
-              e.target.src = DEFAULT_THUMB;
-              return;
-            }
-            e.target.style.display = "none";
-            e.target.parentElement.textContent = "No Image";
-          }}
-        />
+      <div className={`city-thumb ${!imgFail ? "has-img" : ""}`}>
+        {!imgFail ? (
+          <img
+            src={imgSrc}
+            alt={item.title}
+            loading="lazy"
+            decoding="async"
+            referrerPolicy="no-referrer"
+            onError={handleImgError}
+          />
+        ) : (
+          <div className="city-thumb-fallback" aria-label="no image">
+            No Image
+          </div>
+        )}
       </div>
     </div>
   );

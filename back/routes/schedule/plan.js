@@ -82,7 +82,9 @@ router.post("/", requireAuth, async (req, res) => {
     const { aiPlan, themes, startDate } = req.body;
 
     if (!aiPlan?.days?.length) {
-      return res.status(400).json({ success: false, message: "aiPlan 데이터 없음" });
+      return res
+        .status(400)
+        .json({ success: false, message: "aiPlan 데이터 없음" });
     }
 
     const cityName = aiPlan.cityName || "";
@@ -90,27 +92,26 @@ router.post("/", requireAuth, async (req, res) => {
     let start = null;
     let end = null;
 
-if (startDate) {
-  start = new Date(startDate);
-  if (!Number.isNaN(start.getTime())) {
-    end = new Date(start);
-    end.setDate(end.getDate() + (aiPlan.days.length - 1));
-  } else {
-    start = null;
-    end = null;
-  }
-}
+    if (startDate) {
+      start = new Date(startDate);
+      if (!Number.isNaN(start.getTime())) {
+        end = new Date(start);
+        end.setDate(end.getDate() + (aiPlan.days.length - 1));
+      } else {
+        start = null;
+        end = null;
+      }
+    }
 
     const peopleType = aiPlan.peopleType || null;
     const finalThemes = aiPlan.themes || themes || [];
 
     const saved = await prisma.$transaction(async (tx) => {
-      
-
       let city = null;
       if (cityName.trim()) {
         city = await tx.city.findFirst({ where: { name: cityName.trim() } });
-        if (!city) city = await tx.city.create({ data: { name: cityName.trim() } });
+        if (!city)
+          city = await tx.city.create({ data: { name: cityName.trim() } });
       }
 
       const plan = await tx.plan.create({
@@ -129,15 +130,15 @@ if (startDate) {
         const dayIndex = Number(dayObj.day ?? d + 1);
         const places = dayObj.places || [];
 
-         let dayDate = null;
-if (start) {
-  dayDate = new Date(start);
-  dayDate.setDate(dayDate.getDate() + (dayIndex - 1));
-}
+        let dayDate = null;
+        if (start) {
+          dayDate = new Date(start);
+          dayDate.setDate(dayDate.getDate() + (dayIndex - 1));
+        }
 
-const planDay = await tx.plan_day.create({
-  data: { plan_id: plan.plan_id, day_index: dayIndex, date: dayDate },
-});
+        const planDay = await tx.plan_day.create({
+          data: { plan_id: plan.plan_id, day_index: dayIndex, date: dayDate },
+        });
 
         for (let i = 0; i < places.length; i++) {
           const p = places[i];
@@ -156,7 +157,9 @@ const planDay = await tx.plan_day.create({
               data: {
                 city_id: city?.city_id ?? null,
                 name: p.name ?? null,
-                category: Array.isArray(p.category) ? p.category[0] : (p.category ?? null),
+                category: Array.isArray(p.category)
+                  ? p.category[0]
+                  : p.category ?? null,
                 address: p.address ?? null,
                 lat: p.lat != null ? Number(p.lat) : null,
                 lng: p.lng != null ? Number(p.lng) : null,
@@ -168,7 +171,9 @@ const planDay = await tx.plan_day.create({
 
           const timeStr =
             p.time ??
-            (p.startTime || p.endTime ? `${p.startTime ?? ""}-${p.endTime ?? ""}` : null);
+            (p.startTime || p.endTime
+              ? `${p.startTime ?? ""}-${p.endTime ?? ""}`
+              : null);
 
           await tx.plan_item.create({
             data: {
@@ -190,7 +195,6 @@ const planDay = await tx.plan_day.create({
     console.error("Plan Save Error:", err);
     return res.status(500).json({ success: false, message: "일정 저장 실패" });
   } finally {
-    // ✅ 성공/실패/중간 return 모두 포함해서 무조건 락 해제
     saveLockByUser.delete(userKey);
   }
 });
@@ -231,7 +235,9 @@ router.get("/:id", requireAuth, async (req, res) => {
     try {
       planId = BigInt(req.params.id);
     } catch {
-      return res.status(400).json({ success: false, message: "잘못된 plan id" });
+      return res
+        .status(400)
+        .json({ success: false, message: "잘못된 plan id" });
     }
 
     const plan = await prisma.plan.findFirst({
@@ -250,7 +256,10 @@ router.get("/:id", requireAuth, async (req, res) => {
       },
     });
 
-    if (!plan) return res.status(404).json({ success: false, message: "일정을 찾을 수 없음" });
+    if (!plan)
+      return res
+        .status(404)
+        .json({ success: false, message: "일정을 찾을 수 없음" });
 
     res.json({ success: true, plan: toSafePlan(plan) });
   } catch (err) {
@@ -264,14 +273,23 @@ router.delete("/:id", requireAuth, async (req, res) => {
     const userId = req.user.user_id;
     const planId = BigInt(req.params.id);
 
-    const plan = await prisma.plan.findFirst({ where: { plan_id: planId, user_id: userId } });
-    if (!plan) return res.status(404).json({ success: false, message: "일정 없음" });
+    const plan = await prisma.plan.findFirst({
+      where: { plan_id: planId, user_id: userId },
+    });
+    if (!plan)
+      return res.status(404).json({ success: false, message: "일정 없음" });
 
     await prisma.$transaction(async (tx) => {
-      const days = await tx.plan_day.findMany({ where: { plan_id: planId }, select: { plan_day_id: true } });
-      const dayIds = days.map(d => d.plan_day_id);
+      const days = await tx.plan_day.findMany({
+        where: { plan_id: planId },
+        select: { plan_day_id: true },
+      });
+      const dayIds = days.map((d) => d.plan_day_id);
 
-      if (dayIds.length) await tx.plan_item.deleteMany({ where: { plan_day_id: { in: dayIds } } });
+      if (dayIds.length)
+        await tx.plan_item.deleteMany({
+          where: { plan_day_id: { in: dayIds } },
+        });
       await tx.plan_day.deleteMany({ where: { plan_id: planId } });
       await tx.plan.delete({ where: { plan_id: planId } });
     });

@@ -1,10 +1,13 @@
-// back/services/event/eventNaverLocalService.js
-// 네이버 로컬 검색을 “행사명 → 장소 후보”로 확장해서 좌표/홈페이지/주소 등을 보강
-
 import { getCache, setCache } from "../../utils/cache.js";
 import { dedup } from "../../utils/inflight.js";
 import { searchPlaceNaver } from "../../apis/naverApi.js";
-import { guessCityName, normalizeKeyword, pickPlaceHintFromAddress, removeCityDup, stripEventWords } from "./eventUtils.js";
+import {
+  guessCityName,
+  normalizeKeyword,
+  pickPlaceHintFromAddress,
+  removeCityDup,
+  stripEventWords,
+} from "./eventUtils.js";
 
 export function normalizeNaverCoord(v) {
   if (v == null) return null;
@@ -50,7 +53,11 @@ export async function naverSearchOnce(title, address) {
 
     if (!Array.isArray(list)) list = [];
     if (!shared) {
-      console.log("🔍 NAVER 로컬 시도:", { cityName, keyword: kw, len: list.length });
+      console.log("🔍 NAVER 로컬 시도:", {
+        cityName,
+        keyword: kw,
+        len: list.length,
+      });
     }
 
     if (list.length > 0) {

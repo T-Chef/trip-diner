@@ -1,4 +1,3 @@
-// back/routes/city.js
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 
@@ -27,8 +26,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// 필요하면 단일 도시 조회도 추가 가능 (옵션)
-// api/city -> 단일 도시
 router.get('/:id', async (req, res) => {
   try {
     const cityId = Number(req.params.id);

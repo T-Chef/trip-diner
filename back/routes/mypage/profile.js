@@ -42,7 +42,6 @@ router.post("/upload", upload.single("profile"), async (req, res) => {
 
     const imgPath = `/uploads/${req.file.filename}`;
 
-    
     await prisma.user.update({
       where: { user_id: Number(userId) },
       data: { profile_img: imgPath },

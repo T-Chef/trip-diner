@@ -186,10 +186,6 @@
   padding: 40px 0;
 }
 
-
-html, body, #root { height: 100%; }
-body { margin: 0; }
-
 /* ===== LikePlaces 페이지네이션 LikePosts 와 동일하게 고정 ===== */
 .places-like-box .pagination,
 .places-like-box .likes-pagination{

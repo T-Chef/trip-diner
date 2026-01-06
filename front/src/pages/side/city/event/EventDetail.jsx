@@ -150,8 +150,6 @@ function parseOverviewToFields(rawOverview = "") {
 
 /** =========================
  *  ✅ 두 줄까지만 + 더보기(접기)
- *  - 텍스트가 실제로 2줄을 넘을 때만 버튼 표시
- *  - white-space: pre-line 유지
  * ========================= */
 function ExpandableText({
   text = "",
@@ -175,13 +173,9 @@ function ExpandableText({
     const el = ref.current;
     if (!el) return;
 
-    // 레이아웃 반영 후 높이 비교
     const raf = requestAnimationFrame(() => {
-      // 접힌 상태 기준으로 overflow 여부 판정
-      // (expanded가 true면 판정이 틀어질 수 있으니 일단 false로 고정하여 검사)
       const prevExpanded = expanded;
       if (prevExpanded) {
-        // expanded 상태면 일시적으로 clamp 스타일을 적용해 측정
         el.style.display = "-webkit-box";
         el.style.webkitBoxOrient = "vertical";
         el.style.webkitLineClamp = String(lines);
@@ -191,7 +185,6 @@ function ExpandableText({
       const isOverflowing = el.scrollHeight > el.clientHeight + 1;
       setCanExpand(isOverflowing);
 
-      // 원복
       if (prevExpanded) {
         el.style.display = "";
         el.style.webkitBoxOrient = "";
@@ -201,7 +194,6 @@ function ExpandableText({
     });
 
     return () => cancelAnimationFrame(raf);
-    // expanded는 측정 시점에만 참조하므로 deps에 포함
   }, [t, lines, expanded]);
 
   if (!t) return <span className={className}>-</span>;
@@ -262,16 +254,37 @@ export default function EventDetail({ user, setUser }) {
   const lastSuccessKeyRef = useRef("");
   const inFlightRef = useRef(false);
 
-  // ✅ query의 type (우선순위 1)
+  const mapRef = useRef(null);
+
+  const [mapHighlight, setMapHighlight] = useState(false);
+
+  const [mapToast, setMapToast] = useState(false);
+
+  const scrollToMap = useCallback(() => {
+    const el = mapRef.current;
+    if (!el) return;
+
+    const headerOffset = 84;
+    const top = el.getBoundingClientRect().top + window.scrollY - headerOffset;
+
+    window.scrollTo({ top, behavior: "smooth" });
+
+    setMapHighlight(true);
+    window.clearTimeout(scrollToMap._hl);
+    scrollToMap._hl = window.setTimeout(() => setMapHighlight(false), 1200);
+
+    setMapToast(true);
+    window.clearTimeout(scrollToMap._ts);
+    scrollToMap._ts = window.setTimeout(() => setMapToast(false), 1400);
+  }, []);
+
   const queryType = useMemo(() => {
     const q = new URLSearchParams(location.search);
     return q.get("type");
   }, [location.search]);
 
-  // ✅ 목록에서 넘어온 baseEvent (우선순위 2)
   const stateBaseEvent = location.state?.baseEvent || null;
 
-  // ✅ safeType: query > state > default
   const safeType = useMemo(() => {
     return (
       queryType ||
@@ -281,12 +294,10 @@ export default function EventDetail({ user, setUser }) {
     );
   }, [queryType, stateBaseEvent]);
 
-  // ✅ baseEvent 저장 키
   const baseStorageKey = useMemo(() => {
     return `eventBase:${id}|${safeType}`;
   }, [id, safeType]);
 
-  // ✅ 새로고침/직접접근 대비: sessionStorage baseEvent 복구
   const storageBaseEvent = useMemo(() => {
     try {
       const v = sessionStorage.getItem(baseStorageKey);
@@ -296,10 +307,8 @@ export default function EventDetail({ user, setUser }) {
     }
   }, [baseStorageKey]);
 
-  // ✅ 최종 baseEvent
   const baseEvent = stateBaseEvent || storageBaseEvent || null;
 
-  // ✅ safeContentTypeId: query > baseEvent > default
   const safeContentTypeId = useMemo(() => {
     return (
       queryType ||
@@ -317,7 +326,6 @@ export default function EventDetail({ user, setUser }) {
     return `${y}.${m}.${d}`;
   }, []);
 
-  // ✅ detail 응답 merge (noDetail이면 baseEvent 값을 유지)
   const mergeEvent = useCallback(
     (prevOrBase, data) => {
       const base = prevOrBase || baseEvent || {};
@@ -342,7 +350,8 @@ export default function EventDetail({ user, setUser }) {
         });
       } else {
         keepKeys.forEach((k) => {
-          if (merged[k] == null || merged[k] === "") merged[k] = base?.[k] ?? merged[k];
+          if (merged[k] == null || merged[k] === "")
+            merged[k] = base?.[k] ?? merged[k];
         });
       }
 
@@ -351,7 +360,6 @@ export default function EventDetail({ user, setUser }) {
     [baseEvent]
   );
 
-  // ✅ (A) state로 넘어온 baseEvent가 있으면 세션에 저장
   useEffect(() => {
     if (!id || !safeType) return;
     if (!stateBaseEvent) return;
@@ -360,19 +368,16 @@ export default function EventDetail({ user, setUser }) {
     } catch {}
   }, [id, safeType, stateBaseEvent, baseStorageKey]);
 
-  // ✅ (B) id/baseEvent 바뀌면 화면을 baseEvent로 즉시 갱신
   useEffect(() => {
     setEvent(baseEvent || null);
   }, [id, baseEvent]);
 
-  // ✅ (C) 상세 fetch (항상 실행)
   useEffect(() => {
     if (!id || !safeContentTypeId) return;
 
     const key = `${id}|${safeContentTypeId}`;
     const storageKey = `eventDetail:${key}`;
 
-    // 0) 세션 캐시 있으면 즉시 반영
     const cachedData = getSessionCache(storageKey);
     if (cachedData) {
       setEvent((prev) => mergeEvent(prev || baseEvent || {}, cachedData));
@@ -397,7 +402,6 @@ export default function EventDetail({ user, setUser }) {
             contentId: id,
             contentTypeId: safeContentTypeId,
 
-            // ✅ 쿼터 fallback용 힌트
             title: baseEvent?.title || "",
             address: baseEvent?.address || "",
             mapX: baseEvent?.mapX || baseEvent?.mapx || "",
@@ -422,7 +426,6 @@ export default function EventDetail({ user, setUser }) {
         );
       } catch (err) {
         if (err?.name === "CanceledError" || err?.code === "ERR_CANCELED") return;
-        // UI에서 에러 텍스트를 보여주지 않기로 했으니 조용히 종료
       } finally {
         inFlightRef.current = false;
       }
@@ -436,7 +439,6 @@ export default function EventDetail({ user, setUser }) {
     return parseOverviewToFields(event?.overview || "");
   }, [event?.overview]);
 
-  // ✅ 공식 링크(홈페이지/officialUrl/anchor href) 최종 정리
   const officialLink = useMemo(() => {
     const rawHomepage = event?.homepage || "";
     const href = extractHrefFromAnchor(rawHomepage);
@@ -444,7 +446,6 @@ export default function EventDetail({ user, setUser }) {
     return normalizeUrl(u);
   }, [event?.homepage, event?.officialUrl]);
 
-  // ✅ 기간 문자열(카드에서 확실히 보이게)
   const periodText = useMemo(() => {
     const s = event?.startDate ? fmt(event.startDate) : "";
     const e = event?.endDate ? fmt(event.endDate) : "";
@@ -454,11 +455,12 @@ export default function EventDetail({ user, setUser }) {
     return "";
   }, [event?.startDate, event?.endDate, fmt]);
 
-  // ✅ 카드 4개 고정: 기간 / 주소 / 문의 / 주최·주관
   const infoCards = useMemo(() => {
     const pickField = (...labels) => {
       for (const lb of labels) {
-        const hit = (parsed.fields || []).find((f) => f?.label === lb && f?.value);
+        const hit = (parsed.fields || []).find(
+          (f) => f?.label === lb && f?.value
+        );
         if (hit?.value) return hit.value;
       }
       return "";
@@ -478,7 +480,9 @@ export default function EventDetail({ user, setUser }) {
   }, [event?.address, event?.tel, parsed.fields, periodText]);
 
   if (!event) {
-    return <div className="event-detail-loading">이벤트 정보를 불러오지 못했습니다.</div>;
+    return (
+      <div className="event-detail-loading">이벤트 정보를 불러오지 못했습니다.</div>
+    );
   }
 
   return (
@@ -505,46 +509,75 @@ export default function EventDetail({ user, setUser }) {
                 e.currentTarget.src = "/assets/images/default-placeholder.jpg";
               }}
             />
+
+            {officialLink && (
+            <div className="event-hero-actions">
+              <a
+                className="event-homepage-link event-homepage-link--hero"
+                href={officialLink}
+                target="_blank"
+                rel="noreferrer"
+                title="공식 페이지 새 창 열기"
+              >
+                공식 페이지 보기 ↗
+              </a>
+            </div>
+          )}
+
+            <div className="event-hero-overlay">
+              <div className="event-hero-title">{event.title || "이벤트"}</div>
+
+              <div className="event-hero-meta">
+                {periodText ? (
+                  <span className="event-hero-chip" data-kind="period">
+                    {periodText}
+                  </span>
+                ) : null}
+
+                {event.address ? (
+                <span
+                  className="event-hero-chip event-hero-chip--click"
+                  data-kind="addr"
+                  title={event.address}
+                  role="button"
+                  tabIndex={0}
+                  onClick={scrollToMap}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") scrollToMap();
+                  }}
+                >
+                  지도 보기
+                </span>
+                ) : null}
+              </div>
+            </div>
           </div>
         </section>
 
         <section className="event-content">
-          {/* ✅ 정보 카드 + 공식 링크 */}
           <div className="event-top-block">
             <div className="event-actions-row">
               <h2 className="event-section-title">이벤트 정보</h2>
-
-              {officialLink && (
-                <a
-                  className="event-homepage-link"
-                  href={officialLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  title="공식 페이지 새 창 열기"
-                >
-                  공식 페이지 보기 ↗
-                </a>
-              )}
             </div>
 
-            {/* ✅ 이벤트 정보 밑엔 제목만 */}
             <div className="event-info-title">{event.title}</div>
 
             <div className="event-info-grid">
               {infoCards.map((c) => {
                 const isPeriod = c.label === "기간";
                 return (
-                  <div className="event-info-card" key={`${c.label}-${c.value}`}>
+                  <div
+                    className="event-info-card"
+                    data-label={c.label}
+                    key={`${c.label}-${c.value}`}
+                  >
                     <div className="event-info-label">{c.label}</div>
 
                     <div className="event-info-value">
                       {isPeriod ? (
                         c.value || "-"
                       ) : (
-                        <ExpandableText
-                          text={c.value || "-"}
-                          lines={2}
-                        />
+                        <ExpandableText text={c.value || "-"} lines={2} />
                       )}
                     </div>
                   </div>
@@ -553,8 +586,15 @@ export default function EventDetail({ user, setUser }) {
             </div>
           </div>
 
-          {/* ✅ 지도만 유지 */}
-          <div className="event-map-card">
+          <div
+            className={`event-map-card ${mapHighlight ? "is-highlight" : ""}`}
+            ref={mapRef}
+          >
+          <div className={`event-map-toast ${mapToast ? "is-show" : ""}`}>
+            <span className="event-map-toast__icon" aria-hidden="true">🗺️</span>
+            <span className="event-map-toast__text">지도 영역</span>
+          </div>
+          
             <EventDetailMap
               title={event.title}
               address={event.address}

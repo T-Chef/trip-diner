@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
       orderBy: { created_at: "desc" },
       include: {
         user: { select: { name: true } },
-        qna_answer: true,   // ✅ 변경
+        qna_answer: true,
       },
     });
 
@@ -35,7 +35,7 @@ router.get("/:id", async (req, res) => {
       where: { qna_id: Number(id) },
       include: {
         user: { select: { name: true } },
-        qna_answer: true,   // ✅ 변경
+        qna_answer: true,
       },
     });
 

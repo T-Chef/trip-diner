@@ -1,7 +1,18 @@
-.result-wrapper {
-  width: 100%;
+:root{
+  --td-brown: #8b5e3c;
+  --td-brown-2: #b89372;
+  --td-ink: #2a1c14;
+  --td-card: rgba(255,255,255,0.92);
+  --td-border: rgba(139, 94, 60, 0.20);
+  --td-shadow: 0 18px 45px rgba(0,0,0,0.25);
+}
+
+.result-wrapper{
+  width: 100vw;
   height: 100vh;
-  background: #fff;
+  overflow: hidden;
+  font-family: "Pretendard", sans-serif;
+  background: #f6f1eb; /* 베이지 */
 }
 
 .result-title {
@@ -98,12 +109,26 @@
   position: relative;
 }
 
-.result-layout {
-  display: grid;
+/* ✅ GRID 유지 + 카드 테마 */
+.result-layout{
+  display: grid !important;
   grid-template-columns: 350px 1fr;
-  height: calc(100vh - 70px);
+  gap: 18px;
+
+  width: min(1400px, 94vw);
+  height: calc(100vh - 110px); /* title 높이 고려 */
+  margin: 16px auto;
+
   position: relative;
   overflow: hidden;
+
+  background: var(--td-card);
+  border: 1px solid var(--td-border);
+  border-radius: 24px;
+  box-shadow: var(--td-shadow);
+  backdrop-filter: blur(6px);
+
+  padding: 18px;
 }
 
 /*************** Slide Panel ***************/
@@ -587,4 +612,217 @@
 .reorder-btn:disabled{
   opacity: 0.35;
   cursor: not-allowed;
+}
+/* ===== Trip-Diner Result Theme (NO IMAGE / color only) ===== */
+
+:root{
+  --td-bg: #f6f1eb; /* 베이지 배경 */
+}
+
+/* 전체 배경 (사진 X) */
+.result-wrapper{
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: "Pretendard", sans-serif;
+  background: var(--td-bg);
+}
+
+/* 상단 타이틀 */
+.result-title{
+  background: rgba(255,255,255,0.75);
+  border-bottom: 1px solid var(--td-border);
+  color: var(--td-ink);
+  backdrop-filter: blur(6px);
+}
+
+/* 메인 카드(너가 이미 만들어둔 grid 유지) */
+.result-layout{
+  background: var(--td-card);
+  border: 1px solid var(--td-border);
+  border-radius: 24px;
+  box-shadow: 0 18px 45px rgba(0,0,0,0.18);
+}
+
+/* 왼쪽 카드톤 */
+.side-list{
+  background: rgba(255,255,255,0.80);
+  border-right: 1px solid var(--td-border);
+  border-radius: 18px;
+}
+
+/* 지도 영역 카드톤 */
+.map-area{
+  background: rgba(255,255,255,0.85);
+  border: 1px solid var(--td-border);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+/* 장소 hover/active 톤(파랑/노랑 제거 → 브라운 계열) */
+.place-item:hover{
+  background: rgba(184,147,114,0.14);
+  border-color: rgba(184,147,114,0.35);
+}
+.place-item.active{
+  background: rgba(184,147,114,0.22);
+  border-color: rgba(139,94,60,0.35);
+}
+
+/* 태그도 톤 맞추기(원하면) */
+.place-tag{
+  background: var(--td-brown);
+}
+
+/* 액션 버튼 톤 통일 */
+.btn-primary,
+.btn-accent{
+  background: var(--td-brown) !important;
+  color: #fff !important;
+}
+.btn-dark{
+  background: rgba(255,255,255,0.90) !important;
+  border: 1px solid var(--td-border) !important;
+  color: var(--td-ink) !important;
+}
+
+/* add 버튼/좋아요추가/지도버튼도 브라운 */
+.btn-add,
+.liked-add-btn,
+.map-button{
+  background: var(--td-brown) !important;
+  color: #fff !important;
+}
+
+/* 검색 태그도 브라운 */
+.search-tag{
+  background: var(--td-brown) !important;
+  color: #fff !important;
+}
+
+/* 패널 탭 active도 브라운 */
+.panel-tabs button.active{
+  border-color: var(--td-brown) !important;
+  color: var(--td-ink);
+  font-weight: 800;
+}
+/* ===== Trip-Diner Result Theme (NO IMAGE / Full-bleed) ===== */
+
+.result-wrapper{
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: "Pretendard", sans-serif;
+  background: #f6eee6; /* 베이지 배경(1번 페이지 톤) */
+}
+
+/* 상단 'AI 여행 계획이...' 바를 갈색으로 */
+.result-title{
+  position: sticky;
+  top: 0;
+  z-index: 30;
+
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0;
+  padding: 0;
+
+  background: var(--td-brown-2);
+  color: #fff;
+
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+/* ✅ 양쪽 여백 없애고, 지도 크게: 레이아웃을 화면 꽉 채우기 */
+.result-layout{
+  display: grid !important;
+  grid-template-columns: 350px 1fr;
+  gap: 0;
+
+  width: 100%;
+  height: calc(100vh - 64px);
+
+  margin: 0;
+  padding: 0;
+
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+
+  overflow: hidden;
+}
+
+/* 왼쪽 리스트: 카드톤 + 세로 꽉 */
+.side-list{
+  height: 100%;
+  overflow-y: auto;
+
+  padding: 16px;
+  background: rgba(255,255,255,0.78);
+
+  border-right: 1px solid var(--td-border);
+  border-radius: 0;
+}
+
+/* 지도: 진짜 크게(부모 높이 꽉) */
+.map-area{
+  height: 100%;
+  min-height: 0;
+  background: rgba(255,255,255,0.85);
+  border-radius: 0;
+}
+
+/* 장소 hover/active 톤도 브라운 계열로 */
+.place-item:hover{
+  background: rgba(184,147,114,0.10);
+}
+.place-item.active{
+  background: rgba(184,147,114,0.18);
+  border-color: rgba(184,147,114,0.45);
+}
+
+/* 오른쪽 슬라이드 패널도 톤 통일 */
+.slide-panel{
+  background: rgba(255,255,255,0.92);
+  border-left: 1px solid var(--td-border);
+  border-radius: 0;
+}
+
+/* 레전드(일차 표시)도 카드톤 */
+.day-legend{
+  background: rgba(255,255,255,0.92);
+  border: 1px solid var(--td-border);
+}
+/* ✅ 버튼 색상 통일(흰색 -> 갈색) : 맨 아래에 추가 */
+.action-buttons button{
+  background: var(--td-brown) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.action-buttons button:hover{
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
+
+.action-buttons button:disabled{
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ✅ 혹시 흰색을 만드는 클래스가 따로 있으면(예: btn-dark) 강제 덮기 */
+.action-buttons .btn-dark,
+.action-buttons .btn-back-edit{
+  background: var(--td-brown) !important;
+  color: #fff !important;
+  border: none !important;
 }

@@ -1,4 +1,3 @@
-// back/routes/schedule/authSessionRoutes.js
 import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -20,13 +19,12 @@ const setRefreshCookie = (res, token) => {
   res.cookie("refresh_token", token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: false, // 배포(https)면 true
+    secure: false,
     path: "/",
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30일
+    maxAge: 30 * 24 * 60 * 60 * 1000,
   });
 };
 
-// ✅ 로그인 (DB refresh_session 방식)
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -56,13 +54,10 @@ router.post("/login", async (req, res) => {
     }
 
     const accessToken = signAccess(user);
-
-    // ✅ refresh_token 생성/저장 (JWT X, 랜덤 토큰 + DB 해시 저장)
     const refreshToken = crypto.randomBytes(64).toString("hex");
     const tokenHash = sha256(refreshToken);
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
-    // (선택) 기존 세션 전부 폐기 = 1인 1세션 정책
     await prisma.refresh_session.updateMany({
       where: { user_id: user.user_id, revoked_at: null },
       data: { revoked_at: new Date() },
@@ -99,7 +94,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// ✅ refresh: 쿠키 refresh_token으로 access 재발급 (+ refresh 로테이션)
 router.post("/refresh", async (req, res) => {
   try {
     const refreshToken = req.cookies?.refresh_token;
@@ -111,10 +105,11 @@ router.post("/refresh", async (req, res) => {
       where: { token_hash: tokenHash },
     });
 
-    if (!session || session.revoked_at) return res.status(401).json({ success: false });
-    if (session.expires_at < new Date()) return res.status(401).json({ success: false });
+    if (!session || session.revoked_at)
+      return res.status(401).json({ success: false });
+    if (session.expires_at < new Date())
+      return res.status(401).json({ success: false });
 
-    // ✅ 로테이션: 기존 세션 폐기 + 새 refresh 발급
     await prisma.refresh_session.update({
       where: { session_id: session.session_id },
       data: { revoked_at: new Date() },
@@ -135,7 +130,9 @@ router.post("/refresh", async (req, res) => {
     setRefreshCookie(res, newRefreshToken);
 
     // access 재발급
-    const user = await prisma.user.findUnique({ where: { user_id: session.user_id } });
+    const user = await prisma.user.findUnique({
+      where: { user_id: session.user_id },
+    });
     if (!user) return res.status(401).json({ success: false });
 
     const accessToken = signAccess(user);
@@ -146,7 +143,6 @@ router.post("/refresh", async (req, res) => {
   }
 });
 
-// ✅ 로그아웃: DB 세션 폐기 + 쿠키 삭제
 router.post("/logout", async (req, res) => {
   try {
     const refreshToken = req.cookies?.refresh_token;

@@ -1,5 +1,3 @@
-// back/utils/textUtils.js
-
 // 줄바꿈 제거 + 트림
 export const cleanText = (t) => t?.replace(/\n/g, " ").trim() ?? "";
 
@@ -10,7 +8,7 @@ export const cleanOverview = (text) => {
   return cleaned.length === 0 ? "" : cleaned;
 };
 
-// 네이버 category → 태그 배열
+// 네이버 category 기반 태그 생성
 export function buildTagsFromCategory(category, contentTypeId) {
   const tags = [];
 
@@ -22,7 +20,11 @@ export function buildTagsFromCategory(category, contentTypeId) {
 
     for (const part of parts) {
       if (part.includes("카페")) tags.push("카페");
-      else if (part.includes("디저트") || part.includes("빵") || part.includes("베이커리"))
+      else if (
+        part.includes("디저트") ||
+        part.includes("빵") ||
+        part.includes("베이커리")
+      )
         tags.push("베이커리");
       else if (part.includes("한식")) tags.push("한식");
       else if (part.includes("양식")) tags.push("양식");

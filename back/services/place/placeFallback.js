@@ -1,4 +1,3 @@
-// back/services/place/placeFallback.js
 export function makePlaceDetailFallback({
   contentId,
   contentTypeId,

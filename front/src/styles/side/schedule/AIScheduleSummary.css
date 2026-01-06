@@ -1,16 +1,25 @@
-/* ✅ 화면 전체 배경을 흰색으로 덮는 wrapper */
-.summary-bg{
-  min-height: 100vh;
-  background: #fff !important;
-  width: 100%;
+:root{
+  --td-brown: #8b5e3c;
+  --td-brown-2: #b89372;
+  --td-ink: #2a1c14;
+  --td-card: rgba(255,255,255,0.92);
+  --td-border: rgba(139, 94, 60, 0.20);
+  --td-shadow: 0 18px 45px rgba(0,0,0,0.25);
 }
 
-/* 페이지 전체 */
-.summary-page {
-  max-width: 1100px;
-  margin: 0 auto 80px;
-  padding: 40px 20px 60px;
-  font-family: "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+.summary-page{
+  position: relative;
+  z-index: 1;
+
+  width: min(1200px, 94vw);
+  margin: 60px auto 80px;   /* ✅ 위로 60 내려주고, 아래 여백 80 */
+  padding: 22px;
+
+  background: var(--td-card);
+  border: 1px solid var(--td-border);
+  border-radius: 24px;
+  box-shadow: var(--td-shadow);
+  backdrop-filter: blur(6px);
 }
 
 /* 상단 히어로 */
@@ -304,4 +313,136 @@
 /* PDF로 캡처할 때만 조금 더 오른쪽 */
 .pdf-capture .summary-day-section .summary-card-list{
   padding-left: 32px;
+}
+/* ✅ PDF 캡처 모드에서는 hero가 페이지를 다 먹지 않게 */
+.pdf-capture .summary-hero{
+  height: auto !important;
+  min-height: auto !important;
+  padding-bottom: 12px !important;
+  margin-bottom: 12px !important;
+}
+
+/* 1페이지 wrapper */
+.pdf-capture .pdf-firstpage{
+  background: #fff;
+}
+/* ===== Trip-Diner Summary Theme (append) ===== */
+
+.summary-bg{
+  width: 100vw;
+  min-height: 100vh;
+  font-family: "Pretendard", sans-serif;
+  position: relative;
+}
+
+.summary-page{
+  position: relative;
+  z-index: 1;
+
+  width: min(1200px, 94vw);
+  margin: 0 auto;
+  padding: 22px;
+
+  background: var(--td-card);
+  border: 1px solid var(--td-border);
+  border-radius: 24px;
+  box-shadow: var(--td-shadow);
+  backdrop-filter: blur(6px);
+}
+
+/* 요약 제목 톤 */
+.summary-title{
+  color: var(--td-ink);
+  font-weight: 900;
+}
+
+/* 태그(칩) 톤 */
+.summary-theme-tag{
+  background: rgba(184,147,114,0.16);
+  border: 1px solid rgba(184,147,114,0.30);
+  color: var(--td-ink);
+  font-weight: 800;
+}
+
+/* Day 탭 톤 */
+.day-tab{
+  border-radius: 999px;
+  border: 1px solid var(--td-border);
+  background: rgba(255,255,255,0.80);
+  color: var(--td-ink);
+  font-weight: 800;
+  cursor: pointer;
+}
+.day-tab.active{
+  background: var(--td-brown);
+  color: #fff;
+  border-color: transparent;
+}
+
+/* 카드 hover/톤 */
+.summary-card{
+  border-radius: 18px;
+  border: 1px solid rgba(0,0,0,0.06);
+  transition: 0.15s;
+}
+.summary-card:hover{
+  border-color: rgba(184,147,114,0.35);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.10);
+}
+
+/* 하단 버튼들 통일 */
+.summary-footer-actions button{
+  border: none;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.summary-footer-actions .btn-save,
+.summary-footer-actions .btn-share,
+.summary-footer-actions .btn-pdf{
+  background: var(--td-brown);
+  color: #fff;
+}
+.summary-footer-actions .btn-back-edit{
+  background: rgba(255,255,255,0.85);
+  border: 1px solid var(--td-border);
+  color: var(--td-ink);
+}
+
+.summary-footer-actions button:hover{
+  transform: translateY(-1px);
+}
+.summary-footer-actions button:disabled{
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ✅ 상단 Trip-Diner 영역이랑 겹침 방지: 하얀 카드(배경) 아래로 내리기 */
+.summary-page{
+  margin-top: 00px;   /* 50~90px 사이로 원하는 만큼 조절 */
+}
+
+/* ✅ PDF 캡처 모드에서는 위 여백 생기면 보기 안좋으니 제거(필요시) */
+.pdf-capture.summary-page,
+.pdf-capture .summary-page{
+  margin-top: 0 !important;
+}
+.pdf-capture .summary-page{
+  margin: 0 auto !important;
+}
+/* ✅ summary 페이지에서만 상단 헤더(로고 바) 투명 처리 */
+body.summary-mode header{
+  background: transparent !important;
+  box-shadow: none !important;
+  border-bottom: none !important;
+}
+
+/* 헤더가 fixed라면 아래 컨텐츠가 겹칠 수 있어서 여백 확보 */
+body.summary-mode .summary-bg{
+  padding-top: 70px; /* 헤더 높이만큼(60~90 조절) */
+  box-sizing: border-box;
 }

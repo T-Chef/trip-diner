@@ -14,6 +14,7 @@ export default function BoardWrite() {
   const [category, setCategory] = useState("자유");
 
   const [content, setContent] = useState("");
+
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState("");
 
@@ -43,6 +44,7 @@ export default function BoardWrite() {
           schedule_id: p.plan_id,
           title: p.title || "여행 일정",
           duration: (p.plan_day?.length || 0) + "일",
+
           main_image:
             p.plan_day?.[0]?.plan_item?.[0]?.place?.image_url ||
             "/assets/images/default-placeholder.jpg",
@@ -85,6 +87,7 @@ export default function BoardWrite() {
   // 일정 선택 시 본문 삽입
   const handleSelectSchedule = (s) => {
     setSelectedSchedule(s);
+    
     const scheduleHTML = s.days
       .map(
         (day) => `
@@ -181,9 +184,11 @@ export default function BoardWrite() {
     <div className="write-page">
       <div className="write-layout">
         <div className="write-main">
+
           <h2 className="write-title">
             {isEdit ? "게시글 수정" : "게시글 작성"}
           </h2>
+
           <div className="input-group">
             <label>카테고리</label>
             <select
@@ -198,12 +203,7 @@ export default function BoardWrite() {
 
           <div className="input-group">
             <label>제목</label>
-            <input
-              type="text"
-              placeholder="제목을 입력하세요"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
+            <input type="text" placeholder="제목을 입력하세요" value={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
 
           <div className="editor-box">
@@ -215,7 +215,7 @@ export default function BoardWrite() {
             onClick={() => document.querySelector(".tag-input").focus()}
           >
             <div className="tag-list">
-              {tags.map((tag) => (
+              {tags.map(tag => (
                 <div key={tag} className="tag-item">
                   #{tag}{" "}
                   <span
@@ -269,6 +269,7 @@ export default function BoardWrite() {
                 </div>
               ))
             ) : (
+
               <p
                 style={{ fontSize: "13px", color: "#999", textAlign: "center" }}
               >

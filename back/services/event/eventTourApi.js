@@ -1,7 +1,3 @@
-// back/services/event/eventTourApi.js
-// ✅ 이벤트(축제/행사) TourAPI 호출만 담당
-// - quota/파싱/resultCode/timeout 처리는 services/tour/tourClient.js 공용 사용
-
 import { buildTourUrl, fetchTourJson } from "../tour/tourClient.js";
 
 const LIST_URL = "https://apis.data.go.kr/B551011/KorService2/searchFestival2";

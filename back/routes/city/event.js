@@ -1,4 +1,3 @@
-// back/routes/event.js
 import express from "express";
 import { getCache, setCache } from "../../utils/cache.js";
 
@@ -18,9 +17,6 @@ import { enrichEventLocation } from "../../services/event/eventEnrich.js";
 
 const router = express.Router();
 
-// -------------------------------------------------------
-// 공통 유틸 (중복 제거)
-// -------------------------------------------------------
 function cacheKeyOf(...parts) {
   return parts.join("|");
 }
@@ -61,9 +57,7 @@ router.use((req, res, next) => {
   next();
 });
 
-// -------------------------------------------------------
-// 1) 이벤트 목록
-// -------------------------------------------------------
+// 1. 이벤트 목록
 router.get("/list", async (req, res) => {
   const areaCode = req.query.areaCode;
   const sigunguCode = areaCode ? req.query.sigunguCode : undefined;
@@ -112,9 +106,7 @@ router.get("/list", async (req, res) => {
   }
 });
 
-// -------------------------------------------------------
-// 2) 이벤트 상세
-// -------------------------------------------------------
+// 2. 이벤트 상세
 router.get("/detail", async (req, res) => {
   const { contentId, contentTypeId, title, address, mapX, mapY, image } =
     req.query;
@@ -133,7 +125,6 @@ router.get("/detail", async (req, res) => {
   const fallbackCached = getCache(fallbackKey);
   if (fallbackCached) return respondCached(res, fallbackCached);
 
-  // quota 락이면: TourAPI 호출 없이 fallback
   if (isQuotaBlocked()) {
     const fb = await buildEventFallback({
       contentId,
@@ -153,7 +144,6 @@ router.get("/detail", async (req, res) => {
   try {
     const info = await fetchEventDetail({ contentId, contentTypeId });
 
-    // 상세가 비면 fallback로 보강
     if (!info) {
       const fb = await buildEventFallback({
         contentId,
@@ -182,7 +172,6 @@ router.get("/detail", async (req, res) => {
       noDetail: false,
     };
 
-    // overview가 빈약하면 웹문서로 보강
     if (isWeakOverview(detail.overview)) {
       const official = await getOfficialOverview({
         title: detail.title || title,
@@ -199,7 +188,7 @@ router.get("/detail", async (req, res) => {
 
     return setAndReturnJson(res, successKey, detail, 6 * 60 * 60 * 1000);
   } catch (err) {
-    // TourAPI 계열 에러는 fallback로 처리
+
     if (isTourHandledError(err)) {
       const fb = await buildEventFallback({
         contentId,
@@ -232,9 +221,7 @@ router.get("/detail", async (req, res) => {
   }
 });
 
-// -------------------------------------------------------
-// 3) 좌표 보강
-// -------------------------------------------------------
+// 3. 이벤트 위치 보강
 router.get("/enrich", async (req, res) => {
   const { title = "", address = "" } = req.query;
   const result = await enrichEventLocation({ title, address });

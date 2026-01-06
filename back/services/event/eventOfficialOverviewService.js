@@ -1,12 +1,14 @@
-// back/services/event/eventOfficialOverviewService.js
-// 네이버 WebKR 검색 → 공식/지자체/문화포털 등 페이지를 골라 본문을 스크래핑해서 overview로 사용
-
 import { load } from "cheerio";
 import fetch from "node-fetch";
 
 import { getCache, setCache } from "../../utils/cache.js";
 import { dedup } from "../../utils/inflight.js";
-import { LOG_EVENT, guessCityName, normalizeKeyword, stripHtml } from "./eventUtils.js";
+import {
+  LOG_EVENT,
+  guessCityName,
+  normalizeKeyword,
+  stripHtml,
+} from "./eventUtils.js";
 
 async function searchWebNaver(query) {
   const id = process.env.NAVER_CLIENT_ID;
@@ -31,7 +33,6 @@ async function searchWebNaver(query) {
   return Array.isArray(data.items) ? data.items : [];
 }
 
-// ✅ “본문만” 남기도록 잡음 제거 (메뉴/공유/JS코드 제거)
 function cleanScrapedText(raw = "") {
   const s = String(raw || "");
 
@@ -64,8 +65,10 @@ function cleanScrapedText(raw = "") {
   const filtered = lines.filter((l) => {
     if (l.length <= 1) return false;
     if (dropContains.some((w) => l.includes(w))) return false;
-    // JS/코드처럼 보이는 라인 제거
-    if (/[{};=<>]/.test(l) && /function|document|window|\$\(|var|const|let/.test(l))
+    if (
+      /[{};=<>]/.test(l) &&
+      /function|document|window|\$\(|var|const|let/.test(l)
+    )
       return false;
     return true;
   });
@@ -89,7 +92,7 @@ async function scrapeMainText(url) {
 
   $("script, style, noscript").remove();
 
-  // ✅ 문화포털 oneeye 전용
+  // OneEye 특별 처리
   if (/culture\.go\.kr\/oneeye\/oneEyeView\.do/i.test(url)) {
     const t =
       $("#charactersChange").text().trim() ||
@@ -117,11 +120,18 @@ async function scrapeMainText(url) {
 
   let bestText = "";
   for (const sel of candidates) {
-    const t = $(sel).text().replace(/[ \t]+/g, " ").trim();
+    const t = $(sel)
+      .text()
+      .replace(/[ \t]+/g, " ")
+      .trim();
     if (t.length > bestText.length) bestText = t;
   }
 
-  if (!bestText) bestText = $("body").text().replace(/[ \t]+/g, " ").trim();
+  if (!bestText)
+    bestText = $("body")
+      .text()
+      .replace(/[ \t]+/g, " ")
+      .trim();
 
   return cleanScrapedText(bestText);
 }
@@ -141,7 +151,7 @@ function pickBestWebItem(items, { title = "", city = "" }) {
     let score = 0;
 
     // 도메인 가중치
-    if (/culture\.go\.kr/i.test(link)) score += 60; // 문화포털
+    if (/culture\.go\.kr/i.test(link)) score += 60;
     if (/visitbusan\.net/i.test(link)) score += 50;
     if (/\.go\.kr/i.test(link)) score += 30;
 
@@ -151,7 +161,8 @@ function pickBestWebItem(items, { title = "", city = "" }) {
     if (c && (itTitle.includes(c) || desc.includes(c))) score += 8;
 
     // 행사/축제 키워드
-    if (/축제|행사|페스티벌|festival|event/i.test(itTitle + " " + desc)) score += 10;
+    if (/축제|행사|페스티벌|festival|event/i.test(itTitle + " " + desc))
+      score += 10;
 
     if (score > bestScore) {
       bestScore = score;

@@ -1,12 +1,8 @@
-// back/services/naverService.js
 import axios from "axios";
 
 const NAVER_CLIENT_ID = process.env.NAVER_CLIENT_ID;
 const NAVER_CLIENT_SECRET = process.env.NAVER_CLIENT_SECRET;
 
-/**
- * Naver Local API로 전화번호/카테고리 보강
- */
 export async function enhanceWithNaverLocal(title, address) {
   try {
     const query = `${title || ""} ${address || ""}`.trim();
@@ -26,7 +22,7 @@ export async function enhanceWithNaverLocal(title, address) {
     const item = res.data.items?.[0];
     if (!item) return {};
 
-    console.log("✅ Naver Local hit:", {
+    console.log("Naver Local hit:", {
       title: item.title,
       telephone: item.telephone,
       category: item.category,
@@ -44,9 +40,7 @@ export async function enhanceWithNaverLocal(title, address) {
   }
 }
 
-/**
- * Naver 이미지 검색 (필요하면 재사용)
- */
+// Naver 이미지 검색 API를 사용하여 대표 이미지를 가져오기
 export async function searchNaverImage(title) {
   try {
     const res = await axios.get(

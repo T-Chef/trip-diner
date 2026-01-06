@@ -1,4 +1,3 @@
-// back/routes/place.js
 import express from "express";
 
 import { getPlaces } from "../../services/place/placeListService.js";
