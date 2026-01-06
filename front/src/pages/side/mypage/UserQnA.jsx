@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
+import SideMenu from "../../../components/home/SideMenu";
+
 import "../../../styles/page/home/Header.css";
 import "../../../styles/side/mypage/UserQnA.css";
 
@@ -11,6 +13,9 @@ export default function UserQnA() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const savedUser = localStorage.getItem("user");
+  const [user, setUser] = useState(savedUser ? JSON.parse(savedUser) : null);
 
   const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) {
@@ -38,40 +43,56 @@ export default function UserQnA() {
   };
 
   const bgStyle = {
-    backgroundImage: `url(${process.env.PUBLIC_URL}/assets/images/trip-bg.png)`,
+    minHeight: "100vh",
+    backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+      url(${process.env.PUBLIC_URL}/assets/images/trip-bg.png)`,
     backgroundSize: "cover",
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
   };
 
   return (
-    <div className="qna-write-wrapper" style={bgStyle}>
+    <div className="layout-wrapper">
       <QnaHeader setMenuOpen={setMenuOpen} />
 
-      <div className="qna-write-card">
-        <h2 className="qna-write-title">문의하기</h2>
+      <SideMenu
+        user={user}
+        setUser={setUser}
+        menuOpen={menuOpen}
+        setMenuOpen={setMenuOpen}
+      />
 
-        <p className="qna-write-sub">
-          궁금한 점이 있으신가요? 언제든 편하게 남겨주세요.
-        </p>
+      <div
+        className={`overlay ${menuOpen ? "show" : ""}`}
+        onClick={() => setMenuOpen(false)}
+      />
 
-        <input
-          className="qna-input"
-          placeholder="제목을 입력하세요"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+      <div className="qna-write-wrapper" style={bgStyle}>
+        <div className="qna-write-card">
+          <h2 className="qna-write-title">문의하기</h2>
 
-        <textarea
-          className="qna-textarea"
-          placeholder="문의 내용을 입력하세요"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
+          <p className="qna-write-sub">
+            궁금한 점이 있으신가요? 언제든 편하게 남겨주세요.
+          </p>
 
-        <button className="qna-submit-btn" onClick={handleSubmit}>
-          문의 등록
-        </button>
+          <input
+            className="qna-input"
+            placeholder="제목을 입력하세요"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+
+          <textarea
+            className="qna-textarea"
+            placeholder="문의 내용을 입력하세요"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+
+          <button className="qna-submit-btn" onClick={handleSubmit}>
+            문의 등록
+          </button>
+        </div>
       </div>
     </div>
   );

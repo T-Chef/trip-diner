@@ -74,7 +74,7 @@ function UpcomingTrips() {
   );
 }
 
-// 프로필,
+// 프로필
 export default function Profile({ user, setUser }) {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
