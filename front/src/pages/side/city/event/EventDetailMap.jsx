@@ -4,7 +4,7 @@ import axios from "axios";
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 const NAVER_KEY = process.env.REACT_APP_NAVER_MAP_KEY || "1o7cfked5o";
 
-// ✅ 스크립트 1번만 로드되게 전역 Promise 캐시
+// 네이버 지도 스크립트 로드 (중복 방지용)
 let naverMapScriptPromise = null;
 function loadNaverMapScript() {
   if (window.naver?.maps) return Promise.resolve(true);
@@ -30,7 +30,7 @@ function loadNaverMapScript() {
   return naverMapScriptPromise;
 }
 
-// ✅ (추가) StrictMode 리마운트까지 막는 전역 in-flight + TTL 캐시
+// 이벤트 위치 보강용 enrich 캐시
 const _enrichInflight = new Map();
 const _enrichCache = new Map();
 const ENRICH_TTL = 10 * 60 * 1000;
@@ -75,19 +75,17 @@ export default function EventDetailMap({ title, address, mapX, mapY }) {
   const markerRef = useRef(null);
 
   const [pos, setPos] = useState({ lat: null, lng: null });
-
-  // ✅ (추가) 같은 마운트에서 중복 호출 방지 useRef 가드
   const enrichInFlightRef = useRef(false);
   const enrichDoneKeyRef = useRef("");
 
-  // 1) TourAPI 좌표(mapX/mapY)가 들어오면 즉시 반영
+  // 1. props로 좌표가 있으면 바로 세팅
   useEffect(() => {
     const lat = mapY ? Number(mapY) : null;
     const lng = mapX ? Number(mapX) : null;
     if (lat && lng) setPos({ lat, lng });
   }, [mapX, mapY]);
 
-  // 2) 좌표 없으면 enrich로 보강
+  // 2. 좌표가 없으면 title/address로 보강 시도
   useEffect(() => {
     let alive = true;
 
@@ -102,14 +100,12 @@ export default function EventDetailMap({ title, address, mapX, mapY }) {
 
     const fetchPos = async () => {
       if (pos.lat && pos.lng) return;
-
-      // ✅ 타이틀/주소가 둘 다 의미 없으면 enrich 호출 자체를 하지 않음
       if (badTitle && safeAddress.length < 2) return;
       if (!safeTitle && safeAddress.length < 2) return;
 
       const dedupKey = `${safeTitle}|${safeAddress}`;
 
-      // ✅ 같은 마운트 내 중복 방지
+      // 중복 요청 방지
       if (enrichInFlightRef.current) return;
       if (enrichDoneKeyRef.current === dedupKey) return;
 
@@ -137,7 +133,7 @@ export default function EventDetailMap({ title, address, mapX, mapY }) {
     };
   }, [pos.lat, pos.lng, title, address]);
 
-  // 3) 네이버 지도 생성/업데이트
+  // 3. 네이버 지도 생성/업데이트
   useEffect(() => {
     if (!pos.lat || !pos.lng) return;
 

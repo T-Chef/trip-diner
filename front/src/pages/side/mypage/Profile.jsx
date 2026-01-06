@@ -15,7 +15,7 @@ import {
 import CalendarBox from "./Calendar";
 import api from "../../page/login/api";
 
-/* ================== 다가오는 여행 리스트 ================== */
+// 내 여행 일정 간략 소개 (4개), 캘린더에도 표기하기
 function UpcomingTrips() {
   const navigate = useNavigate();
   const [plans, setPlans] = useState([]);
@@ -74,7 +74,7 @@ function UpcomingTrips() {
   );
 }
 
-/* ================== PROFILE ================== */
+// 프로필,
 export default function Profile({ user, setUser }) {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);

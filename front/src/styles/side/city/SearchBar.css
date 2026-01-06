@@ -19,7 +19,6 @@
   transition: border-color .18s ease, box-shadow .18s ease, transform .12s ease, background-color .18s ease;
 }
 
-/* 포커스 시 스타일 업그레이드 */
 .city-search-wrap.focused {
   border-color: rgba(176,122,58,0.55);
   box-shadow: 0 0 0 4px rgba(215,176,106,0.18), 0 12px 30px rgba(0,0,0,0.10);
@@ -27,16 +26,11 @@
   transform: translateY(-1px);
 }
 
-/* ===========================
-   아이콘 / 오른쪽 영역
-=========================== */
-
 .city-search-icon {
   font-size: 16px;
   opacity: 0.72;
 }
 
-/* 인풋 */
 .city-search-input {
   flex: 1;
   height: 100%;
@@ -49,20 +43,17 @@
   caret-color: #b07a3a;
 }
 
-/* placeholder 스타일 */
 .city-search-input::placeholder {
   color: rgba(70,55,45,0.45);
   font-size: 14px;
 }
 
-/* 오른쪽 영역 */
 .city-search-right {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-/* 디바운스 점 (로딩 인디케이터) */
 .search-debounce-dot {
   width: 6px;
   height: 6px;
@@ -83,7 +74,6 @@
   }
 }
 
-/* X 버튼 */
 .search-clear-btn {
   border: none;
   outline: none;
@@ -103,7 +93,6 @@
   transform: translateY(-0.5px);
 }
 
-/* 모바일에서 살짝 줄이기 */
 @media (max-width: 640px){
   .city-search-wrap{ height: 48px; padding: 0 14px; }
   .city-search-input{ font-size: 14px; }

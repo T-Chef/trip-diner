@@ -1,5 +1,10 @@
-// src/pages/side/city/CityMain.jsx
-import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+} from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -19,7 +24,7 @@ const stripHtml = (html) => {
   return doc.body.textContent || "";
 };
 
-// ✅ areaCode 정규화: 0/"all"/"" => null
+// 전국이면 area는 무조건 null
 const normalizeAreaCode = (v) => {
   if (v === null || v === undefined) return null;
   const s = String(v).trim();
@@ -30,7 +35,7 @@ const normalizeAreaCode = (v) => {
   return Number.isFinite(n) && n > 0 ? n : null;
 };
 
-// ✅ 전국이면 sigungu는 무조건 null
+// 전국이면 sigungu는 무조건 null
 const normalizeSigunguCode = (areaCode, v) => {
   if (areaCode == null) return null;
   if (v === null || v === undefined) return null;
@@ -65,13 +70,13 @@ export default function CityMain({ user, setUser }) {
 
   const areaName = useMemo(() => {
     if (filter.areaCode == null) return "전국";
-    const hit = cities.find((c) => Number(c.areaCode) === Number(filter.areaCode));
+    const hit = cities.find(
+      (c) => Number(c.areaCode) === Number(filter.areaCode)
+    );
     return hit?.name || "지역";
   }, [cities, filter.areaCode]);
 
-  // ----------------------------
   // 후기 데이터
-  // ----------------------------
   const [latestPosts, setLatestPosts] = useState([]);
   useEffect(() => {
     const fetchLatestPosts = async () => {
@@ -90,9 +95,6 @@ export default function CityMain({ user, setUser }) {
     fetchLatestPosts();
   }, [filter.areaCode]);
 
-  // ----------------------------
-  // URL -> filter 동기화
-  // ----------------------------
   useEffect(() => {
     const areaParam = searchParams.get("area");
     const sigunguParam = searchParams.get("sigungu");
@@ -112,18 +114,19 @@ export default function CityMain({ user, setUser }) {
         prev.areaCode === next.areaCode &&
         prev.sigunguCode === next.sigunguCode &&
         prev.keyword === next.keyword
-      ) return prev;
+      )
+        return prev;
       return next;
     });
   }, [searchParams]);
 
-  // ----------------------------
-  // filter -> URL 반영
-  // ----------------------------
+  // searchParams 동기화, filter 변경시 호출
   const syncToSearchParams = useCallback(
     (patchOrNext, opts = { replace: false }) => {
       const rawArea =
-        patchOrNext.areaCode !== undefined ? patchOrNext.areaCode : filter.areaCode;
+        patchOrNext.areaCode !== undefined
+          ? patchOrNext.areaCode
+          : filter.areaCode;
       const areaCode = normalizeAreaCode(rawArea);
 
       const rawSigungu =
@@ -133,39 +136,56 @@ export default function CityMain({ user, setUser }) {
       const sigunguCode = normalizeSigunguCode(areaCode, rawSigungu);
 
       const nextKeyword =
-        patchOrNext.keyword !== undefined ? patchOrNext.keyword : filter.keyword;
+        patchOrNext.keyword !== undefined
+          ? patchOrNext.keyword
+          : filter.keyword;
 
       const sp = new URLSearchParams();
       if (areaCode != null) sp.set("area", String(areaCode));
       if (sigunguCode != null) sp.set("sigungu", String(sigunguCode));
-      if (nextKeyword && nextKeyword.trim()) sp.set("keyword", nextKeyword.trim());
+      if (nextKeyword && nextKeyword.trim())
+        sp.set("keyword", nextKeyword.trim());
 
       if (sp.toString() === searchParams.toString()) return;
       setSearchParams(sp, opts);
     },
-    [filter.areaCode, filter.sigunguCode, filter.keyword, searchParams, setSearchParams]
+    [
+      filter.areaCode,
+      filter.sigunguCode,
+      filter.keyword,
+      searchParams,
+      setSearchParams,
+    ]
   );
 
   const handleFilterChangeFromAIFilter = useCallback(
     (patch) => {
       const nextArea =
-        patch.areaCode !== undefined ? normalizeAreaCode(patch.areaCode) : filter.areaCode;
+        patch.areaCode !== undefined
+          ? normalizeAreaCode(patch.areaCode)
+          : filter.areaCode;
 
       const nextSigungu =
         patch.sigunguCode !== undefined
           ? normalizeSigunguCode(nextArea, patch.sigunguCode)
           : normalizeSigunguCode(nextArea, filter.sigunguCode);
 
-      const nextKeyword = patch.keyword !== undefined ? patch.keyword : filter.keyword;
+      const nextKeyword =
+        patch.keyword !== undefined ? patch.keyword : filter.keyword;
 
-      const next = { areaCode: nextArea, sigunguCode: nextSigungu, keyword: nextKeyword };
+      const next = {
+        areaCode: nextArea,
+        sigunguCode: nextSigungu,
+        keyword: nextKeyword,
+      };
 
       setFilter((prev) => {
         if (
           prev.areaCode === next.areaCode &&
           prev.sigunguCode === next.sigunguCode &&
           prev.keyword === next.keyword
-        ) return prev;
+        )
+          return prev;
         return next;
       });
 
@@ -178,7 +198,9 @@ export default function CityMain({ user, setUser }) {
   const handleKeywordChange = useCallback(
     (value) => {
       const v = value ?? "";
-      setFilter((prev) => (prev.keyword === v ? prev : { ...prev, keyword: v }));
+      setFilter((prev) =>
+        prev.keyword === v ? prev : { ...prev, keyword: v }
+      );
 
       if (keywordTimer.current) clearTimeout(keywordTimer.current);
       keywordTimer.current = setTimeout(() => {
@@ -188,9 +210,7 @@ export default function CityMain({ user, setUser }) {
     [syncToSearchParams]
   );
 
-  // ----------------------------
-  // 날씨
-  // ----------------------------
+  // 날씨 데이터
   const { weather, forecast } = useCityWeather(filter.areaCode ?? undefined);
 
   const lastWeatherRef = useRef(null);
@@ -205,7 +225,8 @@ export default function CityMain({ user, setUser }) {
   }, [forecast]);
 
   const shownWeather = weather ?? lastWeatherRef.current;
-  const shownForecast = (forecast?.length ? forecast : lastForecastRef.current) ?? [];
+  const shownForecast =
+    (forecast?.length ? forecast : lastForecastRef.current) ?? [];
 
   // 전체일 때 overview
   const [wxOverview, setWxOverview] = useState([]);
@@ -220,7 +241,9 @@ export default function CityMain({ user, setUser }) {
     (async () => {
       try {
         setWxOverviewLoading(true);
-        const res = await axios.get(`${API_BASE}/weather/overview`, { signal: ctrl.signal });
+        const res = await axios.get(`${API_BASE}/weather/overview`, {
+          signal: ctrl.signal,
+        });
         if (!alive) return;
         setWxOverview(res.data?.list || []);
       } catch (e) {
@@ -240,7 +263,12 @@ export default function CityMain({ user, setUser }) {
   return (
     <>
       <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} user={user} />
-      <SideMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen} user={user} setUser={setUser} />
+      <SideMenu
+        menuOpen={menuOpen}
+        setMenuOpen={setMenuOpen}
+        user={user}
+        setUser={setUser}
+      />
 
       <div className="city-page-wrapper">
         <div className="floating-left">
@@ -262,7 +290,10 @@ export default function CityMain({ user, setUser }) {
 
         <div className="floating-right">
           <AIFilter
-            value={{ areaCode: filter.areaCode, sigunguCode: filter.sigunguCode }}
+            value={{
+              areaCode: filter.areaCode,
+              sigunguCode: filter.sigunguCode,
+            }}
             onChange={handleFilterChangeFromAIFilter}
             onCitiesLoaded={setCities}
           />
@@ -272,7 +303,8 @@ export default function CityMain({ user, setUser }) {
           <div className="city-hero">
             <h2 className="city-head-title">도시 메뉴</h2>
             <p className="city-head-desc">
-              지역을 고르고, 마음에 드는 여행지를 찜해서 나만의 코스를 만들어보세요.
+              지역을 고르고, 마음에 드는 여행지를 찜해서 나만의 코스를
+              만들어보세요.
             </p>
             <div className="city-hero-search">
               <SearchBar onKeywordChange={handleKeywordChange} />
@@ -282,7 +314,9 @@ export default function CityMain({ user, setUser }) {
           <section className="city-section">
             <div className="city-section-head center">
               <h3 className="city-section-title">
-                {filter.areaCode == null ? "전국 인기 여행지" : `${areaName} 인기 여행지`}
+                {filter.areaCode == null
+                  ? "전국 인기 여행지"
+                  : `${areaName} 인기 여행지`}
               </h3>
             </div>
 
@@ -299,7 +333,9 @@ export default function CityMain({ user, setUser }) {
           <section className="city-section city-review-section">
             <div className="city-section-head center">
               <h3 className="city-section-title">
-                {filter.areaCode == null ? "전국 베스트 후기" : "지역 베스트 후기"}
+                {filter.areaCode == null
+                  ? "전국 베스트 후기"
+                  : "지역 베스트 후기"}
               </h3>
             </div>
 
@@ -307,7 +343,9 @@ export default function CityMain({ user, setUser }) {
               {latestPosts.length > 0 ? (
                 latestPosts.map((post) => {
                   const pid = post.post_id || post.id;
-                  const firstImg = post.image_url ? post.image_url.split(",")[0] : null;
+                  const firstImg = post.image_url
+                    ? post.image_url.split(",")[0]
+                    : null;
 
                   const imgSrc = firstImg
                     ? firstImg.startsWith("http")
@@ -322,16 +360,24 @@ export default function CityMain({ user, setUser }) {
                       onClick={() => navigate(`/board/${pid}`)}
                       style={{ cursor: "pointer" }}
                     >
-                      <div className="city-post-img" style={{ height: "200px" }}>
+                      <div
+                        className="city-post-img"
+                        style={{ height: "200px" }}
+                      >
                         <img
                           src={imgSrc}
                           alt={post.title}
-                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
                           onError={(e) => {
                             e.target.onerror = null;
                             e.target.src =
                               "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-                            e.target.parentElement.style.backgroundColor = "#ddd";
+                            e.target.parentElement.style.backgroundColor =
+                              "#ddd";
                           }}
                         />
                       </div>
@@ -356,11 +402,16 @@ export default function CityMain({ user, setUser }) {
           <section className="city-event-section city-section">
             <div className="city-section-head center">
               <h3 className="city-section-title">
-                {filter.areaCode == null ? "전국 축제 · 이벤트" : "축제 · 이벤트"}
+                {filter.areaCode == null
+                  ? "전국 축제 · 이벤트"
+                  : "축제 · 이벤트"}
               </h3>
             </div>
 
-            <EventList areaCode={filter.areaCode} sigunguCode={filter.sigunguCode} />
+            <EventList
+              areaCode={filter.areaCode}
+              sigunguCode={filter.sigunguCode}
+            />
           </section>
         </div>
       </div>

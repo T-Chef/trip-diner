@@ -1,24 +1,22 @@
-/* 컨테이너 기본 구조 */
 .login-container {
   width: 100%;
-  min-height: 100vh; /* 네비게이션 바가 없다면 100vh, 있다면 calc 사용 */
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 40px 0;
 }
 
-/* 로그인 박스 (투명도 조절로 배경 투과) */
 .login-box {
   width: 420px;
-  background: rgba(255, 255, 255, 0.92); /* 배경이 살짝 비치는 고급스러운 효과 */
+  background: rgba(255, 255, 255, 0.92);
   padding: 48px 50px;
   border-radius: 20px;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   gap: 22px;
-  backdrop-filter: blur(5px); /* 배경을 살짝 흐리게 해서 가독성 업 */
+  backdrop-filter: blur(5px);
 }
 
 .login-title {
@@ -52,14 +50,12 @@
   box-sizing: border-box;
 }
 
-/* 포커스 시 메인 브라운 테마 적용 */
 .input-group input:focus {
   border-color: #a68b6a;
   box-shadow: 0 0 0 3px rgba(166, 139, 106, 0.2);
   outline: none;
 }
 
-/* 로그인 버튼 (메인 브라운 테마) */
 .login-btn {
   width: 100%;
   padding: 14px 0;

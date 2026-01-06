@@ -1,4 +1,3 @@
-// front/src/components/city/CityListItem.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -8,10 +7,6 @@ import "../../../styles/side/city/CityListItem.css";
 const DEFAULT_THUMB =
   process.env.PUBLIC_URL + "/assets/images/default-thumb.jpg";
 
-
-/**
- * entry 컴포넌트 – isSkeleton 여부에 따라 분기
- */
 export default function CityListItem(props) {
   const { isSkeleton, index } = props;
 
@@ -22,9 +17,7 @@ export default function CityListItem(props) {
   return <CityListItemReal {...props} />;
 }
 
-/* -------------------------------------------------------
-   🔥 실제 카드 컴포넌트
-------------------------------------------------------- */
+// 실제 내용 컴포넌트
 function CityListItemReal({ index, item, userId }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,7 +25,8 @@ function CityListItemReal({ index, item, userId }) {
   const key = `likedPlaces_${userId || "guest"}`;
   const contentId = item?.contentId;
 
-  const initialSrc = (item?.image && String(item.image).trim()) ? item.image : DEFAULT_THUMB;
+  const initialSrc =
+    item?.image && String(item.image).trim() ? item.image : DEFAULT_THUMB;
 
   const [imgSrc, setImgSrc] = useState(initialSrc);
   const [imgFail, setImgFail] = useState(false);
@@ -51,25 +45,22 @@ function CityListItemReal({ index, item, userId }) {
   };
 
   useEffect(() => {
-  if (!contentId) return;
+    if (!contentId) return;
 
-  const refresh = () => {
-    const saved = JSON.parse(localStorage.getItem(key) || "[]").map(String);
-    setLiked(saved.includes(String(contentId)));
-  };
+    const refresh = () => {
+      const saved = JSON.parse(localStorage.getItem(key) || "[]").map(String);
+      setLiked(saved.includes(String(contentId)));
+    };
 
-  refresh(); 
+    refresh();
 
-  window.addEventListener("placeLikesChanged", refresh);
-  return () => window.removeEventListener("placeLikesChanged", refresh);
-}, [contentId, key]);
+    window.addEventListener("placeLikesChanged", refresh);
+    return () => window.removeEventListener("placeLikesChanged", refresh);
+  }, [contentId, key]);
 
-  
   if (!item) return null;
 
-  /* -------------------------------------------------------
-     🔸 파티클 생성 함수
-  ------------------------------------------------------- */
+  // 파티클 생성
   const createParticles = (target) => {
     const count = 6;
     const container = target.parentElement;
@@ -87,73 +78,67 @@ function CityListItemReal({ index, item, userId }) {
     }
   };
 
-  /* -------------------------------------------------------
-     🔥 좋아요 토글
-  ------------------------------------------------------- */
+  // 좋아요 토글
   const toggleLike = async (e) => {
-  e.stopPropagation();
+    e.stopPropagation();
 
-  const newLiked = !liked;
-  setLiked(newLiked);
+    const newLiked = !liked;
+    setLiked(newLiked);
 
-  if (newLiked) createParticles(e.currentTarget);
+    if (newLiked) createParticles(e.currentTarget);
 
-  // 로그인 안 했으면: 로컬만 저장 + 이벤트 발사 (api파일 안 거치니까)
-  if (!userId) {
-    const key = `likedPlaces_guest`;
-    const saved = JSON.parse(localStorage.getItem(key) || "[]").map(String);
-    const cid = String(item.contentId);
-    const updated = newLiked
-      ? Array.from(new Set([...saved, cid]))
-      : saved.filter((id) => id !== cid);
+    // 로그인 안 했으면: 로컬만 저장 + 이벤트 발사 (api파일 안 거치니까)
+    if (!userId) {
+      const key = `likedPlaces_guest`;
+      const saved = JSON.parse(localStorage.getItem(key) || "[]").map(String);
+      const cid = String(item.contentId);
+      const updated = newLiked
+        ? Array.from(new Set([...saved, cid]))
+        : saved.filter((id) => id !== cid);
 
-    localStorage.setItem(key, JSON.stringify(updated));
-    window.dispatchEvent(new CustomEvent("placeLikesChanged", { detail: { userId: "guest" } }));
-    return;
-  }
+      localStorage.setItem(key, JSON.stringify(updated));
+      window.dispatchEvent(
+        new CustomEvent("placeLikesChanged", { detail: { userId: "guest" } })
+      );
+      return;
+    }
 
-  // 로그인 상태면: 서버 + 로컬 + 이벤트는 placeLikesApi가 다 처리
-  try {
-    await placeLikesApi.toggle({
-      contentId: item.contentId,
-      liked: newLiked,
-      userId,
-      title: item.title,
-      address: item.address,
-      image: item.image,
-      lat: item.latitude,
-      lng: item.longitude,
-      category: item.category,
-      cityId: null,
-      contentTypeId: item.contentTypeId,
-    });
-  } catch (err) {
-    console.error("좋아요 저장 실패", err);
-    // 실패 롤백
-    setLiked(!newLiked);
-  }
-};
+    // 로그인 상태면: 서버 + 로컬 + 이벤트는 placeLikesApi가 다 처리
+    try {
+      await placeLikesApi.toggle({
+        contentId: item.contentId,
+        liked: newLiked,
+        userId,
+        title: item.title,
+        address: item.address,
+        image: item.image,
+        lat: item.latitude,
+        lng: item.longitude,
+        category: item.category,
+        cityId: null,
+        contentTypeId: item.contentTypeId,
+      });
+    } catch (err) {
+      console.error("좋아요 저장 실패", err);
+      setLiked(!newLiked);
+    }
+  };
 
-  // 개요 텍스트 정리(HTML 태그 제거 + 비어있으면 "설명 없음")
+  // 개요 정리
   const cleanOverview = (() => {
     if (!item.overview || typeof item.overview !== "string") return "설명 없음";
     const stripped = item.overview.replace(/<[^>]+>/g, "").trim();
     return stripped || "설명 없음";
   })();
 
-  /* -------------------------------------------------------
-     🔥 카드 클릭 → 상세 페이지 이동 (쿼리 유지)
-  ------------------------------------------------------- */
   const handleClick = () => {
-    // 현재 /city?area=6&sigungu=23&keyword=... 같은 쿼리 유지
     const params = new URLSearchParams(location.search);
-    // type 쿼리 추가/갱신
     params.set("type", item.contentTypeId);
 
     navigate(`/place/${item.contentId}?${params.toString()}`, {
       state: {
         basePlace: item,
-        from: location, // ✅ 나중에 뒤로 갈 때 사용 가능
+        from: location,
       },
     });
   };
@@ -201,9 +186,7 @@ function CityListItemReal({ index, item, userId }) {
   );
 }
 
-/* -------------------------------------------------------
-   🔹 스켈레톤 컴포넌트
-------------------------------------------------------- */
+// 스켈레톤 컴포넌트
 function CityListItemSkeleton({ index }) {
   return (
     <div className="city-list-item city-list-item-skeleton">

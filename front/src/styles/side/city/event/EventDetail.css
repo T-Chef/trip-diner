@@ -1,5 +1,4 @@
 
-/* 페이지 배경 + 토큰 */
 .event-detail-page{
   --ink: #2a2018;
   --ink-2: rgba(42,32,24,0.74);
@@ -17,7 +16,6 @@
   width: 100%;
   min-height: 100vh;
 
-  /* Header fixed 고려 */
   padding: 80px 0 80px;
 
   font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -38,7 +36,6 @@
   pointer-events:none;
 }
 
-/* 로딩 */
 .event-detail-loading{
   position: relative;
   z-index: 1;
@@ -54,9 +51,6 @@
   color: rgba(42,32,24,0.72);
 }
 
-/* =========================
-   큰 카드(페이지 셸) 느낌: hero + content 연결
-========================= */
 .event-hero,
 .event-content{
   position: relative;
@@ -82,16 +76,13 @@
 
 .event-content{
   border-radius: 0 0 24px 24px;
-  margin-top: -10px;   /* 위 카드랑 자연스럽게 붙이기 */
+  margin-top: -10px;  
   border-top: 0;
   padding-top: 18px;
 }
 
-/* =========================
-   HERO
-========================= */
 .event-hero{
-  width: auto; /* 기존 100% 고정 느낌 제거 */
+  width: auto;
 }
 
 .event-back-btn{
@@ -152,7 +143,6 @@
   filter: contrast(1.02) saturate(1.05);
 }
 
-/* PlaceDetail처럼 히어로 위 조명/그라데이션 */
 .event-hero-image-wrap::after{
   content:"";
   position:absolute;
@@ -164,9 +154,6 @@
   pointer-events:none;
 }
 
-/* =========================
-   TOP BLOCK (이벤트 정보 카드)
-========================= */
 .event-top-block{
   border-radius: 18px;
   background:
@@ -206,7 +193,6 @@
   margin-top: 1px;
 }
 
-/* 공식 링크 버튼 (pd 버튼 톤) */
 .event-homepage-link{
   display: inline-flex;
   align-items: center;
@@ -238,7 +224,6 @@
   transform: translateY(0px);
 }
 
-/* 제목 */
 .event-info-title{
   font-size: 18px;
   font-weight: 900;
@@ -247,14 +232,12 @@
   letter-spacing: -0.2px;
 }
 
-/* 필드 4개 그리드 */
 .event-info-grid{
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
-/* 필드 카드 */
 .event-info-card{
   border-radius: 16px;
   padding: 14px 14px 12px;
@@ -280,15 +263,11 @@
   white-space: pre-line;
 }
 
-/* ExpandableText 안의 버튼(인라인 스타일을 덮고 싶으면) */
 .event-info-value button{
   color: var(--accent-deep) !important;
   font-weight: 900 !important;
 }
 
-/* =========================
-   MAP CARD
-========================= */
 .event-map-card{
   border-radius: 18px;
   padding: 12px;
@@ -301,9 +280,6 @@
   box-shadow: 0 14px 30px rgba(0,0,0,0.10);
 }
 
-/* =========================
-   MAP HIGHLIGHT (스크롤 후 피드백)
-========================= */
 .event-map-card{
   position: relative;
   transition: box-shadow .25s ease, border-color .25s ease, transform .25s ease;
@@ -325,11 +301,8 @@
   100% { box-shadow: 0 14px 30px rgba(0,0,0,0.10), 0 0 0 0 rgba(154,107,66,0.00); }
 }
 
-/* =========================
-   MAP TOAST (스크롤 도착 피드백)
-========================= */
 .event-map-card{
-  position: relative; /* 토스트 absolute 기준 */
+  position: relative;
 }
 
 .event-map-toast{
@@ -355,7 +328,6 @@
 
   box-shadow: 0 12px 24px rgba(0,0,0,0.14);
 
-  /* 기본은 숨김 */
   opacity: 0;
   transform: translateY(-6px) scale(0.98);
   pointer-events: none;
@@ -419,10 +391,6 @@
   transform: translateY(-1px);
 }
 
-
-/* =========================
-   HERO OVERLAY (PlaceDetail 느낌)
-========================= */
 .event-hero-image-wrap { position: relative; }
 
 .event-hero-overlay{
@@ -470,11 +438,9 @@
   font-weight: 900;
 }
 
-/* 아이콘(칩) */
 .event-hero-chip[data-kind="period"]::before{ content: "🗓️"; }
 .event-hero-chip[data-kind="addr"]::before{ content: "🗺️"; }
 
-/* 주소는 한 줄로 예쁘게 */
 .event-hero-chip[data-kind="addr"]{
   max-width: 520px;
   overflow: hidden;
@@ -482,16 +448,12 @@
   white-space: nowrap;
 }
 
-/* =========================
-   INFO CARD: 아이콘 + 점선 구분(고급)
-========================= */
 .event-info-label{
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-/* 라벨 오른쪽 점선 */
 .event-info-label::after{
   content:"";
   flex: 1;
@@ -500,15 +462,13 @@
   transform: translateY(2px);
 }
 
-/* 라벨 아이콘: 카드의 data-label로 매핑 */
 .event-info-card[data-label="기간"] .event-info-label::before{ content:"🗓️"; }
 .event-info-card[data-label="주소"] .event-info-label::before{ content:"📍"; }
 .event-info-card[data-label="문의"] .event-info-label::before{ content:"☎️"; }
 .event-info-card[data-label="주최/주관"] .event-info-label::before{ content:"👥"; }
 
-/* 값 영역 살짝 정리 */
 .event-info-value{
-  margin-top: 8px;      /* 기존보다 살짝 여유 */
+  margin-top: 8px;  
 }
 
 .event-hero-overlay{
@@ -517,7 +477,6 @@
   background: linear-gradient(90deg, rgba(0,0,0,0.38), rgba(0,0,0,0.00));
 }
 
-/* 히어로 우측 상단 액션 */
 .event-hero-actions{
   position: absolute;
   top: 14px;
@@ -541,7 +500,6 @@
   transform: translateY(0px);
 }
 
-/* 히어로 위에서 더 잘 보이게 살짝 톤 조정 */
 .event-homepage-link--hero{
   background: rgba(255,255,255,0.78);
   border: 1px solid rgba(255,255,255,0.26);
@@ -549,7 +507,7 @@
 }
 
 .event-hero-overlay{
-  padding-right: 160px; /* 우상단 버튼 영역 피하기 */
+  padding-right: 160px;
 }
 
 @media (max-width: 900px){
@@ -558,7 +516,6 @@
   }
 }
 
-/* 모바일에서 오버레이 타이포 조정 */
 @media (max-width: 900px){
   .event-hero-overlay{
     left: 18px;

@@ -12,7 +12,7 @@ import "../../../../styles/side/schedule/TripCategory.css";
 
 const TripCategory = () => {
   const [step, setStep] = useState(1);
-  
+
   const [selectedCity, setSelectedCity] = useState(null);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [selectedDays, setSelectedDays] = useState(null);
@@ -58,12 +58,12 @@ const TripCategory = () => {
     />,
   ];
 
-const bg = createPortal(
+  const bg = createPortal(
     <div
       style={{
         position: "fixed",
         inset: 0,
-        zIndex: 2147483646, // 거의 최대
+        zIndex: 2147483646,
         pointerEvents: "none",
         backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${process.env.PUBLIC_URL}/assets/images/trip-bg.png)`,
         backgroundSize: "cover",
@@ -78,7 +78,6 @@ const bg = createPortal(
     <>
       {bg}
 
-      {/* ✅ 내용은 배경보다 위로 */}
       <div style={{ position: "relative", zIndex: 2147483647 }}>
         <CategoryHeader step={step} />
 

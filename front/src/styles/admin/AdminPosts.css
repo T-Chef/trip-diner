@@ -1,16 +1,13 @@
-/* ========= 기본값 초기화 ========= */
 body{
   margin:0;
   padding:0;
 }
 
-/* ========= Admin 전체 배경 ========= */
 .admin-bg{
   position: relative;
   width: 100%;
   min-height: 100vh;
 
-  /* ⭐ 카드 중앙 정렬 핵심 */
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -22,7 +19,6 @@ body{
   background:rgba(0,0,0,.35);
 }
 
-/* ========= 중앙 카드 ========= */
 .admin-posts-wrapper{
   position: relative;
   z-index: 2;
@@ -30,7 +26,6 @@ body{
   width:65%;
   max-width:1150px;
 
-  /* ⭐ 상단 흰 여백 완전 제거 */
   margin-top:150px;
   margin-bottom:80px;
 
@@ -41,7 +36,6 @@ body{
   box-sizing:border-box;
 }
 
-/* 제목 */
 .admin-title{
   text-align:center;
   font-size:24px;
@@ -49,7 +43,6 @@ body{
   margin-bottom:25px;
 }
 
-/* 카드 내부 */
 .admin-card{
   background:white;
   border-radius:14px;
@@ -57,7 +50,6 @@ body{
   box-shadow:0 6px 18px rgba(0,0,0,0.08);
 }
 
-/* ========= 테이블 ========= */
 .admin-table{
   width:100%;
   border-collapse:collapse;
@@ -70,12 +62,10 @@ body{
   border-bottom:1px solid #eee;
 }
 
-/* 삭제된 행 */
 .deleted-row{
   background:#ffe6e6;
 }
 
-/* 제목 링크 */
 .post-title-link{
   color:#2563eb;
   cursor:pointer;
@@ -86,7 +76,6 @@ body{
   font-weight:600;
 }
 
-/* ========= 버튼 ========= */
 .danger-btn{
   background:#ef4444;
   color:white;
@@ -105,7 +94,6 @@ body{
   cursor:pointer;
 }
 
-/* ========= 페이지네이션 ========= */
 .admin-pagination{
   margin-top:18px;
   display:flex;

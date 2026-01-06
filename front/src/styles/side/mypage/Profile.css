@@ -5,7 +5,6 @@
   background: #f7f9fc;
 }
 
-/* ================= 상단 프로필 카드 ================= */
 .profile-card {
   width: 100%;
   background: #e5dfd4;
@@ -22,22 +21,20 @@
   overflow: hidden;          
 }
 
-/* 왼쪽 영역 */
 .profile-left {
   display: flex;
   align-items: center;
   gap: 35px;
   flex: 1;
-  min-width: 0;               /* ★ flex 수축 충돌 방지 */
+  min-width: 0;             
 }
 
-/* 오른쪽 상단 메뉴 */
 .profile-right-menu {
   display: flex;
   gap: 18px;
   align-items: center;
 
-  flex-shrink: 0;             /* ★ 크기 줄어들지 않게 */
+  flex-shrink: 0;          
   margin-left: auto;
 }
 

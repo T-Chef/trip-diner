@@ -31,8 +31,6 @@
   border-color: rgba(215,176,106,0.30);
   box-shadow: 0 10px 18px rgba(0,0,0,0.08);
 }
-
-/* ✅ 기본(active) - 메인 영역은 기존 스타일 유지(화이트 텍스트) */
 .city-tag.active {
   background: linear-gradient(180deg, rgba(215,176,106,0.96), rgba(176,122,58,0.94));
   border-color: rgba(176,122,58,0.80);
@@ -69,18 +67,12 @@
   box-shadow: 0 10px 18px rgba(0,0,0,0.08);
 }
 
-/* ✅ 기본(active) - 메인 영역은 기존 스타일 유지(화이트 텍스트) */
 .district-tag.active {
   background: linear-gradient(180deg, rgba(215,176,106,0.96), rgba(176,122,58,0.94));
   border-color: rgba(176,122,58,0.80);
   color: rgba(255,255,255,0.98);
   font-weight: 800;
 }
-
-
-/* =========================================================
-   ✅ RIGHT PANEL (floating-right) - 페이퍼 카드 + 고급 active
-========================================================= */
 
 .floating-right .ai-filter-wrapper {
   padding: 18px 16px 20px;
@@ -128,7 +120,6 @@
   z-index: 0;
 }
 
-/* ✅ 패턴이 글씨 위에 올라타지 않도록 */
 .floating-right .ai-filter-wrapper > * {
   position: relative;
   z-index: 1;
@@ -138,7 +129,6 @@
   display: none;
 }
 
-/* 기본 칩(우측) */
 .floating-right .city-tag,
 .floating-right .district-tag {
   background: rgba(255,255,255,0.52);
@@ -155,7 +145,6 @@
     inset 0 1px 0 rgba(255,255,255,0.55);
 }
 
-/* ✅ 우측 active: 더 진한 메탈 골드 + 브라운 잉크 + 볼륨 */
 .floating-right .city-tag.active,
 .floating-right .district-tag.active {
   background:
@@ -176,7 +165,6 @@
     inset 0 -2px 0 rgba(0,0,0,0.10);
 }
 
-/* active hover 시 살짝 더 살아나게 */
 .floating-right .city-tag.active:hover,
 .floating-right .district-tag.active:hover {
   transform: translateY(-1px);
@@ -186,7 +174,6 @@
     inset 0 -2px 0 rgba(0,0,0,0.12);
 }
 
-/* 좁은 패널용 사이즈 조정 */
 .floating-right .city-tag {
   padding: 5px 10px;
   font-size: 13px;
@@ -202,14 +189,12 @@
   padding-bottom: 12px;
 }
 
-/* ✅ 서울/경기 + 구 많을 때만 3열 */
 .floating-right .ai-filter-district-grid.dense-3 {
   grid-template-columns: repeat(3, 1fr);
   column-gap: 6px;
   row-gap: 8px;
 }
 
-/* ✅ 3열일 때 버튼을 조금 더 촘촘하게 */
 .floating-right .ai-filter-district-grid.dense-3 .district-tag {
   padding: 5px 6px;
   font-size: 12px;

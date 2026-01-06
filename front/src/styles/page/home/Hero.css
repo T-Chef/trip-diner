@@ -6,7 +6,7 @@
   z-index: 1;
 }
 
-/* 메인 이미지 */
+
 .hero-img {
   width: 100vw;
   height: 100vh;
@@ -15,7 +15,6 @@
   filter: contrast(1.02) saturate(1.05);
 }
 
-/* 가독성 오버레이 (좌측 진하게) */
 .hero::after {
   content: "";
   position: absolute;
@@ -27,7 +26,7 @@
   z-index: 1;
 }
 
-/* 은은한 빛 번짐(골드 톤) */
+
 .hero::before {
   content: "";
   position: absolute;
@@ -40,7 +39,7 @@
   z-index: 1;
 }
 
-/* 콘텐츠 */
+
 .hero-content {
   position: absolute;
   top: 46%;
@@ -59,7 +58,6 @@
   opacity: 1;
 }
 
-/* 타이틀 */
 .hero-title {
   font-size: 68px;
   font-weight: 900;
@@ -77,7 +75,7 @@
   transform: translateY(0);
 }
 
-/* 설명 */
+
 .hero-desc {
   font-size: 20px;
   margin-top: 18px;
@@ -95,7 +93,6 @@
   transform: translateY(0);
 }
 
-/* 버튼 영역 */
 .hero-actions {
   display: flex;
   align-items: center;
@@ -112,7 +109,6 @@
   transform: translateY(0);
 }
 
-/* 메인 CTA (금박 버튼) */
 .hero-cta {
   appearance: none;
   border: none;
@@ -149,17 +145,15 @@
   transform: translateY(0px);
 }
 
-/* ✅ 하단 연결 페이드/블러 (검정 과하지 않게 조정) */
 .hero-fade {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 0;          /* ✅ 아예 안 보이게 */
+  height: 0;         
   pointer-events: none;
 }
 
-/* 반응형 */
 @media (max-width: 920px) {
   .hero-content { left: 28px; top: 52%; }
   .hero-title { font-size: 52px; }

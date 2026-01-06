@@ -1,4 +1,3 @@
-/* 1. 전체 페이지 레이아웃 */
 .write-page {
   width: 100%;
   max-width: 1400px;
@@ -15,7 +14,6 @@
   align-items: start;
 }
 
-/* 2. 메인 작성 영역 */
 .write-main {
   min-width: 0;
   background: #fff;
@@ -32,7 +30,6 @@
   color: #111;
 }
 
-/* 3. 입력 그룹 및 에디터 */
 .input-group {
   margin-bottom: 25px;
 }
@@ -76,7 +73,6 @@
   overflow: hidden;
 }
 
-/* 4. 사이드바 (내 여행 일정) */
 .write-sidebar {
   background: #fff;
   border: 1px solid #f1f5f9;
@@ -96,17 +92,15 @@
   color: #1e293b;
 }
 
-/* 일정 리스트 영역 - 스크롤바 활성화 */
 .sidebar-list {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  max-height: calc(100vh - 200px); /* 화면 높이에 맞춰 높이 제한 */
+  max-height: calc(100vh - 200px);
   overflow-y: auto;
   padding-right: 8px;
 }
 
-/* 갈색 스크롤바 디자인 */
 .sidebar-list::-webkit-scrollbar {
   width: 6px;
 }
@@ -122,7 +116,6 @@
   background: #8d7456;
 }
 
-/* 일정 카드 - 이미지 찌그러짐 방지 적용 */
 .side-trip-card {
   border: 1px solid #f1f5f9;
   border-radius: 16px;
@@ -133,7 +126,7 @@
   background: #fff;
   display: flex;
   flex-direction: column;
-  min-height: 160px; /* 카드의 최소 높이 확보 */
+  min-height: 160px;
 }
 
 .side-trip-card:hover {
@@ -143,15 +136,15 @@
 
 .side-card-img {
   width: 100%;
-  height: 100px !important; /* 이미지 높이 고정 */
+  height: 100px !important;
   overflow: hidden;
-  flex-shrink: 0; /* 공간 부족해도 이미지가 줄어들지 않음 */
+  flex-shrink: 0;
 }
 
 .side-card-img img {
   width: 100%;
   height: 100%;
-  object-fit: cover !important; /* 이미지 비율 유지 핵심 */
+  object-fit: cover !important;
   display: block;
 }
 
@@ -197,7 +190,6 @@
 
 .side-trip-card:hover .side-hover-msg { opacity: 1; }
 
-/* 5. 태그 및 버튼 영역 */
 .tag-box {
   margin-top: 10px;
   margin-bottom: 30px;

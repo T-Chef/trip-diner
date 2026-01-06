@@ -1,4 +1,3 @@
-// src/components/city/WeatherBox.jsx
 import React from "react";
 import "../../../styles/side/city/WeatherBox.css";
 
@@ -9,7 +8,6 @@ export default function WeatherBox({
   loadingOverview,
   onPickArea,
 }) {
-  // ✅ 1) 전체 모드(overview)
   if (Array.isArray(overview)) {
     return (
       <div className="weather-box weather-overview">
@@ -50,7 +48,6 @@ export default function WeatherBox({
     );
   }
 
-  // ✅ 2) 선택 도시 모드
   if (!weather)
     return <div className="weather-box">날씨 정보를 불러오는 중...</div>;
 
@@ -70,14 +67,12 @@ export default function WeatherBox({
           className="weather-line"
           title={`${weather.city} ${weather.desc} ${weather.temp}°`}
         >
-          {/* ✅ 왼쪽: 도시 + 설명(여기만 ellipsis) */}
           <div className="w-left">
             <span className="w-city">{weather.city}</span>
             <span className="w-dot">·</span>
             <span className="w-desc">{weather.desc}</span>
           </div>
 
-          {/* ✅ 오른쪽: 온도 + 아이콘(항상 보이게) */}
           <div className="w-right">
             <span className="w-temp">{weather.temp}°</span>
             <img className="w-icon" src={weather.icon} alt="weather icon" />

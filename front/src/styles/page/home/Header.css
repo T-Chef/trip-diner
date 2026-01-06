@@ -40,7 +40,6 @@
   box-shadow: 0 10px 28px rgba(0,0,0,0.18);
 }
 
-/* 기본(히어로 위)에서만 은은한 플로팅 */
 .header:not(.header--scrolled) .logo-img{
   animation: logoFloat 3.2s ease-in-out infinite;
 }

@@ -1,10 +1,8 @@
-/* ========= 기본값 ========= */
 body{
   margin:0;
   padding:0;
 }
 
-/* ========= 배경 컨테이너 ========= */
 .admin-users-bg{
   position: relative;
   width: 100%;
@@ -21,7 +19,6 @@ body{
   background:rgba(0,0,0,.35);
 }
 
-/* ========= 중앙 카드 박스 ========= */
 .admin-users-wrapper{
   position: relative;
   z-index: 2;
@@ -39,7 +36,6 @@ body{
   box-sizing:border-box;
 }
 
-/* ========= 제목 ========= */
 .admin-title{
   text-align:center;
   font-size:24px;
@@ -47,7 +43,6 @@ body{
   margin-bottom:25px;
 }
 
-/* ========= 테이블 카드 ========= */
 .admin-table-card{
   background:white;
   border-radius:14px;
@@ -55,7 +50,6 @@ body{
   box-shadow:0 6px 18px rgba(0,0,0,0.08);
 }
 
-/* ========= 테이블 ========= */
 .admin-table{
   width:100%;
   border-collapse:collapse;
@@ -68,7 +62,6 @@ body{
   border-bottom:1px solid #eee;
 }
 
-/* ========= 상태 ========= */
 .status.active{
   color:#2ecc71;
   font-weight:600;
@@ -79,7 +72,6 @@ body{
   font-weight:600;
 }
 
-/* ========= 버튼 ========= */
 .admin-btn{
   padding:6px 14px;
   border-radius:4px;

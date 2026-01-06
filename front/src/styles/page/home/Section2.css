@@ -248,15 +248,12 @@
 
   overflow: hidden;
 
-  /* 등장 초기 상태 */
   opacity: 0;
   transform: translateY(20px);
 
-  /* UX */
   cursor: pointer;
   will-change: opacity, transform, box-shadow, filter;
 
-  /* ✅ transition은 여기서 한 번만 */
   transition:
     opacity .7s ease-out,
     transform .18s ease,
@@ -264,14 +261,12 @@
     filter .18s ease;
 }
 
-/* show (등장) */
 .schedule-section .schedule-right.show .example-card{
   opacity: 1;
   transform: translateY(0);
-  transition-delay: .30s; /* 등장 딜레이만 */
+  transition-delay: .30s;
 }
 
-/* hover */
 .schedule-section .example-card:hover{
   transform: translateY(-2px);
   box-shadow:
@@ -280,13 +275,11 @@
   filter: brightness(1.02);
 }
 
-/* active */
 .schedule-section .example-card:active{
   transform: translateY(0);
   filter: brightness(0.99);
 }
 
-/* 이미지 */
 .schedule-section .example-thumb{
   display: block;
   width: 100%;
@@ -302,12 +295,10 @@
   transition: transform .25s ease;
 }
 
-/* hover 시 이미지 살짝 확대 */
 .schedule-section .example-card:hover .example-thumb{
   transform: scale(1.02);
 }
 
-  /* 반응형 */
 @media (max-width: 900px){
   .schedule-section .example-card{
     width: min(420px, 100%);

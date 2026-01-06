@@ -1,4 +1,3 @@
-/* GLOBAL */
 html, body {
   width: 100%;
   margin: 0;
@@ -29,10 +28,9 @@ html, body {
 
 .home-sections {
   position: relative;
-  padding-top: 10px; /* 살짝만 띄워도 경계가 부드러워짐 */
+  padding-top: 10px;
 }
 
-/* ✅ 상단 얇은 그림자(경계 숨기기) */
 .home-sections::before {
   content: "";
   position: absolute;
@@ -43,7 +41,6 @@ html, body {
   opacity: 0.55;
 }
 
-/* ✅ 골드 헤어라인(고급 메뉴판 연결감) */
 .home-sections::after {
   content: "";
   position: absolute;
@@ -61,7 +58,6 @@ html, body {
   opacity: 0.35;
 }
 
-/* 공통 SECTION BOX */
 .section-box {
   width: 100%;
   max-width: 1180px;
@@ -73,7 +69,6 @@ html, body {
   border: none;
   box-shadow: none;
 
-  /* fade-up 애니메이션 */
   opacity: 0;
   transform: translateY(80px);
   transition: opacity 0.9s ease, transform 0.9s ease;
@@ -85,7 +80,6 @@ html, body {
   transform: translateY(0);
 }
 
-/* 은은한 종이 조명 */
 .section-box::before {
   content: "";
   position: absolute;
@@ -98,9 +92,6 @@ html, body {
   pointer-events: none;
 }
 
-/* ============================================================
-   RESPONSIVE
-============================================================ */
 @media (max-width: 900px) {
   .home-wrapper {
     background-attachment: scroll;

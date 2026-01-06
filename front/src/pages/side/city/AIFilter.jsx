@@ -1,4 +1,3 @@
-// src/components/city/AIFilter.jsx
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import axios from "axios";
 import "../../../styles/side/city/AIFilter.css";
@@ -8,9 +7,6 @@ const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 const isCanceled = (err) =>
   err?.name === "CanceledError" || err?.code === "ERR_CANCELED";
 
-// ===============================
-// ✅ Cities cache + inflight
-// ===============================
 const _citiesCache = new Map();
 const _citiesInflight = new Map();
 const CITIES_TTL = 5 * 60 * 1000;
@@ -34,7 +30,10 @@ function acquireShared(key, inflightMap, cacheMap, makeRequest, ttlMs) {
   const existing = inflightMap.get(key);
   if (existing) {
     existing.refs += 1;
-    return { promise: existing.promise, release: () => releaseShared(key, inflightMap) };
+    return {
+      promise: existing.promise,
+      release: () => releaseShared(key, inflightMap),
+    };
   }
 
   const ctrl = new AbortController();
@@ -51,7 +50,10 @@ function acquireShared(key, inflightMap, cacheMap, makeRequest, ttlMs) {
   })();
 
   inflightMap.set(key, entry);
-  return { promise: entry.promise, release: () => releaseShared(key, inflightMap) };
+  return {
+    promise: entry.promise,
+    release: () => releaseShared(key, inflightMap),
+  };
 }
 
 function releaseShared(key, inflightMap) {
@@ -64,9 +66,6 @@ function releaseShared(key, inflightMap) {
   }
 }
 
-// ===============================
-// ✅ Districts cache + inflight
-// ===============================
 const _districtCache = new Map();
 const _districtInflight = new Map();
 const DISTRICT_TTL = 60 * 1000;
@@ -168,17 +167,15 @@ export default function AIFilter({ value, onChange, onCitiesLoaded }) {
   }, [areaCode]);
 
   const handleCityClick = useCallback(
-  (nextAreaCode) => {
-    // ✅ 전체
-    if (nextAreaCode == null) {
-      onChange?.({ areaCode: null, sigunguCode: null });
-      return;
-    }
-    // ✅ 도시 선택
-    onChange?.({ areaCode: Number(nextAreaCode), sigunguCode: null });
-  },
-  [onChange]
-);
+    (nextAreaCode) => {
+      if (nextAreaCode == null) {
+        onChange?.({ areaCode: null, sigunguCode: null });
+        return;
+      }
+      onChange?.({ areaCode: Number(nextAreaCode), sigunguCode: null });
+    },
+    [onChange]
+  );
 
   const handleAllDistrict = useCallback(() => {
     onChange?.({ sigunguCode: null });
@@ -200,7 +197,6 @@ export default function AIFilter({ value, onChange, onCitiesLoaded }) {
           <div className="city-loading">도시 불러오는 중...</div>
         ) : (
           <>
-            {/* ✅ 전체 */}
             <div
               className={`city-tag ${areaCode == null ? "active" : ""}`}
               onClick={() => handleCityClick(null)}
@@ -222,7 +218,6 @@ export default function AIFilter({ value, onChange, onCitiesLoaded }) {
           </>
         )}
       </div>
-
 
       {!!areaCode && (
         <div className={`ai-filter-district-grid ${dense3 ? "dense-3" : ""}`}>

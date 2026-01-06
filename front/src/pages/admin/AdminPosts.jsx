@@ -120,7 +120,6 @@ export default function AdminPosts() {
             </tbody>
           </table>
 
-          {/* ⭐ 페이지네이션 */}
           <div className="admin-pagination">
             <button
               disabled={currentPage === 1}

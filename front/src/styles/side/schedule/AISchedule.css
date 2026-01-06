@@ -1,5 +1,3 @@
-
-/* Trip-Diner 전용 배경 */
 .trip-wrapper {
   width: 100vw;
   height: 100vh;
@@ -10,7 +8,6 @@
   overflow: hidden;
 }
 
-/* 중앙 카드 */
 .trip-card {
   background: #fff;
   width: 450px;
@@ -24,7 +21,6 @@
   justify-content: space-between;
 }
 
-/* 단계 표시 */
 .step-indicator {
   font-size: 28px;
   font-weight: 800;
@@ -34,7 +30,6 @@
   right: 25px;
 }
 
-/* 제목 */
 h2 {
   font-size: 22px;
   text-align: center;
@@ -42,7 +37,6 @@ h2 {
   color: #000;
 }
 
-/* ✅ 선택 버튼 그리드 */
 .btn-grid {
   display: flex;
   flex-wrap: wrap;
@@ -51,7 +45,6 @@ h2 {
   margin: 20px 0;
 }
 
-/* ✅ 각 버튼(동그라미) */
 .btn-grid button {
   width: 80px;
   height: 80px;
@@ -61,21 +54,17 @@ h2 {
   cursor: pointer;
   font-weight: 600;
   transition: 0.2s;
-
-  /* ✅ 글자 세로쪼개짐 방지 */
-  white-space: normal;      /* 줄바꿈은 허용 */
-  word-break: keep-all;     /* 한글은 단어 단위로 */
+  white-space: normal;      
+  word-break: keep-all;    
   line-height: 1.15;
   padding: 8px;
 }
 
-/* ✅ 활성 버튼 */
 .btn-grid button.active {
   background: #3b6ff0;
   color: #fff;
 }
 
-/* 네비게이션 버튼 */
 .nav-buttons {
   margin-top: 25px;
   display: flex;
@@ -106,7 +95,6 @@ h2 {
   color: #fff;
 }
 
-/* 모바일 대응 */
 @media (max-width: 480px) {
   .trip-card {
     width: 90%;
@@ -123,8 +111,6 @@ h2 {
   }
 }
 
-/* === AI 계획 생성 로딩 오버레이 === */
-
 .loading-overlay {
   position: fixed;
   inset: 0;
@@ -132,7 +118,7 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999; /* 가장 위로 */
+  z-index: 9999; 
 }
 
 .loading-box {
@@ -210,12 +196,7 @@ h2 {
 }
 .nav-buttons button { cursor: pointer; }
 .nav-buttons button:disabled { cursor: not-allowed; }
-/* ================================
-   ✅ 2번 사진 느낌(브라운톤) 통일
-   맨 아래에 추가해서 기존 스타일 덮어쓰기
-================================ */
 
-/* 도시 버튼(동그라미) */
 .btn-grid{
   display:flex;
   flex-wrap:wrap;
@@ -236,7 +217,6 @@ h2 {
   transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
   backdrop-filter: blur(6px);
 
-  /* 글자 깨짐 방지 유지 */
   white-space: normal;
   word-break: keep-all;
   line-height: 1.15;
@@ -263,7 +243,6 @@ h2 {
   box-shadow:none;
 }
 
-/* 네비게이션 버튼(이전/다음) */
 .nav-buttons{
   margin-top:25px;
   display:flex;
@@ -282,13 +261,11 @@ h2 {
   transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
 }
 
-/* 다음(진한 브라운) */
 .nav-buttons .next{
   background:#8b5a2b;
   color:#fff;
 }
 
-/* 이전(조금 연한 브라운) */
 .nav-buttons .back{
   background: rgba(139,90,43,0.75);
   color:#fff;
@@ -301,7 +278,6 @@ h2 {
   filter: brightness(1.03);
 }
 
-/* disabled */
 .nav-buttons button:disabled{
   opacity:0.55;
   cursor:not-allowed;

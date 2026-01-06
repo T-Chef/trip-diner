@@ -1,13 +1,12 @@
-// front/src/hooks/useCityWeather.js
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 
 // 캐시/중복요청 방지
-const _wxInflight = new Map(); // key -> Promise
-const _wxCache = new Map();    // key -> { v, exp }
-const TTL = 5 * 60 * 1000;     // 5분 캐시 (원하면 10분도 OK)
+const _wxInflight = new Map();
+const _wxCache = new Map();
+const TTL = 5 * 60 * 1000;
 
 function getCache(key) {
   const hit = _wxCache.get(key);
@@ -38,7 +37,7 @@ async function fetchWeatherOnce(areaCode, signal) {
         signal,
         timeout: 8000,
       });
-      // 백엔드 응답: { ok:true, weather, forecast, source }
+
       const v = {
         weather: res.data?.weather ?? null,
         forecast: res.data?.forecast ?? [],
@@ -56,7 +55,10 @@ async function fetchWeatherOnce(areaCode, signal) {
 }
 
 export default function useCityWeather(areaCode) {
-  const code = useMemo(() => (areaCode != null ? Number(areaCode) : null), [areaCode]);
+  const code = useMemo(
+    () => (areaCode != null ? Number(areaCode) : null),
+    [areaCode]
+  );
 
   const [weather, setWeather] = useState(null);
   const [forecast, setForecast] = useState([]);
@@ -88,7 +90,6 @@ export default function useCityWeather(areaCode) {
         if (!alive) return;
         if (isCanceled(err) || ctrl.signal.aborted) return;
 
-        // 백엔드가 {ok:false,message}로 줄 수도 있음
         const msg =
           err?.response?.data?.message ||
           "날씨 정보를 불러오지 못했어요. 잠시 후 다시 시도해주세요.";

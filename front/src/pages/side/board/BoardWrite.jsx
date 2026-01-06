@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import QuillEditor from "./TiptapEditor"; // 기존 작성하신 에디터 컴포넌트
+import QuillEditor from "./TiptapEditor";
 import axios from "axios";
 import Swal from "sweetalert2";
 import "../../../styles/side/board/BoardWrite.css";
@@ -87,7 +87,7 @@ export default function BoardWrite() {
   // 일정 선택 시 본문 삽입
   const handleSelectSchedule = (s) => {
     setSelectedSchedule(s);
-    
+
     const scheduleHTML = s.days
       .map(
         (day) => `
@@ -184,7 +184,6 @@ export default function BoardWrite() {
     <div className="write-page">
       <div className="write-layout">
         <div className="write-main">
-
           <h2 className="write-title">
             {isEdit ? "게시글 수정" : "게시글 작성"}
           </h2>
@@ -203,7 +202,12 @@ export default function BoardWrite() {
 
           <div className="input-group">
             <label>제목</label>
-            <input type="text" placeholder="제목을 입력하세요" value={title} onChange={(e) => setTitle(e.target.value)} />
+            <input
+              type="text"
+              placeholder="제목을 입력하세요"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
           </div>
 
           <div className="editor-box">
@@ -215,7 +219,7 @@ export default function BoardWrite() {
             onClick={() => document.querySelector(".tag-input").focus()}
           >
             <div className="tag-list">
-              {tags.map(tag => (
+              {tags.map((tag) => (
                 <div key={tag} className="tag-item">
                   #{tag}{" "}
                   <span
@@ -269,7 +273,6 @@ export default function BoardWrite() {
                 </div>
               ))
             ) : (
-
               <p
                 style={{ fontSize: "13px", color: "#999", textAlign: "center" }}
               >

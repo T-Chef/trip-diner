@@ -10,7 +10,7 @@ export default function MyPosts() {
 
   const [posts, setPosts] = useState([]);
 
-  // ⭐ 페이지네이션 상태
+  // 페이지네이션
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
@@ -23,10 +23,10 @@ export default function MyPosts() {
       .catch((err) => console.error("내 글 불러오기 실패:", err));
   }, [user_id]);
 
-  // ⭐ 전체 페이지 수
+  // 전체 페이지 수
   const totalPages = Math.ceil(posts.length / pageSize);
 
-  // ⭐ 현재 페이지 데이터
+  // 현재 페이지 데이터
   const currentPosts = posts.slice((page - 1) * pageSize, page * pageSize);
 
   return (
@@ -71,7 +71,6 @@ export default function MyPosts() {
             </tbody>
           </table>
 
-          {/* ⭐ 페이지네이션 영역 */}
           {totalPages > 1 && (
             <div className="mypage-pagination">
               <button disabled={page === 1} onClick={() => setPage(page - 1)}>

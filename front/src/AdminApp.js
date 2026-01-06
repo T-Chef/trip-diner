@@ -20,11 +20,19 @@ function AdminHeader({ user, setUser }) {
 
       <nav>
         <ul>
-          <li><Link to="/admin">홈</Link></li>
-          <li><Link to="/admin/posts">게시글 관리</Link></li>
-          <li><Link to="/admin/qna">1:1 문의 관리</Link></li>
+          <li>
+            <Link to="/admin">홈</Link>
+          </li>
+          <li>
+            <Link to="/admin/posts">게시글 관리</Link>
+          </li>
+          <li>
+            <Link to="/admin/qna">1:1 문의 관리</Link>
+          </li>
 
-          <li><span>{user.name}님 (관리자)</span></li>
+          <li>
+            <span>{user.name}님 (관리자)</span>
+          </li>
 
           <li>
             <button
@@ -57,7 +65,6 @@ function AdminApp() {
       <AdminHeader user={user} setUser={setUser} />
 
       <Routes>
-        {/* /admin */}
         <Route
           index
           element={
@@ -68,14 +75,8 @@ function AdminApp() {
             />
           }
         />
-
-        {/* /admin/posts */}
         <Route path="posts" element={<AdminPosts />} />
-
-        {/* /admin/qna */}
         <Route path="qna" element={<AdminQnA />} />
-
-        {/* /admin/qna/:id */}
         <Route path="qna/:id" element={<AdminQnADetail />} />
       </Routes>
     </>

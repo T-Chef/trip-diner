@@ -1,11 +1,11 @@
-// front/src/components/city/PlaceDetailMap.jsx
 import React, { useEffect, useRef } from "react";
 
 export default function PlaceDetailMap({ lat, lng, title }) {
   const mapRef = useRef(null);
 
   useEffect(() => {
-    if (!lat || !lng) return; // 좌표 없으면 지도 생성 안 함
+    // 좌표 없으면 지도 초기화 안 함
+    if (!lat || !lng) return;
 
     const initMap = () => {
       if (!window.naver || !mapRef.current) return;
@@ -27,7 +27,7 @@ export default function PlaceDetailMap({ lat, lng, title }) {
     if (!window.naver) {
       const script = document.createElement("script");
       script.src =
-        "https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=1o7cfked5o"; // 👉 네이버 지도 키로 교체
+        "https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=1o7cfked5o";
       script.onload = initMap;
       document.head.appendChild(script);
     } else {
@@ -35,7 +35,7 @@ export default function PlaceDetailMap({ lat, lng, title }) {
     }
   }, [lat, lng, title]);
 
-  // 좌표 없는 경우: 안내 문구
+  // 좌표 없는 경우: 안내 문구 표시
   if (!lat || !lng) {
     return (
       <div className="pd-map pd-map-empty">

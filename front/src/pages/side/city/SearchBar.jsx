@@ -7,13 +7,9 @@ export default function SearchBar({ onKeywordChange }) {
   const [isDebouncing, setIsDebouncing] = useState(false);
   const timerRef = useRef(null);
 
-  /* -------------------------------------------------------
-     🔥 1) 입력 시 300ms 디바운스  + 인데케이터
-  ------------------------------------------------------- */
   useEffect(() => {
     if (!onKeywordChange) return;
 
-    // 이전 타이머 클리어
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
@@ -34,19 +30,14 @@ export default function SearchBar({ onKeywordChange }) {
       timerRef.current = null;
     }, 300);
 
-    // 언마운트/변경 시 타이머 정리
     return () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
       }
     };
-
   }, [text, onKeywordChange]);
 
-  /* -------------------------------------------------------
-     🔥 2) Enter 누르면 즉시 검색
-  ------------------------------------------------------- */
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -61,9 +52,6 @@ export default function SearchBar({ onKeywordChange }) {
     }
   };
 
-   /* -------------------------------------------------------
-     🔥 3) X 버튼으로 입력값 지우기
-  ------------------------------------------------------- */
   const handleClear = () => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -76,7 +64,7 @@ export default function SearchBar({ onKeywordChange }) {
 
   return (
     <div className={`city-search-wrap ${isFocused ? "focused" : ""}`}>
-       <span className="city-search-icon" aria-hidden="true">
+      <span className="city-search-icon" aria-hidden="true">
         🔍
       </span>
 
@@ -89,7 +77,6 @@ export default function SearchBar({ onKeywordChange }) {
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
       />
-      {/* 오른쪽 영역: 디바운스 점 + 클리어 버튼 */}
       <div className="city-search-right">
         {isDebouncing && (
           <span className="search-debounce-dot" aria-hidden="true" />

@@ -13,7 +13,6 @@ export default function Layout({ children, user, setUser }) {
     setMenuOpen(false);
   }, [location.pathname]);
 
-  // ✅ 마이페이지 계열: 헤더 숨김 + QnA 추가
   const hideHeaderPaths = [
     "/profile",
     "/like",

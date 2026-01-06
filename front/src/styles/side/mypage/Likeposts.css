@@ -1,4 +1,3 @@
-/* ===== 전체 컨테이너 ===== */
 .likes-box {
   width: 55%;
   max-width: 1400px;
@@ -9,7 +8,6 @@
   box-shadow: 0 15px 35px rgba(0,0,0,0.15);
 }
 
-/* 제목 */
 .likes-title {
   font-size: 30px;
   margin-bottom: 35px;
@@ -17,7 +15,6 @@
   text-align: center;
 }
 
-/* ===== 카드 그리드 (4 x 2) ===== */
 .like-grid {
   width: 100%;
   display: grid;
@@ -25,7 +22,6 @@
   gap: 25px;
 }
 
-/* 카드 */
 .like-card {
   background: #fff;
   border-radius: 16px;
@@ -40,7 +36,6 @@
   box-shadow: 0 8px 20px rgba(0,0,0,0.12);
 }
 
-/* ❤️ 버튼 (LikePlaces 동일) */
 .like-remove-btn {
   position: absolute;
   top: 10px;
@@ -54,7 +49,6 @@
   line-height: 1;
 }
 
-/* 이미지 */
 .like-img-wrapper {
   width: 100%;
   height: 170px;
@@ -68,7 +62,6 @@
   object-fit: cover;
 }
 
-/* 내용 */
 .like-info {
   padding: 14px 16px;
 }
@@ -82,7 +75,6 @@
   text-overflow: ellipsis;
 }
 
-/* ===== 페이지네이션 ===== */
 .likes-pagination {
   margin-top: 35px;
   text-align: center;

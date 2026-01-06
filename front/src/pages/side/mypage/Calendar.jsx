@@ -1,4 +1,3 @@
-// front/src/pages/side/mypage/Calendar.jsx
 import React, { useEffect, useState } from "react";
 import api from "../../page/login/api";
 import Calendar from "react-calendar";
@@ -26,7 +25,6 @@ function safeJsonParse(str) {
   }
 }
 
-// ✅ 날짜칸에 보여줄 라벨 만들기: "제주 여행" 처럼
 function makeLabel(plan) {
   const memo = plan.memo ? safeJsonParse(plan.memo) : null;
   const city = plan.city?.name || memo?.cityName || "";
@@ -36,7 +34,6 @@ function makeLabel(plan) {
   return title.length > 10 ? `${title.slice(0, 10)}…` : title;
 }
 
-// ✅ 이 날짜가 plan의 시작/중간/끝인지 판별
 function getRangePos(plan, date) {
   const s = plan.start_date ?? plan.startDate;
   const e = plan.end_date ?? plan.endDate;
@@ -57,24 +54,22 @@ export default function MyPageCalendar() {
   const [plans, setPlans] = useState([]);
 
   useEffect(() => {
-  const fetchPlans = async () => {
-    try {
-      const res = await api.get("/plan/my");
-      if (res.data?.success) setPlans(res.data.plans || []);
-      else setPlans([]);
-    } catch (e) {
-      if (e?.response?.status !== 401) {
-        console.error("달력용 plan 불러오기 실패:", e);
+    const fetchPlans = async () => {
+      try {
+        const res = await api.get("/plan/my");
+        if (res.data?.success) setPlans(res.data.plans || []);
+        else setPlans([]);
+      } catch (e) {
+        if (e?.response?.status !== 401) {
+          console.error("달력용 plan 불러오기 실패:", e);
+        }
+        setPlans([]);
       }
-      setPlans([]);
-    }
-  };
+    };
 
-  fetchPlans();
-}, []);
+    fetchPlans();
+  }, []);
 
-
-  // ✅ 이 날짜에 걸리는 플랜들 전부 찾기
   const plansOnDate = (date) => {
     return plans.filter((p) => {
       const s = p.start_date ?? p.startDate;
@@ -105,14 +100,13 @@ export default function MyPageCalendar() {
           return (
             <div className="td-plan-badges">
               {show.map((p) => {
-                const pos = getRangePos(p, date); // start / mid / end / single
+                const pos = getRangePos(p, date);
                 return (
                   <div
                     key={p.plan_id}
                     className={`td-plan-badge td-${pos}`}
                     title={p.title || ""}
                   >
-                    {/* ✅ 중간(mid)은 글자 안 보여주면 이어진 바 느낌 더 강함 */}
                     {pos === "mid" ? "" : makeLabel(p)}
                   </div>
                 );

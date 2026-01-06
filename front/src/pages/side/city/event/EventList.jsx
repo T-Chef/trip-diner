@@ -1,4 +1,3 @@
-// src/components/city/EventList.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import EventCard from "./EventCard";
@@ -50,7 +49,10 @@ function acquireEventRequest(key, makeRequest) {
   const existing = _eventInflight.get(key);
   if (existing) {
     existing.refs += 1;
-    return { promise: existing.promise, release: () => releaseEventRequest(key) };
+    return {
+      promise: existing.promise,
+      release: () => releaseEventRequest(key),
+    };
   }
 
   const ctrl = new AbortController();
@@ -92,7 +94,9 @@ export default function EventList({ areaCode, sigunguCode }) {
     const hasArea = areaCode != null;
     const safeSigungu = hasArea ? sigunguCode : null;
 
-    const key = `event/list|${hasArea ? areaCode : "all"}|${safeSigungu || "all"}`;
+    const key = `event/list|${hasArea ? areaCode : "all"}|${
+      safeSigungu || "all"
+    }`;
 
     const { promise, release } = acquireEventRequest(key, async (signal) => {
       const params = {};
@@ -133,7 +137,8 @@ export default function EventList({ areaCode, sigunguCode }) {
     };
   }, [areaCode, sigunguCode]);
 
-  if (loading) return <div className="event-loading">이벤트 불러오는 중...</div>;
+  if (loading)
+    return <div className="event-loading">이벤트 불러오는 중...</div>;
 
   if (!events.length) {
     return (

@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+  useCallback,
+} from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -17,7 +23,10 @@ export default function PlaceDetail({ user, setUser }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const query = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const query = useMemo(
+    () => new URLSearchParams(location.search),
+    [location.search]
+  );
   const queryType = query.get("type");
 
   const basePlace = location.state?.basePlace || null;
@@ -37,8 +46,6 @@ export default function PlaceDetail({ user, setUser }) {
 
   const [shareToast, setShareToast] = useState(false);
   const shareTimerRef = useRef(null);
-
-  // ✅ bump (Hero + 본문 공용)
   const [likeBump, setLikeBump] = useState(false);
   const likeBumpTimerRef = useRef(null);
 
@@ -81,13 +88,13 @@ export default function PlaceDetail({ user, setUser }) {
     if (queryType) setResolvedTypeId(Number(queryType));
   }, [queryType]);
 
-  let rawOverview = (place && place.overview) || (basePlace && basePlace.overview) || "";
+  let rawOverview =
+    (place && place.overview) || (basePlace && basePlace.overview) || "";
   if (rawOverview === "설명 없음") rawOverview = "";
-  const oneLine = rawOverview.length > 0 ? rawOverview.split(/[\n.]/)[0].trim() : "";
+  const oneLine =
+    rawOverview.length > 0 ? rawOverview.split(/[\n.]/)[0].trim() : "";
 
-  // ------------------------------
-  // 좋아요 meta
-  // ------------------------------
+  // 좋아요 메타정보 로드
   useEffect(() => {
     if (!id) return;
 
@@ -110,10 +117,8 @@ export default function PlaceDetail({ user, setUser }) {
         console.error("like meta load fail", e);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, user]);
 
-  // contentTypeId 자동 탐색
   useEffect(() => {
     if (!id) return;
     if (queryType) return;
@@ -225,7 +230,10 @@ export default function PlaceDetail({ user, setUser }) {
             data?.overview,
             prev?.overview,
             basePlace?.overview,
-            makeOverview(merged.title || basePlace?.title, merged.address || basePlace?.address)
+            makeOverview(
+              merged.title || basePlace?.title,
+              merged.address || basePlace?.address
+            )
           );
 
           return merged;
@@ -244,12 +252,12 @@ export default function PlaceDetail({ user, setUser }) {
     };
 
     fetchDetail();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, resolvedTypeId]);
 
-  const shortLocation = place?.address ? place.address.split(" ")[1] || place.address : "";
+  const shortLocation = place?.address
+    ? place.address.split(" ")[1] || place.address
+    : "";
 
-  // ✅ 0.8초(820ms) 싱크로 bump/글로우
   const triggerLikeBump = () => {
     setLikeBump(true);
     window.clearTimeout(likeBumpTimerRef.current);
@@ -267,11 +275,9 @@ export default function PlaceDetail({ user, setUser }) {
 
     const newLiked = !liked;
 
-    // optimistic
     setLiked(newLiked);
     setLikeCount((prev) => Math.max(0, prev + (newLiked ? 1 : -1)));
 
-    // ✅ 저장될 때만: bump + 글로우 1회
     if (newLiked) triggerLikeBump();
     else {
       setLikeBump(false);
@@ -287,7 +293,10 @@ export default function PlaceDetail({ user, setUser }) {
       image: place.image || basePlace?.image || null,
       lat: place.mapY ?? place.latitude ?? basePlace?.latitude ?? null,
       lng: place.mapX ?? place.longitude ?? basePlace?.longitude ?? null,
-      category: Array.isArray(place.tags) && place.tags.length ? place.tags[0] : undefined,
+      category:
+        Array.isArray(place.tags) && place.tags.length
+          ? place.tags[0]
+          : undefined,
       cityId: null,
       contentTypeId: resolvedTypeId ?? basePlace?.contentTypeId ?? undefined,
     };
@@ -305,7 +314,6 @@ export default function PlaceDetail({ user, setUser }) {
     } catch (err) {
       console.error("좋아요 저장 실패:", err);
 
-      // rollback
       setLiked(!newLiked);
       setLikeCount((prev) => Math.max(0, prev + (newLiked ? -1 : 1)));
 
@@ -314,10 +322,19 @@ export default function PlaceDetail({ user, setUser }) {
     }
   };
 
-  if (loading && !place) return <div className="place-detail-loading">불러오는 중...</div>;
-  if (!place) return <div className="place-detail-loading">장소 정보를 불러오지 못했습니다.</div>;
+  if (loading && !place)
+    return <div className="place-detail-loading">불러오는 중...</div>;
+  if (!place)
+    return (
+      <div className="place-detail-loading">
+        장소 정보를 불러오지 못했습니다.
+      </div>
+    );
 
-  const tags = Array.isArray(place.tags) && place.tags.length > 0 ? place.tags : ["여행지"];
+  const tags =
+    Array.isArray(place.tags) && place.tags.length > 0
+      ? place.tags
+      : ["여행지"];
   const finalTel = place.tel || basePlace?.tel || "";
 
   const handleBack = () => {
@@ -335,7 +352,8 @@ export default function PlaceDetail({ user, setUser }) {
     navigate(`/city${qs ? `?${qs}` : ""}`);
   };
 
-  const canMap = (place?.mapY || place?.latitude) && (place?.mapX || place?.longitude);
+  const canMap =
+    (place?.mapY || place?.latitude) && (place?.mapX || place?.longitude);
 
   const getHomepageUrl = () => {
     const raw = (place?.homepage || "").trim();
@@ -375,7 +393,10 @@ export default function PlaceDetail({ user, setUser }) {
       await navigator.clipboard.writeText(url);
       setShareToast(true);
       window.clearTimeout(shareTimerRef.current);
-      shareTimerRef.current = window.setTimeout(() => setShareToast(false), 1300);
+      shareTimerRef.current = window.setTimeout(
+        () => setShareToast(false),
+        1300
+      );
     } catch {
       const ta = document.createElement("textarea");
       ta.value = url;
@@ -386,14 +407,22 @@ export default function PlaceDetail({ user, setUser }) {
 
       setShareToast(true);
       window.clearTimeout(shareTimerRef.current);
-      shareTimerRef.current = window.setTimeout(() => setShareToast(false), 1300);
+      shareTimerRef.current = window.setTimeout(
+        () => setShareToast(false),
+        1300
+      );
     }
   };
 
   return (
     <>
       <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} user={user} />
-      <SideMenu menuOpen={menuOpen} setMenuOpen={setMenuOpen} user={user} setUser={setUser} />
+      <SideMenu
+        menuOpen={menuOpen}
+        setMenuOpen={setMenuOpen}
+        user={user}
+        setUser={setUser}
+      />
 
       <div className="place-detail-page">
         <section className="pd-hero">
@@ -412,7 +441,6 @@ export default function PlaceDetail({ user, setUser }) {
             />
 
             <div className="pd-hero-actions">
-              {/* ✅ Hero 저장 칩: bump + 글로우 */}
               <button
                 type="button"
                 className={`pd-hero-action pd-hero-action--like ${
@@ -446,19 +474,28 @@ export default function PlaceDetail({ user, setUser }) {
                 길찾기
               </button>
 
-              <button type="button" className="pd-hero-action" onClick={handleShare} title="공유하기">
+              <button
+                type="button"
+                className="pd-hero-action"
+                onClick={handleShare}
+                title="공유하기"
+              >
                 공유
               </button>
             </div>
 
-            <div className={`pd-hero-toast ${shareToast ? "is-show" : ""}`}>링크가 복사됐어요</div>
+            <div className={`pd-hero-toast ${shareToast ? "is-show" : ""}`}>
+              링크가 복사됐어요
+            </div>
 
             <div className="pd-hero-overlay">
               <h1 className="pd-title">{place.title}</h1>
 
               <div className="pd-meta-row">
                 <span className="pd-location">{shortLocation}</span>
-                <span className="pd-likes">❤️ {likeCount.toLocaleString()}명</span>
+                <span className="pd-likes">
+                  ❤️ {likeCount.toLocaleString()}명
+                </span>
 
                 {canMap ? (
                   <span
@@ -480,7 +517,6 @@ export default function PlaceDetail({ user, setUser }) {
         </section>
 
         <section className="pd-content">
-          {/* ✅ 본문 저장 버튼도 bump + 하트 아이콘 뿅 */}
           <div className="pd-actions">
             <button
               className={`pd-btn primary pd-like-btn ${liked ? "active" : ""} ${
@@ -508,7 +544,9 @@ export default function PlaceDetail({ user, setUser }) {
                 {oneLine ? (
                   <p className="pd-one-line">{oneLine}</p>
                 ) : (
-                  <p className="pd-one-line pd-one-line-dim">상세 설명이 아직 준비되지 않은 장소예요.</p>
+                  <p className="pd-one-line pd-one-line-dim">
+                    상세 설명이 아직 준비되지 않은 장소예요.
+                  </p>
                 )}
 
                 <div className="pd-tags">
@@ -522,16 +560,25 @@ export default function PlaceDetail({ user, setUser }) {
                 <ul className="pd-info-list">
                   <li>
                     <span className="pd-info-label">주소</span>
-                    <span className="pd-info-value">{place.address || "주소 정보 없음"}</span>
+                    <span className="pd-info-value">
+                      {place.address || "주소 정보 없음"}
+                    </span>
                   </li>
                   <li>
                     <span className="pd-info-label">전화번호</span>
-                    <span className="pd-info-value">{finalTel || "전화번호 정보 없음"}</span>
+                    <span className="pd-info-value">
+                      {finalTel || "전화번호 정보 없음"}
+                    </span>
                   </li>
                   {place.homepage && (
                     <li>
                       <span className="pd-info-label">홈페이지</span>
-                      <a href={place.homepage} target="_blank" rel="noreferrer" className="pd-info-link">
+                      <a
+                        href={place.homepage}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="pd-info-link"
+                      >
                         홈페이지 바로가기 ↗
                       </a>
                     </li>
@@ -544,7 +591,12 @@ export default function PlaceDetail({ user, setUser }) {
               <section className="pd-section">
                 <h2 className="pd-section-title">위치</h2>
 
-                <div className={`pd-map-card ${mapHighlight ? "is-highlight" : ""}`} ref={mapRef}>
+                <div
+                  className={`pd-map-card ${
+                    mapHighlight ? "is-highlight" : ""
+                  }`}
+                  ref={mapRef}
+                >
                   <div className={`pd-map-toast ${mapToast ? "is-show" : ""}`}>
                     <span className="pd-map-toast__icon" aria-hidden="true">
                       🗺️

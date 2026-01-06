@@ -1,5 +1,10 @@
-// front/src/pages/city/EventDetail.jsx
-import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -9,8 +14,6 @@ import EventDetailMap from "./EventDetailMap";
 import "../../../../styles/side/city/event/EventDetail.css";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
-
-// ✅ 세션 캐시 TTL (성공 6시간, fallback/noDetail 30초)
 const CACHE_TTL_SUCCESS = 6 * 60 * 60 * 1000;
 const CACHE_TTL_FALLBACK = 30 * 1000;
 
@@ -33,7 +36,6 @@ function getSessionCache(key) {
 
     const parsed = JSON.parse(raw);
 
-    // ✅ 구버전(그냥 data만 저장돼 있던 케이스) 호환
     if (parsed && parsed.exp == null && parsed.data == null) return parsed;
 
     if (!parsed?.exp || Date.now() > parsed.exp) {
@@ -47,9 +49,7 @@ function getSessionCache(key) {
   }
 }
 
-/** =========================
- *  Overview 파싱 유틸
- * ========================= */
+// 노이즈 라인 정규식
 const NOISE_LINE_RE =
   /^(홈|문화체험|한눈에 보는 문화정보|SNS 공유|페이스북|트위터|카카오톡|주소 복사|점자|화면 프린트|스크랩|위치안내|주변 관광지|행사장의 진행중인 행사)$/;
 
@@ -71,7 +71,9 @@ const FIELD_LABELS = [
 ];
 
 function stripHtml(s = "") {
-  return String(s).replace(/<[^>]+>/g, "").trim();
+  return String(s)
+    .replace(/<[^>]+>/g, "")
+    .trim();
 }
 
 function extractHrefFromAnchor(html = "") {
@@ -108,7 +110,6 @@ function parseOverviewToFields(rawOverview = "") {
   for (let i = 0; i < lines.length; i++) {
     const cur = lines[i];
 
-    // "기간: 2024-..." 같은 케이스
     const colonLike = cur.match(/^(.{1,12})\s*[:：]\s*(.+)$/);
     if (colonLike) {
       const label = colonLike[1].trim();
@@ -120,7 +121,6 @@ function parseOverviewToFields(rawOverview = "") {
       continue;
     }
 
-    // "기간" 다음줄이 값인 케이스
     if (isLabel(cur)) {
       let j = i + 1;
       while (j < lines.length && !lines[j]) j++;
@@ -134,7 +134,6 @@ function parseOverviewToFields(rawOverview = "") {
     }
   }
 
-  // 중복 라벨은 마지막 값 우선
   const dedupMap = new Map();
   for (const f of fields) dedupMap.set(f.label, f.value);
   const dedupFields = Array.from(dedupMap.entries()).map(([label, value]) => ({
@@ -148,9 +147,7 @@ function parseOverviewToFields(rawOverview = "") {
   return { fields: dedupFields, cleaned };
 }
 
-/** =========================
- *  ✅ 두 줄까지만 + 더보기(접기)
- * ========================= */
+// 확장 가능한 텍스트
 function ExpandableText({
   text = "",
   lines = 2,
@@ -311,10 +308,7 @@ export default function EventDetail({ user, setUser }) {
 
   const safeContentTypeId = useMemo(() => {
     return (
-      queryType ||
-      baseEvent?.contentTypeId ||
-      baseEvent?.contenttypeid ||
-      "15"
+      queryType || baseEvent?.contentTypeId || baseEvent?.contenttypeid || "15"
     );
   }, [queryType, baseEvent]);
 
@@ -425,7 +419,8 @@ export default function EventDetail({ user, setUser }) {
           data?.noDetail ? CACHE_TTL_FALLBACK : CACHE_TTL_SUCCESS
         );
       } catch (err) {
-        if (err?.name === "CanceledError" || err?.code === "ERR_CANCELED") return;
+        if (err?.name === "CanceledError" || err?.code === "ERR_CANCELED")
+          return;
       } finally {
         inFlightRef.current = false;
       }
@@ -466,6 +461,7 @@ export default function EventDetail({ user, setUser }) {
       return "";
     };
 
+    // 정보 카드용 값들
     const period = periodText || pickField("기간") || "-";
     const address = event?.address || pickField("주소") || "-";
     const tel = event?.tel || pickField("문의", "전화", "연락처") || "-";
@@ -481,7 +477,9 @@ export default function EventDetail({ user, setUser }) {
 
   if (!event) {
     return (
-      <div className="event-detail-loading">이벤트 정보를 불러오지 못했습니다.</div>
+      <div className="event-detail-loading">
+        이벤트 정보를 불러오지 못했습니다.
+      </div>
     );
   }
 
@@ -511,18 +509,18 @@ export default function EventDetail({ user, setUser }) {
             />
 
             {officialLink && (
-            <div className="event-hero-actions">
-              <a
-                className="event-homepage-link event-homepage-link--hero"
-                href={officialLink}
-                target="_blank"
-                rel="noreferrer"
-                title="공식 페이지 새 창 열기"
-              >
-                공식 페이지 보기 ↗
-              </a>
-            </div>
-          )}
+              <div className="event-hero-actions">
+                <a
+                  className="event-homepage-link event-homepage-link--hero"
+                  href={officialLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  title="공식 페이지 새 창 열기"
+                >
+                  공식 페이지 보기 ↗
+                </a>
+              </div>
+            )}
 
             <div className="event-hero-overlay">
               <div className="event-hero-title">{event.title || "이벤트"}</div>
@@ -535,19 +533,19 @@ export default function EventDetail({ user, setUser }) {
                 ) : null}
 
                 {event.address ? (
-                <span
-                  className="event-hero-chip event-hero-chip--click"
-                  data-kind="addr"
-                  title={event.address}
-                  role="button"
-                  tabIndex={0}
-                  onClick={scrollToMap}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") scrollToMap();
-                  }}
-                >
-                  지도 보기
-                </span>
+                  <span
+                    className="event-hero-chip event-hero-chip--click"
+                    data-kind="addr"
+                    title={event.address}
+                    role="button"
+                    tabIndex={0}
+                    onClick={scrollToMap}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") scrollToMap();
+                    }}
+                  >
+                    지도 보기
+                  </span>
                 ) : null}
               </div>
             </div>
@@ -590,11 +588,13 @@ export default function EventDetail({ user, setUser }) {
             className={`event-map-card ${mapHighlight ? "is-highlight" : ""}`}
             ref={mapRef}
           >
-          <div className={`event-map-toast ${mapToast ? "is-show" : ""}`}>
-            <span className="event-map-toast__icon" aria-hidden="true">🗺️</span>
-            <span className="event-map-toast__text">지도 영역</span>
-          </div>
-          
+            <div className={`event-map-toast ${mapToast ? "is-show" : ""}`}>
+              <span className="event-map-toast__icon" aria-hidden="true">
+                🗺️
+              </span>
+              <span className="event-map-toast__text">지도 영역</span>
+            </div>
+
             <EventDetailMap
               title={event.title}
               address={event.address}

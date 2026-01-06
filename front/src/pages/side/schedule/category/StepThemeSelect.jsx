@@ -4,8 +4,16 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const API_BASE = "http://localhost:4000/api";
-const themesList = ["산", "실내여행지", "액티비티", "문화·역사", "테마파크", "카페", "전통시장", "축제"];
-
+const themesList = [
+  "산",
+  "실내여행지",
+  "액티비티",
+  "문화·역사",
+  "테마파크",
+  "카페",
+  "전통시장",
+  "축제",
+];
 const MAX_THEMES = 6;
 
 const StepThemeSelect = ({
@@ -15,7 +23,7 @@ const StepThemeSelect = ({
   selectedDistrict,
   selectedDays,
   selectedCompanion,
-  goPrev
+  goPrev,
 }) => {
   const navigate = useNavigate();
 
@@ -58,7 +66,11 @@ const StepThemeSelect = ({
   const isMaxed = selectedThemes.length >= MAX_THEMES;
 
   return (
-    <motion.div className="step-box" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+    <motion.div
+      className="step-box"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
       <h2>원하는 여행 테마를 선택해주세요! (최소 2개, 최대 {MAX_THEMES}개)</h2>
 
       <div className="circle-grid">
@@ -69,7 +81,9 @@ const StepThemeSelect = ({
           return (
             <button
               key={t}
-              className={`circle-btn ${selected ? "active" : ""} ${disabled ? "disabled" : ""}`}
+              className={`circle-btn ${selected ? "active" : ""} ${
+                disabled ? "disabled" : ""
+              }`}
               onClick={() => toggleTheme(t)}
               disabled={disabled}
               type="button"

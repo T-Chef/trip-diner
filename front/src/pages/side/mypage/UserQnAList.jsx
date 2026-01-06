@@ -77,7 +77,6 @@ export default function UserQnAList() {
 
   return (
     <>
-      {/* 🔥 전체 백그라운드 + 오버레이 */}
       <div
         style={{
           position: "relative",
@@ -88,7 +87,6 @@ export default function UserQnAList() {
           backgroundPosition: "center",
         }}
       >
-        {/* 어두운 레이어 */}
         <div
           style={{
             position: "absolute",
@@ -100,7 +98,6 @@ export default function UserQnAList() {
           }}
         ></div>
 
-        {/* 실제 콘텐츠 영역 */}
         <div
           style={{
             position: "relative",
@@ -158,7 +155,6 @@ export default function UserQnAList() {
         </div>
       </div>
 
-      {/* 상세 모달 */}
       {open && selected && (
         <div className="qna-modal-back">
           <div className="qna-modal">

@@ -2,7 +2,14 @@ import React, { useState, useRef } from "react";
 import { checkEmailDuplicate } from "../pw/PwApi";
 import Swal from "sweetalert2";
 
-export default function SignupForm({ setEmail, email, name, setName, password, setPassword }) {
+export default function SignupForm({
+  setEmail,
+  email,
+  name,
+  setName,
+  password,
+  setPassword,
+}) {
   const [isChecked, setIsChecked] = useState(false);
   const [checking, setChecking] = useState(false);
 
@@ -34,7 +41,6 @@ export default function SignupForm({ setEmail, email, name, setName, password, s
     setChecking(true);
     try {
       const res = await checkEmailDuplicate(email);
-      // 서버 응답 구조에 따라 res.data.exists 또는 res.data 체크
 
       if (res.data.exists) {
         Swal.fire("중복", "이미 사용 중인 이메일입니다.", "error");
@@ -68,21 +74,29 @@ export default function SignupForm({ setEmail, email, name, setName, password, s
 
       <div className="input-group">
         <label>이메일</label>
-        <div style={{ display: "flex", gap: "10px", width: "100%", alignItems: "center" }}> {/* ✅ 인라인 스타일 추가 */}
+        <div
+          style={{
+            display: "flex",
+            gap: "10px",
+            width: "100%",
+            alignItems: "center",
+          }}
+        >
+          {" "}
           <input
             type="email"
             placeholder="이메일을 입력하세요"
             value={email}
             onChange={handleEmailChange}
             className="email-input"
-            style={{ flex: 1, width: "auto" }} // ✅ 인라인 스타일 추가
+            style={{ flex: 1, width: "auto" }}
           />
           <button
             type="button"
             onClick={handleCheckEmail}
             disabled={checking}
             className="check-btn"
-            style={{ 
+            style={{
               width: "100px",
               height: "48px",
               backgroundColor: isChecked ? "#28a745" : "#8d7456",
@@ -90,7 +104,7 @@ export default function SignupForm({ setEmail, email, name, setName, password, s
               border: "none",
               color: "white",
               fontWeight: "600",
-              cursor: "pointer"
+              cursor: "pointer",
             }}
           >
             {checking ? "확인중..." : isChecked ? "사용 가능" : "중복 체크"}
@@ -109,4 +123,3 @@ export default function SignupForm({ setEmail, email, name, setName, password, s
     </>
   );
 }
-

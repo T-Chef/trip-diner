@@ -42,13 +42,13 @@ function Login({ setUser }) {
     }
   };
 
-  // 배경 이미지 경로 설정 (public 폴더 기준)
+  // 배경 이미지 경로 설정하기, css는 Login.css에서 관리
   const bgStyle = {
     backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/assets/images/login.png')`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    backgroundAttachment: 'fixed'
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    backgroundAttachment: "fixed",
   };
 
   return (
@@ -65,7 +65,6 @@ function Login({ setUser }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-
             />
           </div>
 

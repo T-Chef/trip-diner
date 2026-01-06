@@ -10,7 +10,7 @@ import "../../../styles/side/mypage/UserQnA.css";
 export default function UserQnA() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false); // 지금은 상태만, 나중에 사이드메뉴 연결 가능
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) {
@@ -46,7 +46,6 @@ export default function UserQnA() {
 
   return (
     <div className="qna-write-wrapper" style={bgStyle}>
-      {/* 상단 로고 + 메뉴 헤더 */}
       <QnaHeader setMenuOpen={setMenuOpen} />
 
       <div className="qna-write-card">
@@ -77,8 +76,6 @@ export default function UserQnA() {
     </div>
   );
 }
-
-/* ==== 문의하기 전용 헤더 (Home Header와 동일 스타일) ==== */
 
 function QnaHeader({ setMenuOpen }) {
   const [scrolled, setScrolled] = useState(false);

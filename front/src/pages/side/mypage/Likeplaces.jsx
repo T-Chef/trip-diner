@@ -1,4 +1,3 @@
-// LikePlaces.jsx
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { placeLikesApi } from "../../../api/placeLikesApi";
@@ -9,8 +8,6 @@ import "../../../styles/side/mypage/Likeplaces.css";
 export default function LikePlaces({ userId: userIdProp }) {
   const navigate = useNavigate();
   const location = useLocation();
-
-  // ✅ userId prop이 없으면 localStorage에서 가져오게 (MyComments처럼)
   const storedUser = useMemo(() => {
     try {
       return JSON.parse(localStorage.getItem("user"));
@@ -18,9 +15,8 @@ export default function LikePlaces({ userId: userIdProp }) {
       return null;
     }
   }, []);
-  const userId = userIdProp ?? storedUser?.user_id ?? storedUser?.id;
 
-  // ✅ 사이드메뉴 토글
+  const userId = userIdProp ?? storedUser?.user_id ?? storedUser?.id;
   const [menuOpen, setMenuOpen] = useState(false);
 
   const [places, setPlaces] = useState([]);
@@ -35,13 +31,16 @@ export default function LikePlaces({ userId: userIdProp }) {
     placeLikesApi
       .listByUser(userId)
       .then((list) => {
-      setPlaces(Array.isArray(list) ? list : []);
-      setPage(1);
-    })
-    .catch((err) => console.error("여행지 좋아요 불러오기 에러:", err));
+        setPlaces(Array.isArray(list) ? list : []);
+        setPage(1);
+      })
+      .catch((err) => console.error("여행지 좋아요 불러오기 에러:", err));
   }, [userId]);
 
-  const safePlaces = useMemo(() => (Array.isArray(places) ? places : []), [places]);
+  const safePlaces = useMemo(
+    () => (Array.isArray(places) ? places : []),
+    [places]
+  );
   const totalPages = Math.ceil(safePlaces.length / itemsPerPage);
 
   const currentPlaces = useMemo(() => {
@@ -69,7 +68,9 @@ export default function LikePlaces({ userId: userIdProp }) {
 
     try {
       await placeLikesApi.toggle({ userId, contentId, liked: false });
-      setPlaces((prev) => (Array.isArray(prev) ? prev.filter((x) => x.like_id !== row.like_id) : []));
+      setPlaces((prev) =>
+        Array.isArray(prev) ? prev.filter((x) => x.like_id !== row.like_id) : []
+      );
     } catch {
       alert("취소 실패! 잠시 후 다시 시도해주세요.");
     }
@@ -106,8 +107,16 @@ export default function LikePlaces({ userId: userIdProp }) {
             )}
 
             {currentPlaces.map((row) => (
-              <div className="like-card" key={row.like_id} onClick={() => handleCardClick(row)}>
-                <button type="button" className="like-remove-btn" onClick={(e) => handleUnlike(e, row)}>
+              <div
+                className="like-card"
+                key={row.like_id}
+                onClick={() => handleCardClick(row)}
+              >
+                <button
+                  type="button"
+                  className="like-remove-btn"
+                  onClick={(e) => handleUnlike(e, row)}
+                >
                   ❤️
                 </button>
 
@@ -128,7 +137,10 @@ export default function LikePlaces({ userId: userIdProp }) {
 
           {totalPages > 1 && (
             <div className="pagination">
-              <button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+              <button
+                disabled={page === 1}
+                onClick={() => setPage((p) => p - 1)}
+              >
                 {"<"}
               </button>
 
@@ -142,7 +154,10 @@ export default function LikePlaces({ userId: userIdProp }) {
                 </button>
               ))}
 
-              <button disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>
+              <button
+                disabled={page === totalPages}
+                onClick={() => setPage((p) => p + 1)}
+              >
                 {">"}
               </button>
             </div>

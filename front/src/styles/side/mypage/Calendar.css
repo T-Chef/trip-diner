@@ -1,14 +1,12 @@
 
-/* wrapper */
 .mypage-cal-wrap {
   width: 100%;
   display: flex;
   justify-content: center;
 }
 
-/* ✅ 달력 박스 (한 화면에 아래 카드까지 나오게) */
 .mypage-cal-wrap .react-calendar {
-  width: 100%;            /* ✅ 부모(흰 박스) 꽉 채우기 */
+  width: 100%;            
   max-width: none; 
   background: #fff;
   border: 1px solid #eee;
@@ -18,7 +16,6 @@
   font-size: 15px;
 }
 
-/* ✅ 네비(년월, 화살표) */
 .mypage-cal-wrap .react-calendar__navigation button {
   font-size: 16px;
   padding: 8px 6px;
@@ -28,21 +25,18 @@
   font-weight: 700;
 }
 
-/* ✅ 요일 줄 */
 .mypage-cal-wrap .react-calendar__month-view__weekdays {
   font-size: 13px;
   margin-bottom: 6px;
 }
 
-/* ✅ 날짜칸 */
 .mypage-cal-wrap .react-calendar__tile {
   height: 54px;
-  padding: 6px 6px;   /* ✅ 여기 하나로 통일 */
+  padding: 6px 6px;  
   font-size: 14px;
   border-radius: 12px;
 }
 
-/* ✅ 일정 라벨 컨테이너 */
 .mypage-cal-wrap .td-plan-badges {
   margin-top: 4px;
   display: flex;
@@ -50,7 +44,6 @@
   gap: 3px;
 }
 
-/* ✅ 일정 라벨 기본 */
 .mypage-cal-wrap .td-plan-badge {
   width: 100%;
   padding: 3px 6px;
@@ -65,7 +58,6 @@
   text-overflow: ellipsis;
 }
 
-/* ✅ 이어지는 바 모양 (같은 여행 기간 연결) */
 .mypage-cal-wrap .td-plan-badge.td-start {
   border-radius: 8px 0 0 8px;
 }
@@ -79,13 +71,11 @@
   border-radius: 8px;
 }
 
-/* ✅ +N 표시 */
 .mypage-cal-wrap .td-plan-more {
   font-size: 11px;
   opacity: 0.7;
 }
 
-/* ✅ 점은 이제 안 쓰니까 숨김 */
 .td-saved-dot {
   display: none;
 }

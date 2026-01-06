@@ -42,11 +42,10 @@ export default function PickStartDatePage() {
   const [startDate, setStartDate] = useState(() => new Date());
   const [myPlans, setMyPlans] = useState([]);
 
-  // ✅ 내 저장된 일정 불러오기 (api가 Authorization/refresh 자동 처리)
   useEffect(() => {
     const fetchMyPlans = async () => {
       try {
-        const res = await api.get("/plan/my"); // ✅ baseURL 붙어서 /api/plan/my 로 감
+        const res = await api.get("/plan/my");
         if (res.data?.success) setMyPlans(res.data.plans || []);
       } catch (e) {
         console.error("내 일정 불러오기 실패:", e);
@@ -73,7 +72,6 @@ export default function PickStartDatePage() {
     );
   }
 
-  // ✅ 저장된 일정이 해당 날짜에 존재하는지
   const hasSavedPlanOn = (date) => {
     return myPlans.some((p) => {
       if (!p.start_date || !p.end_date) return false;
@@ -81,7 +79,6 @@ export default function PickStartDatePage() {
     });
   };
 
-  // ✅ 선택 범위 하이라이트 + 저장된 일정 표시 클래스
   const tileClassName = ({ date, view }) => {
     if (view !== "month") return "";
 
@@ -106,7 +103,6 @@ export default function PickStartDatePage() {
     return cls;
   };
 
-  // ✅ 저장된 일정 있는 날 점 표시
   const tileContent = ({ date, view }) => {
     if (view !== "month") return null;
     if (!hasSavedPlanOn(date)) return null;
@@ -120,7 +116,6 @@ export default function PickStartDatePage() {
     navigate("/trip/summary", { state: { aiPlan, themes } });
   };
 
-  // ✅ 저장 (401이면 api가 refresh 시도 → 그래도 실패하면 로그인 이동)
   const onSave = async () => {
     try {
       const res = await api.post("/plan", {
@@ -167,7 +162,9 @@ export default function PickStartDatePage() {
       <div className="td-dates">
         <div className="td-datebox">
           <div className="td-label">가는날</div>
-          <div className="td-value">{startDate.toLocaleDateString("ko-KR")}</div>
+          <div className="td-value">
+            {startDate.toLocaleDateString("ko-KR")}
+          </div>
         </div>
         <div className="td-datebox">
           <div className="td-label">오는날</div>

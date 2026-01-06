@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { resetPassword } from "./PwApi.js";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-// 공용 스타일 로드
-import "../../styles/page/Login.css"; 
+import "../../styles/page/Login.css";
 
 function ResetPassword() {
   const [searchParams] = useSearchParams();
@@ -12,25 +11,27 @@ function ResetPassword() {
 
   const [password, setPassword] = useState("");
 
-  // 🎨 로그인 테마 배경 설정
   const bgStyle = {
     backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/assets/images/login.png')`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    backgroundAttachment: 'fixed',
-    width: '100%',
-    minHeight: '100vh',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: '40px 0'
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    backgroundAttachment: "fixed",
+    width: "100%",
+    minHeight: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "40px 0",
   };
 
   const handleReset = async () => {
-    // 토큰이 없는 상태로 접근했을 때 방어 코드
     if (!token) {
-      Swal.fire("오류", "유효하지 않은 접근입니다. 다시 메일을 요청해주세요.", "error");
+      Swal.fire(
+        "오류",
+        "유효하지 않은 접근입니다. 다시 메일을 요청해주세요.",
+        "error"
+      );
       return;
     }
 
@@ -47,16 +48,21 @@ function ResetPassword() {
           title: "변경 완료",
           text: "비밀번호가 성공적으로 변경되었습니다.",
           icon: "success",
-          confirmButtonText: "로그인하러 가기"
+          confirmButtonText: "로그인하러 가기",
         }).then(() => {
-          navigate("/login"); // 성공 후 로그인 페이지로 이동
+          navigate("/login");
         });
       } else {
-        Swal.fire("오류", res.data.message || "비밀번호 변경에 실패했습니다.", "error");
+        Swal.fire(
+          "오류",
+          res.data.message || "비밀번호 변경에 실패했습니다.",
+          "error"
+        );
       }
     } catch (err) {
-      // 서버에서 온 에러 메시지가 있다면 출력, 없다면 기본 메시지
-      const errorMsg = err.response?.data?.message || "링크가 만료되었거나 서버 오류가 발생했습니다.";
+      const errorMsg =
+        err.response?.data?.message ||
+        "링크가 만료되었거나 서버 오류가 발생했습니다.";
       Swal.fire("오류", errorMsg, "error");
     }
   };
@@ -65,15 +71,19 @@ function ResetPassword() {
     <div className="login-container" style={bgStyle}>
       <div className="login-box">
         <h2 className="login-title">새 비밀번호 설정</h2>
-        
-        <p style={{ 
-          fontSize: '14px', 
-          color: '#666', 
-          marginBottom: '25px', 
-          textAlign: 'center',
-          lineHeight: '1.5'
-        }}>
-          새롭게 사용할 비밀번호를<br/>안전하게 입력해주세요.
+
+        <p
+          style={{
+            fontSize: "14px",
+            color: "#666",
+            marginBottom: "25px",
+            textAlign: "center",
+            lineHeight: "1.5",
+          }}
+        >
+          새롭게 사용할 비밀번호를
+          <br />
+          안전하게 입력해주세요.
         </p>
 
         <div className="input-group">

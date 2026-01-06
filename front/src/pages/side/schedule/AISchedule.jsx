@@ -1,4 +1,3 @@
-// front/src/pages/side/schedule/AISchedule.jsx
 import React, { useState, useEffect } from "react";
 import api from "../../page/login/api";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +8,6 @@ const API_BASE = "http://localhost:4000/api";
 const AISchedule = ({ userId = 1 }) => {
   const navigate = useNavigate();
 
-  // 1~4 단계: 1) 도시 2) 기간 3) 동행 4) 컨셉
   const [step, setStep] = useState(1);
 
   const [cities, setCities] = useState([]);
@@ -23,21 +21,21 @@ const AISchedule = ({ userId = 1 }) => {
   const [loading, setLoading] = useState(false);
 
   const themeOptions = [
-  "먹방",
-  "힐링",
-  "액티비티",
-  "쇼핑",
-  "문화",
-  "자연",
-  "바다",
-  "산·자연",
-  "실내 여행지",
-  "문화·역사",
-  "전통시장",
-  "카페·디저트",
-  "SNS 핫플",
-  "축제·공연",
-];
+    "먹방",
+    "힐링",
+    "액티비티",
+    "쇼핑",
+    "문화",
+    "자연",
+    "바다",
+    "산·자연",
+    "실내 여행지",
+    "문화·역사",
+    "전통시장",
+    "카페·디저트",
+    "SNS 핫플",
+    "축제·공연",
+  ];
   const dayOptions = [
     { text: "당일치기", value: 1 },
     { text: "1박 2일", value: 2 },
@@ -53,11 +51,9 @@ const AISchedule = ({ userId = 1 }) => {
 
   const handleNext = () => setStep((prev) => prev + 1);
   const handleBack = () => setStep((prev) => prev - 1);
-
-  // 👉 구/군 없이 city 기준으로만 요청
   const handleGeneratePlan = async () => {
     try {
-      setLoading(true); // 🔥 로딩 시작
+      setLoading(true);
 
       const res = await api.post(`${API_BASE}/ai/plan`, {
         userId,
@@ -67,14 +63,14 @@ const AISchedule = ({ userId = 1 }) => {
         peopleType,
         themes,
       });
-      // 🔥 aiPlan 안에 부가 정보 심어서 보내기
-const enrichedPlan = {
-  ...res.data.aiPlan,
-  cityName: selectedCity.name,
-  peopleType,
-  themes,          // ✅ 여기!
-  daysCount: days, // 요약 카드에서 쓰면 편함
-};
+
+      const enrichedPlan = {
+        ...res.data.aiPlan,
+        cityName: selectedCity.name,
+        peopleType,
+        themes,
+        daysCount: days,
+      };
 
       navigate("/trip/result", {
         state: {
@@ -84,14 +80,13 @@ const enrichedPlan = {
             days,
             peopleType,
             themes,
-            },
+          },
         },
       });
     } catch (e) {
       console.error(e);
       alert("AI 일정 생성에 실패했습니다 😢");
     } finally {
-      // 결과 페이지로 넘어가도 혹시 모를 상황 대비해서 정리
       setLoading(false);
     }
   };
@@ -106,20 +101,18 @@ const enrichedPlan = {
   };
 
   return (
-   <div
-  className="trip-wrapper"
-  style={{
-    backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${process.env.PUBLIC_URL}/assets/images/trip-bg.png)`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-  }}
->
+    <div
+      className="trip-wrapper"
+      style={{
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${process.env.PUBLIC_URL}/assets/images/trip-bg.png)`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       <div className="trip-card">
-        {/* 단계 표시 */}
         <div className="step-indicator">{String(step).padStart(2, "0")}</div>
 
-        {/* STEP1: 도시 선택 */}
         {step === 1 && (
           <>
             <h2>어디로 떠나세요?</h2>
@@ -140,7 +133,6 @@ const enrichedPlan = {
           </>
         )}
 
-        {/* STEP2: 여행 일수 */}
         {step === 2 && (
           <>
             <h2>여행 기간을 선택하세요</h2>
@@ -159,7 +151,6 @@ const enrichedPlan = {
           </>
         )}
 
-        {/* STEP3: 동행 */}
         {step === 3 && (
           <>
             <h2>누구와 떠나나요?</h2>
@@ -178,7 +169,6 @@ const enrichedPlan = {
           </>
         )}
 
-        {/* STEP4: 테마(컨셉) */}
         {step === 4 && (
           <>
             <h2>어떤 컨셉이에요? (최소 2개, 최대 6개)</h2>
@@ -188,20 +178,18 @@ const enrichedPlan = {
                   key={theme}
                   className={themes.includes(theme) ? "active" : ""}
                   onClick={() =>
-  setThemes((prev) => {
-    // 이미 선택된 건 해제
-    if (prev.includes(theme)) return prev.filter((x) => x !== theme);
+                    setThemes((prev) => {
+                      if (prev.includes(theme))
+                        return prev.filter((x) => x !== theme);
 
-    // ✅ 최대 6개 제한
-    if (prev.length >= 6) {
-      alert("테마는 최대 6개까지 선택할 수 있어요!");
-      return prev;
-    }
+                      if (prev.length >= 6) {
+                        alert("테마는 최대 6개까지 선택할 수 있어요!");
+                        return prev;
+                      }
 
-    return [...prev, theme];
-  })
-}
-
+                      return [...prev, theme];
+                    })
+                  }
                   disabled={loading}
                 >
                   {theme}
@@ -209,7 +197,6 @@ const enrichedPlan = {
               ))}
             </div>
 
-            {/* 🔥 안내 문구 */}
             <p
               style={{
                 marginTop: "10px",
@@ -223,7 +210,6 @@ const enrichedPlan = {
           </>
         )}
 
-        {/* 네비게이션 버튼 */}
         <div className="nav-buttons">
           {step > 1 && (
             <button className="back" onClick={handleBack} disabled={loading}>
@@ -253,7 +239,6 @@ const enrichedPlan = {
         </div>
       </div>
 
-      {/* 🔮 로딩 오버레이 */}
       {loading && (
         <div className="loading-overlay">
           <div className="loading-box">

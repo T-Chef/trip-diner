@@ -1,30 +1,17 @@
-/* =========================================================
-   Section1 (city-section) - Warm beige / light brown palette
-   - MenuSpread 안에서 쓰는 '도시 정보' 섹션 전용
-   - ✅ 전부 .city-section 스코프로 묶어서 충돌 방지
-========================================================= */
-
-/* ===== 팔레트 (여기만 바꾸면 전체 톤 변경 쉬움) ===== */
 .city-section{
-  /* 잉크(텍스트) : 네이비 -> 따뜻한 브라운 잉크 */
-  --ink: #3a2a1f;                   /* 제목/강조 텍스트 */
-  --ink-2: rgba(58,42,31,0.74);     /* 보조 텍스트 */
-  --muted: rgba(86,65,50,0.58);     /* kicker/설명 */
+  --ink: #3a2a1f;                 
+  --ink-2: rgba(58,42,31,0.74);   
+  --muted: rgba(86,65,50,0.58);    
 
-  /* 종이/라인 */
   --line: rgba(72,54,40,0.12);
-  --paper-card: rgba(255,252,246,0.82);   /* 카드 상단(따뜻한 아이보리) */
-  --paper-card-2: rgba(250,243,233,0.72); /* 카드 하단(베이지) */
+  --paper-card: rgba(255,252,246,0.82);  
+  --paper-card-2: rgba(250,243,233,0.72); 
 
-  /* 포인트(연갈색) */
-  --accent: #c79a6b;                /* 배지/포인트 라이트 브라운 */
-  --accent-deep: #8b5e3c;           /* 버튼/진한 브라운 */
-  --accent-darker: #6f452c;         /* 호버/딥 */
+  --accent: #c79a6b;               
+  --accent-deep: #8b5e3c;           
+  --accent-darker: #6f452c;        
 }
 
-/* =========================
-   LEFT
-========================= */
 .city-section .s3-left{
   height: 100%;
   display:flex;
@@ -52,7 +39,7 @@
   font-family: "Playfair Display","Noto Serif KR",serif;
   margin: 0;
 
-  /* 종이 위 잉크 느낌 */
+
   text-shadow: 0 1px 0 rgba(255,255,255,0.6);
 }
 
@@ -91,10 +78,9 @@
 .city-section .s3-checks li::before{
   content:"✓";
   font-weight: 900;
-  color: var(--accent-deep); /* ✅ 체크도 웜브라운 */
+  color: var(--accent-deep);
 }
 
-/* 버튼: 네이비 -> 포근한 브라운 그라데이션 */
 .city-section .s3-btn{
   margin-top: 26px;
   width: 520px;
@@ -106,7 +92,7 @@
 
   background:
     linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0) 45%),
-    linear-gradient(180deg, #a9744d, #6f452c); /* ✅ 따뜻한 브라운 */
+    linear-gradient(180deg, #a9744d, #6f452c);
   color: #fff;
 
   font-size: 16px;
@@ -134,9 +120,6 @@
   filter: brightness(0.98);
 }
 
-/* =========================
-   RIGHT (도시 리스트)
-========================= */
 .city-section .s3-right{
   width: 100%;
   max-width: 620px;
@@ -151,7 +134,6 @@
   padding-left: 48px;
 }
 
-/* 숫자 배지: 블루 -> 라이트 브라운 + 은은한 광택 */
 .city-section .city-num{
   position:absolute;
   left: 0;
@@ -174,7 +156,6 @@
   box-shadow: 0 10px 20px rgba(0,0,0,0.16);
 }
 
-/* 카드: 종이톤 + 살짝 유리(블러) */
 .city-section .city-card{
   background: linear-gradient(180deg, var(--paper-card), var(--paper-card-2));
   border: 1px solid var(--line);
@@ -239,9 +220,6 @@
   filter: saturate(1.03);
 }
 
-/* =========================
-   Fade-in (Section1 only)
-========================= */
 .city-section .fade-item{
   opacity: 0;
   transform: translateY(28px);
@@ -255,9 +233,6 @@
   filter: blur(0);
 }
 
-/* =========================
-   Responsive
-========================= */
 @media (max-width: 900px){
   .city-section .s3-title{ font-size: 38px; }
   .city-section .city-card{ flex-direction: column; align-items: flex-start; }

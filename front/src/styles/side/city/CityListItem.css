@@ -25,7 +25,6 @@
   inset: -40% -30%;
   pointer-events:none;
 
-  /* 은은한 광택 대각선 */
   background: linear-gradient(
     120deg,
     rgba(255,255,255,0) 35%,
@@ -49,7 +48,6 @@
   transform: translateX(40%) rotate(-10deg);
 }
 
-/* 번호 */
 .city-index {
   width: 34px;
   height: 34px;
@@ -115,7 +113,6 @@
   filter: saturate(1.06) contrast(1.03);
 }
 
-/* 텍스트 정보 */
 .city-info {
   flex: 1;
   display: flex;
@@ -124,7 +121,6 @@
   min-width: 0;
 }
 
-/* 제목 + 하트 */
 .title-row {
   display: flex;
   justify-content: flex-start;
@@ -143,7 +139,6 @@
   max-width: 260px;
 }
 
-/* 하트 */
 .like-btn {
   background: transparent !important;
   border: none !important;
@@ -158,18 +153,15 @@
   transform: translateY(1px);
 }
 
-/* 애니메이션 */
 .like-btn.liked {
   animation: popHeart 0.28s ease forwards;
 }
 
-/* 하트 버튼을 감싸는 컨테이너(파티클 위치를 잡기 위해 필요) */
 .like-container {
   position: relative;
   display: inline-block;
 }
 
-/* 파티클(조각) 스타일 */
 .particle {
   position: absolute;
   width: 6px;
@@ -190,7 +182,6 @@
   100% { transform: scale(1); }
 }
 
-/* 설명 — 두 줄 */
 .desc {
   font-size: 13px;
   font-weight: 400;
@@ -204,7 +195,6 @@
   overflow: hidden;
 }
 
-/* 주소 */
 .address {
   font-size: 11.5px;
   color: rgba(70,55,45,0.60);
@@ -213,7 +203,6 @@
   text-overflow: ellipsis;
 }
 
-/* 썸네일 */
 .city-thumb {
   width: 140px;
   height: 100px;
@@ -280,7 +269,6 @@
   content: "";
 }
 
-/* 하트(좋아요) 클릭 시 기본 배경/outline 제거 */
 .like-btn:focus,
 .like-btn:active,
 .like-btn:hover {
@@ -290,17 +278,14 @@
   box-shadow: none !important;
 }
 
-/* 모바일에서 터치할 때 회색 하이라이트 제거 */
 .like-btn {
   -webkit-tap-highlight-color: transparent !important;
 }
 
-/* 스켈레톤 모드 레이아웃은 기존 카드랑 동일 */
 .city-list-item-skeleton {
   opacity: 0.9;
 }
 
-/* 공통 블럭 */
 .skeleton-block,
 .skeleton-line {
   background: linear-gradient(
@@ -313,12 +298,10 @@
   animation: city-skeleton-shimmer 1.1s linear infinite;
 }
 
-/* 번호 동그라미 */
 .city-list-item-skeleton .city-index {
   border-radius: 999px;
 }
 
-/* 텍스트 라인 */
 .skeleton-line.title {
   width: 70%;
   height: 14px;
@@ -339,7 +322,6 @@
   border-radius: 999px;
 }
 
-/* 썸네일 */
 .city-list-item-skeleton .city-thumb {
   border-radius: 12px;
 }
@@ -358,9 +340,6 @@
   border: 1px solid rgba(40,30,22,0.12);
 }
 
-
-/* 하트 팝 애니메이션 */
-
 @keyframes popHeart {
   0% {
     transform: scale(1);
@@ -373,7 +352,6 @@
   }
 }
 
-/* 파티클 애니메이션 */
 @keyframes particlePop {
   0% {
     transform: scale(0.3) translate(0, 0);
@@ -393,10 +371,6 @@
   50%  { transform: scale(0.6); }
   100% { transform: scale(1); }
 }
-
-/* ===========================
-   CityListItem 스켈레톤 로딩
-=========================== */
 
 @keyframes city-skeleton-shimmer {
   0% {

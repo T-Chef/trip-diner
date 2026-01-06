@@ -1,23 +1,16 @@
-/* =========================================================
-   Section3 (review-section) - Warm paper / latte palette
-   - 기존 구조 유지 + 색감만 포근한 연한갈색 계열로 변경
-========================================================= */
-
-/* ✅ 팔레트 (여기만 바꾸면 전체 톤 변경 쉬움) */
 .review-section{
-  --ink: #2a2018;                 /* 메인 타이포(따뜻한 다크브라운) */
-  --ink-2: rgba(42,32,24,0.74);   /* 보조 타이포 */
-  --muted: rgba(70,55,45,0.58);   /* 라벨/설명 */
-  --line: rgba(40,30,22,0.12);    /* 라인 */
-  --paper: rgba(255,252,246,0.82);/* 카드 종이톤 */
+  --ink: #2a2018;                 
+  --ink-2: rgba(42,32,24,0.74); 
+  --muted: rgba(70,55,45,0.58);  
+  --line: rgba(40,30,22,0.12);  
+  --paper: rgba(255,252,246,0.82);
   --paper-2: rgba(255,255,255,0.62);
-  --accent: #9a6b42;              /* 포인트(라떼 브라운) */
-  --accent-deep: #6f4a2d;         /* 딥 브라운 */
-  --tag: rgba(154,107,66,0.12);   /* 태그 배경 */
+  --accent: #9a6b42;             
+  --accent-deep: #6f4a2d;     
+  --tag: rgba(154,107,66,0.12);  
   --shadow: rgba(0,0,0,0.14);
 }
 
-/* 공통 fade */
 .review-section .fade-item{
   opacity: 0;
   transform: translateY(34px);
@@ -31,9 +24,6 @@
   filter: blur(0);
 }
 
-/* =========================
-   LEFT
-========================= */
 .review-section .review-left{
   height: 100%;
   display:flex;
@@ -102,7 +92,6 @@
   color: var(--accent-deep);
 }
 
-/* ✅ 버튼: 블루 → 라떼 브라운 그라데이션 */
 .review-section .rv-btn{
   margin-top: 26px;
   width: 520px;
@@ -139,9 +128,6 @@
   filter: brightness(0.98);
 }
 
-/* =========================
-   RIGHT
-========================= */
 .review-section .review-right{
   width: 100%;
   max-width: 640px;
@@ -151,7 +137,6 @@
   margin: 0 auto;
 }
 
-/* ✅ 카드: 종이톤 + 라인 + 부드러운 그림자 */
 .review-section .review-card{
   background: linear-gradient(180deg, var(--paper), var(--paper-2));
   border: 1px solid var(--line);
@@ -241,7 +226,6 @@
   color: rgba(42,32,24,0.55);
 }
 
-/* ✅ 뱃지: 블루 → 라떼 브라운 */
 .review-section .rv-badge{
   padding: 6px 10px;
   border-radius: 999px;
@@ -277,7 +261,6 @@
   text-overflow: ellipsis;
 }
 
-/* ✅ 기존 line-clamp 유지 + 정리 */
 .review-section .rv-card-desc{
   margin: 8px 0 0;
   font-size: 13px;
@@ -298,7 +281,6 @@
   gap: 8px;
 }
 
-/* ✅ 태그: 네이비 → 라떼 */
 .review-section .rv-tag{
   display:inline-block;
   padding: 6px 10px;
@@ -320,13 +302,11 @@
   flex: 0 0 auto;
 }
 
-/* 카드별 스태거 */
 .review-section .review-card:nth-child(1).show { transition-delay: 0.08s; }
 .review-section .review-card:nth-child(2).show { transition-delay: 0.16s; }
 .review-section .review-card:nth-child(3).show { transition-delay: 0.24s; }
 .review-section .review-card:nth-child(4).show { transition-delay: 0.32s; }
 
-/* 반응형 */
 @media (max-width: 900px){
   .review-section .rv-title{ font-size: 38px; }
   .review-section .rv-body{ flex-direction: column; }

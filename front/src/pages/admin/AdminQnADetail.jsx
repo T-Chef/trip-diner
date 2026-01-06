@@ -12,9 +12,7 @@ export default function AdminQnADetail() {
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // =========================
-  //  상세 조회
-  // =========================
+  // 문의 상세 조회
   useEffect(() => {
     axios
       .get(`${API}/admin/qna/${id}`)
@@ -37,9 +35,7 @@ export default function AdminQnADetail() {
       .finally(() => setLoading(false));
   }, [id, navigate]);
 
-  // =========================
-  //  답변 저장
-  // =========================
+  // 답변 저장
   const submitAnswer = async () => {
     try {
       await axios.post(`${API}/admin/qna/${id}/answer`, {
@@ -62,9 +58,6 @@ export default function AdminQnADetail() {
     <div style={{ padding: "40px", maxWidth: "900px", margin: "0 auto" }}>
       <h2 style={{ textAlign: "center", marginBottom: 20 }}>문의 상세</h2>
 
-      {/* =========================
-          문의 카드
-      ========================= */}
       <div
         style={{
           border: "1px solid #ddd",
@@ -99,9 +92,6 @@ export default function AdminQnADetail() {
         </div>
       </div>
 
-      {/* =========================
-          관리자 답변 카드 (네이버 느낌)
-      ========================= */}
       <h3 style={{ marginTop: "35px" }}>관리자 답변</h3>
 
       {qna.answers?.length > 0 ? (
@@ -142,9 +132,6 @@ export default function AdminQnADetail() {
         <p style={{ color: "#888" }}>등록된 답변이 없습니다.</p>
       )}
 
-      {/* =========================
-          답변 작성 or 수정 입력창
-      ========================= */}
       <textarea
         value={answer}
         onChange={(e) => setAnswer(e.target.value)}

@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-import "../../../styles/page/Login.css"; // 공용 CSS 사용
+import "../../../styles/page/Login.css";
 
-import SignupForm from "../SignupForm"; // 같은 폴더에 있다면 경로 확인!
-
+import SignupForm from "../SignupForm";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -13,19 +12,18 @@ export default function Signup() {
   const [name, setName] = useState("");
   const navigate = useNavigate();
 
-  // 🎨 로그인과 동일한 배경 이미지 설정
   const bgStyle = {
     backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/assets/images/login.png')`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    backgroundAttachment: 'fixed',
-    width: '100%',
-    minHeight: '100vh',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: '40px 0'
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    backgroundAttachment: "fixed",
+    width: "100%",
+    minHeight: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "40px 0",
   };
 
   const validateEmail = (email) => {
@@ -66,10 +64,9 @@ export default function Signup() {
 
   return (
     <div className="login-container" style={bgStyle}>
-      <div className="login-box" style={{ width: '450px' }}> {/* 중복체크 버튼 공간 확보 */}
-
+      <div className="login-box" style={{ width: "450px" }}>
+        {" "}
         <h2 className="login-title">Trip Diner 회원가입</h2>
-
         <form onSubmit={handleSubmit}>
           <SignupForm
             email={email}
@@ -80,12 +77,14 @@ export default function Signup() {
             setPassword={setPassword}
           />
 
-
-          <button type="submit" className="login-btn" style={{ marginTop: "25px" }}>
+          <button
+            type="submit"
+            className="login-btn"
+            style={{ marginTop: "25px" }}
+          >
             회원가입
           </button>
         </form>
-
         <div className="login-footer">
           <span className="link" onClick={() => navigate("/login")}>
             로그인 페이지로 이동
@@ -95,4 +94,3 @@ export default function Signup() {
     </div>
   );
 }
-

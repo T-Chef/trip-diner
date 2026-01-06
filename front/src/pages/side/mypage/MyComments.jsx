@@ -68,7 +68,6 @@ export default function MyComments() {
             </tbody>
           </table>
 
-          {/* 페이지네이션 */}
           {totalPages > 1 && (
             <div className="pagination">
               <button disabled={page === 1} onClick={() => setPage(page - 1)}>

@@ -1,4 +1,3 @@
-// AIScheduleResult.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AIScheduleMap from "./AIScheduleMap.jsx";
@@ -8,7 +7,7 @@ import { placeLikesApi } from "../../../api/placeLikesApi";
 
 console.log("🎯 GOOGLE KEY:", process.env.REACT_APP_GOOGLE_API_KEY);
 
-// ✅ 카테고리 영문 → 한글 라벨 매핑
+// 카테고리 영문 → 한글 라벨 매핑
 const CATEGORY_LABELS = {
   restaurant: "음식점",
   food: "음식점",
@@ -26,7 +25,6 @@ const CATEGORY_LABELS = {
   store: "상점 / 마켓",
 };
 
-// ✅ 카테고리 배열/문자열 → 한글 라벨로 변환
 function getCategoryLabel(category) {
   const raw = Array.isArray(category) ? category[0] : category;
   if (!raw) return "";
@@ -37,7 +35,6 @@ function getCategoryLabel(category) {
   return mapped || String(raw).replace(/_/g, " ");
 }
 
-// ✅ 거리 계산용 (하루 동선 km)
 function distanceKm(lat1, lng1, lat2, lng2) {
   if (lat1 == null || lng1 == null || lat2 == null || lng2 == null) return 0;
 
@@ -67,58 +64,51 @@ export default function AIScheduleResult() {
   const [aiPlan, setAiPlan] = useState(rawPlan);
   const [, setIsEnhancing] = useState(false);
 
-  // rawPlan이 바뀔 때마다 aiPlan 초기화
   useEffect(() => {
     setAiPlan(rawPlan);
   }, [rawPlan]);
 
   console.log("📌 AI PLAN RESULT (state):", aiPlan);
 
-  const [highlight, setHighlight] = useState(null); // {day, index} 또는 null
+  const [highlight, setHighlight] = useState(null);
   const [selectedPlace, setSelectedPlace] = useState(null);
   const API_BASE = "http://localhost:4000/api";
 
-  // ✅ selectedPlace의 (dayIdx, placeIdx)도 같이 기억해야 "aiPlan 안에" description을 저장할 수 있음
   const [selectedPos, setSelectedPos] = useState(null);
   const [descLoading, setDescLoading] = useState(false);
   const handleSelectFromMap = (...args) => {
-  // ✅ Map이 보내는 형태가 2가지일 수 있음
-  // 1) (dayIdx, placeIdx)
-  // 2) (place, dayIdx, placeIdx)
-  let place = null;
-  let dayIdx = null;
-  let placeIdx = null;
+    let place = null;
+    let dayIdx = null;
+    let placeIdx = null;
 
-  if (typeof args[0] === "number") {
-    dayIdx = args[0];
-    placeIdx = args[1];
-  } else {
-    place = args[0];
-    dayIdx = args[1];
-    placeIdx = args[2];
-  }
+    if (typeof args[0] === "number") {
+      dayIdx = args[0];
+      placeIdx = args[1];
+    } else {
+      place = args[0];
+      dayIdx = args[1];
+      placeIdx = args[2];
+    }
 
-  // ✅ dayIdx가 1부터 오는 경우(1일차=1)까지 방어
-  if (
-    Number.isInteger(dayIdx) &&
-    aiPlan?.days &&
-    !aiPlan.days[dayIdx] &&
-    aiPlan.days[dayIdx - 1]
-  ) {
-    dayIdx = dayIdx - 1;
-  }
+    if (
+      Number.isInteger(dayIdx) &&
+      aiPlan?.days &&
+      !aiPlan.days[dayIdx] &&
+      aiPlan.days[dayIdx - 1]
+    ) {
+      dayIdx = dayIdx - 1;
+    }
 
-  if (!Number.isInteger(dayIdx) || !Number.isInteger(placeIdx)) return;
+    if (!Number.isInteger(dayIdx) || !Number.isInteger(placeIdx)) return;
 
-  const p = place ?? aiPlan?.days?.[dayIdx]?.places?.[placeIdx];
-  if (!p) return;
+    const p = place ?? aiPlan?.days?.[dayIdx]?.places?.[placeIdx];
+    if (!p) return;
 
-  setHighlight({ day: dayIdx, index: placeIdx });
-  setSelectedPos({ dayIdx, placeIdx });
-  setSelectedPlace(p);
-};
+    setHighlight({ day: dayIdx, index: placeIdx });
+    setSelectedPos({ dayIdx, placeIdx });
+    setSelectedPlace(p);
+  };
 
-  // ✅ place.description이 없을 때만 호출
   const fetchDesc = async (place) => {
     const resp = await axios.get(`${API_BASE}/ai/description`, {
       params: { name: place.name, address: place.address },
@@ -126,7 +116,6 @@ export default function AIScheduleResult() {
     return resp.data.description;
   };
 
-  // ✅ aiPlan 내부 특정 place를 안전하게 업데이트하는 유틸
   const patchPlaceInPlan = (dayIdx, placeIdx, patch) => {
     setAiPlan((prev) => {
       if (!prev?.days?.[dayIdx]?.places?.[placeIdx]) return prev;
@@ -148,7 +137,6 @@ export default function AIScheduleResult() {
     });
   };
 
-  // ✅ 슬라이드 패널(선택된 장소)이 열릴 때 description 없으면 자동으로 가져오기
   useEffect(() => {
     if (!selectedPos || !aiPlan?.days) return;
 
@@ -166,7 +154,9 @@ export default function AIScheduleResult() {
         if (cancelled) return;
 
         patchPlaceInPlan(dayIdx, placeIdx, { description: desc });
-        setSelectedPlace((prev) => (prev ? { ...prev, description: desc } : prev));
+        setSelectedPlace((prev) =>
+          prev ? { ...prev, description: desc } : prev
+        );
       } catch (e) {
         console.error("description 불러오기 실패:", e);
       } finally {
@@ -179,10 +169,9 @@ export default function AIScheduleResult() {
     };
   }, [selectedPos, aiPlan]);
 
-  const dragRef = useRef(null); // { dayIdx, placeIdx }
-  const [dragOver, setDragOver] = useState(null); // { dayIdx, placeIdx } or null
+  const dragRef = useRef(null);
+  const [dragOver, setDragOver] = useState(null);
 
-  // ✅ 같은 day 내에서 place 순서 이동
   const movePlace = (dayIdx, fromIdx, toIdx) => {
     if (fromIdx === toIdx) return;
 
@@ -196,7 +185,6 @@ export default function AIScheduleResult() {
       const [moved] = places.splice(fromIdx, 1);
       places.splice(toIdx, 0, moved);
 
-      // highlight/selectedPos가 순서 변경에 맞게 따라가게
       setHighlight((h) => {
         if (h?.day !== dayIdx) return h;
         if (h.index === fromIdx) return { ...h, index: toIdx };
@@ -224,7 +212,6 @@ export default function AIScheduleResult() {
     });
   };
 
-  // ✅ DnD 핸들러
   const onDragStartPlace = (dayIdx, placeIdx) => {
     dragRef.current = { dayIdx, placeIdx };
   };
@@ -250,7 +237,6 @@ export default function AIScheduleResult() {
   const [likedPlaces, setLikedPlaces] = useState([]);
   const [likedLoading, setLikedLoading] = useState(false);
 
-  // ✅ 렌더 안전장치(절대 map 터지지 않게)
   const safeLikedPlaces = Array.isArray(likedPlaces) ? likedPlaces : [];
 
   useEffect(() => {
@@ -261,7 +247,6 @@ export default function AIScheduleResult() {
     return () => clearInterval(t);
   }, [cooldownMs]);
 
-  // 🔹 요약 카드용 통계
   const [summary, setSummary] = useState({
     totalPlaces: 0,
     totalDistanceKm: 0,
@@ -273,12 +258,12 @@ export default function AIScheduleResult() {
     setSearchResults([]);
   };
 
-  // ✅ 1) 일정편집 / 편집완료 토글
+  // 1. 일정편집 / 편집완료 토글
   const handleToggleEdit = () => {
     setEditMode((prev) => !prev);
   };
 
-  // ✅ 2) 확인 버튼 → 요약 페이지로
+  // 2. 확인 버튼 → 요약 페이지로
   const handleConfirm = () => {
     if (!aiPlan) return;
 
@@ -290,7 +275,7 @@ export default function AIScheduleResult() {
     });
   };
 
-  // ✅ 3) 새로운 추천받기
+  // 3. 새로운 추천받기
   const handleNewRecommend = async () => {
     if (!aiPlan) return;
     if (cooldownMs > 0) return;
@@ -355,12 +340,12 @@ export default function AIScheduleResult() {
     }
   };
 
-  // ✅ 4) 다시 선택하기 버튼
+  // 4. 다시 선택하기 버튼
   const handleReSelect = () => {
     navigate("/trip");
   };
 
-  // ✅ 이미지/주소/카테고리 보강용 useEffect
+  // 이미지/주소/카테고리 보강용
   useEffect(() => {
     if (!rawPlan || !rawPlan.days) return;
 
@@ -383,9 +368,9 @@ export default function AIScheduleResult() {
 
             try {
               const imgRes = await fetch(
-                `http://localhost:4000/api/place-details?lat=${p.lat}&lng=${p.lng}&name=${encodeURIComponent(
-                  p.name
-                )}`
+                `http://localhost:4000/api/place-details?lat=${p.lat}&lng=${
+                  p.lng
+                }&name=${encodeURIComponent(p.name)}`
               );
               const data = await imgRes.json();
               p.image = data.image ?? p.image;
@@ -408,7 +393,7 @@ export default function AIScheduleResult() {
     enhanceAllPlaces();
   }, [rawPlan]);
 
-  // ✅ 여행 요약 계산 (총 이동거리, 장소 개수)
+  // 여행 요약 계산 (총 이동거리(Km), 장소 갯수)
   useEffect(() => {
     if (!aiPlan || !aiPlan.days) return;
 
@@ -437,7 +422,7 @@ export default function AIScheduleResult() {
     });
   }, [aiPlan]);
 
-  // ✅ 좋아요한 여행지 불러오기
+  // 좋아요한 여행지 불러오기
   const getUserId = () => {
     const userStr = localStorage.getItem("user");
     if (userStr) {
@@ -462,7 +447,7 @@ export default function AIScheduleResult() {
     return direct ? Number(direct) : null;
   };
 
-  // ✅ 좋아요 데이터 → handleAddPlace가 받는 형태로 변환
+  // 좋아요 데이터 → handleAddPlace가 받는 형태로 변환
   const normalizeLikedToSearchPlace = (row) => {
     const p = row?.place || {};
     return {
@@ -481,7 +466,7 @@ export default function AIScheduleResult() {
     };
   };
 
-  // ✅ 좋아요 탭에서만 좋아요 목록 로드 (listByUser가 배열을 반환한다는 전제)
+  // 좋아요 탭에서만 좋아요 목록 로드
   useEffect(() => {
     if (!searchTarget) return;
     if (panelTab !== "likes") return;
@@ -549,7 +534,9 @@ export default function AIScheduleResult() {
 
   useEffect(() => {
     if (!highlight || highlight.day === null) return;
-    const el = document.getElementById(`place-${highlight.day}-${highlight.index}`);
+    const el = document.getElementById(
+      `place-${highlight.day}-${highlight.index}`
+    );
     if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [highlight]);
 
@@ -576,7 +563,6 @@ export default function AIScheduleResult() {
 
   return (
     <div className="result-wrapper">
-      {/* ✅ 새로운 추천받기 로딩 오버레이 */}
       {recommending && (
         <div className="loading-overlay">
           <div className="loading-box">
@@ -603,7 +589,6 @@ export default function AIScheduleResult() {
         <aside className="side-list">
           <h3 className="plan-title">{aiPlan.title}</h3>
 
-          {/* ✅ 여행 요약 카드 */}
           <div className="trip-summary-card">
             <div className="summary-header">
               {(() => {
@@ -658,7 +643,6 @@ export default function AIScheduleResult() {
             )}
           </div>
 
-          {/* ✅ 일차별 일정 리스트 */}
           {aiPlan.days.map((day, dayIdx) => (
             <div key={day.day} className="day-block">
               <h4 className="day-header">{day.day}일차</h4>
@@ -678,7 +662,9 @@ export default function AIScheduleResult() {
                     key={stableKey}
                     id={`place-${dayIdx}-${placeIdx}`}
                     className={`place-item ${isDragOver ? "drag-over" : ""} ${
-                      highlight?.day === dayIdx && highlight?.index === placeIdx ? "active" : ""
+                      highlight?.day === dayIdx && highlight?.index === placeIdx
+                        ? "active"
+                        : ""
                     } ${editMode ? "draggable" : ""}`}
                     draggable={!!editMode}
                     onDragStart={() => {
@@ -732,17 +718,19 @@ export default function AIScheduleResult() {
                           type="button"
                           className="reorder-btn"
                           disabled={placeIdx === 0}
-                          onClick={() => movePlace(dayIdx, placeIdx, placeIdx - 1)}
+                          onClick={() =>
+                            movePlace(dayIdx, placeIdx, placeIdx - 1)
+                          }
                         >
                           ▲
                         </button>
                         <button
                           type="button"
                           className="reorder-btn"
-                          disabled={
-                            placeIdx === (day.places?.length || 0) - 1
+                          disabled={placeIdx === (day.places?.length || 0) - 1}
+                          onClick={() =>
+                            movePlace(dayIdx, placeIdx, placeIdx + 1)
                           }
-                          onClick={() => movePlace(dayIdx, placeIdx, placeIdx + 1)}
                         >
                           ▼
                         </button>
@@ -809,7 +797,6 @@ export default function AIScheduleResult() {
         </aside>
 
         <div className="map-area">
-          {/* ✅ 일차별 색상 레전드 */}
           <div className="day-legend">
             {aiPlan.days.map((day, idx) => (
               <div key={day.day} className="legend-item">
@@ -821,10 +808,10 @@ export default function AIScheduleResult() {
           </div>
 
           <AIScheduleMap
-  aiPlan={aiPlan}
-  activePlace={highlight}
-  onSelectPlace={handleSelectFromMap}
-/>
+            aiPlan={aiPlan}
+            activePlace={highlight}
+            onSelectPlace={handleSelectFromMap}
+          />
         </div>
 
         <div className={`slide-panel ${selectedPlace ? "open" : ""}`}>
@@ -842,7 +829,10 @@ export default function AIScheduleResult() {
 
               <img
                 className="detail-image"
-                src={selectedPlace.image ?? "/assets/images/default-placeholder.jpg"}
+                src={
+                  selectedPlace.image ??
+                  "/assets/images/default-placeholder.jpg"
+                }
                 onError={(e) =>
                   (e.target.src = "/assets/images/default-placeholder.jpg")
                 }
@@ -857,7 +847,8 @@ export default function AIScheduleResult() {
               )}
 
               {descLoading &&
-              (!selectedPlace.description || !selectedPlace.description.trim()) ? (
+              (!selectedPlace.description ||
+                !selectedPlace.description.trim()) ? (
                 <p className="place-summary">설명 불러오는 중...</p>
               ) : selectedPlace.description &&
                 selectedPlace.description.trim().length > 0 ? (
@@ -908,7 +899,6 @@ export default function AIScheduleResult() {
 
         {searchTarget && (
           <div className="search-panel">
-            {/* ✅ 탭 버튼 */}
             <div className="panel-tabs">
               <button
                 className={panelTab === "search" ? "active" : ""}
@@ -934,7 +924,6 @@ export default function AIScheduleResult() {
               </button>
             </div>
 
-            {/* ✅ 검색 탭 */}
             {panelTab === "search" && (
               <>
                 <input
@@ -952,7 +941,10 @@ export default function AIScheduleResult() {
                       onClick={() => handleAddPlace(place)}
                     >
                       <img
-                        src={place.image || "/assets/images/default-placeholder.jpg"}
+                        src={
+                          place.image ||
+                          "/assets/images/default-placeholder.jpg"
+                        }
                         alt="thumb"
                         className="search-thumb"
                       />
@@ -974,15 +966,16 @@ export default function AIScheduleResult() {
 
                         <div className="search-address">{place.address}</div>
 
-                        {place.openNow !== null && place.openNow !== undefined && (
-                          <span
-                            className={`open-status ${
-                              place.openNow ? "open" : "closed"
-                            }`}
-                          >
-                            {place.openNow ? "영업중 🔥" : "영업종료 ❌"}
-                          </span>
-                        )}
+                        {place.openNow !== null &&
+                          place.openNow !== undefined && (
+                            <span
+                              className={`open-status ${
+                                place.openNow ? "open" : "closed"
+                              }`}
+                            >
+                              {place.openNow ? "영업중 🔥" : "영업종료 ❌"}
+                            </span>
+                          )}
                       </div>
                     </li>
                   ))}
@@ -990,10 +983,11 @@ export default function AIScheduleResult() {
               </>
             )}
 
-            {/* ✅ 좋아요 탭 */}
             {panelTab === "likes" && (
               <div className="liked-list">
-                {likedLoading && <div className="liked-empty">불러오는 중...</div>}
+                {likedLoading && (
+                  <div className="liked-empty">불러오는 중...</div>
+                )}
 
                 {!likedLoading && safeLikedPlaces.length === 0 && (
                   <div className="liked-empty">좋아요한 여행지가 없어요</div>
@@ -1007,7 +1001,8 @@ export default function AIScheduleResult() {
                         <img
                           src={
                             place.image ||
-                            process.env.PUBLIC_URL + "/assets/images/default-thumb.jpg"
+                            process.env.PUBLIC_URL +
+                              "/assets/images/default-thumb.jpg"
                           }
                           className="liked-thumb"
                           alt={place.name}

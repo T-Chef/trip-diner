@@ -1,7 +1,12 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 
 const DAY_COLORS = ["#0078ff", "#1ec800", "#ff3b30", "#ff9500", "#9b59b6"];
-const AIScheduleMap = ({ aiPlan, onSelectPlace, activePlace, selectedDayExternal }) => {
+const AIScheduleMap = ({
+  aiPlan,
+  onSelectPlace,
+  activePlace,
+  selectedDayExternal,
+}) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const markersRef = useRef([]);
@@ -14,7 +19,6 @@ const AIScheduleMap = ({ aiPlan, onSelectPlace, activePlace, selectedDayExternal
     else setSelectedDay(selectedDayExternal);
   }, [selectedDayExternal]);
 
-  // ✅ resizeMap: useCallback으로 고정 (이벤트리스너 add/remove 정확히 동일 참조)
   const resizeMap = useCallback(() => {
     if (mapInstance.current && mapRef.current) {
       const mapDiv = mapRef.current;
@@ -24,7 +28,6 @@ const AIScheduleMap = ({ aiPlan, onSelectPlace, activePlace, selectedDayExternal
     }
   }, []);
 
-  // ✅ 첫 장소 좌표: useCallback으로 고정 (aiPlan 변경될 때만 변경)
   const getFirstPlaceLatLng = useCallback(() => {
     if (!aiPlan?.days) return null;
     for (const day of aiPlan.days) {
@@ -42,7 +45,7 @@ const AIScheduleMap = ({ aiPlan, onSelectPlace, activePlace, selectedDayExternal
       const first = getFirstPlaceLatLng();
       const centerLatLng = first
         ? new window.naver.maps.LatLng(first.lat, first.lng)
-        : new window.naver.maps.LatLng(37.5665, 126.9780);
+        : new window.naver.maps.LatLng(37.5665, 126.978);
 
       mapInstance.current = new window.naver.maps.Map(mapRef.current, {
         zoom: 11,
@@ -100,12 +103,12 @@ const AIScheduleMap = ({ aiPlan, onSelectPlace, activePlace, selectedDayExternal
           },
         });
 
-        marker.customDayIdx = dayIndex;      // ✅ 0-based
-marker.customPlaceIdx = placeIndex;  // ✅ 0-based
+        marker.customDayIdx = dayIndex;
+        marker.customPlaceIdx = placeIndex;
 
-window.naver.maps.Event.addListener(marker, "click", () =>
-  onSelectPlace?.(dayIndex, placeIndex)
-);
+        window.naver.maps.Event.addListener(marker, "click", () =>
+          onSelectPlace?.(dayIndex, placeIndex)
+        );
 
         markersRef.current.push(marker);
         markerNumber++;
@@ -126,18 +129,17 @@ window.naver.maps.Event.addListener(marker, "click", () =>
 
     resizeMap();
 
-    // ✅ activePlace 썼으니 deps에도 포함해야 함
     if (!activePlace) {
       if (hasAnyPoint) {
         mapInstance.current.fitBounds(bounds);
       } else {
-        mapInstance.current.setCenter(new window.naver.maps.LatLng(37.5665, 126.9780));
+        mapInstance.current.setCenter(
+          new window.naver.maps.LatLng(37.5665, 126.978)
+        );
         mapInstance.current.setZoom(11);
       }
     }
   }, [aiPlan, selectedDay, onSelectPlace, getFirstPlaceLatLng, resizeMap]);
-
-
 
   useEffect(() => {
     console.log("🧪 지도에 전달된 aiPlan:", aiPlan);
@@ -161,39 +163,36 @@ window.naver.maps.Event.addListener(marker, "click", () =>
         polylinesRef.current = [];
       }
     };
-}, [initMap, resizeMap, aiPlan]);
+  }, [initMap, resizeMap, aiPlan]);
 
-  // ✅ 리스트 클릭 → aiPlan 좌표로 무조건 panTo (마커 못 찾아도 이동은 됨)
-useEffect(() => {
-  if (!mapInstance.current || !window.naver || !activePlace) return;
+  useEffect(() => {
+    if (!mapInstance.current || !window.naver || !activePlace) return;
 
-  const dayIdx = activePlace.dayIdx ?? activePlace.day;
-  const placeIdx = activePlace.placeIdx ?? activePlace.index;
+    const dayIdx = activePlace.dayIdx ?? activePlace.day;
+    const placeIdx = activePlace.placeIdx ?? activePlace.index;
 
-  if (!Number.isInteger(dayIdx) || !Number.isInteger(placeIdx)) return;
+    if (!Number.isInteger(dayIdx) || !Number.isInteger(placeIdx)) return;
 
-  const place = aiPlan?.days?.[dayIdx]?.places?.[placeIdx];
-  if (!place?.lat || !place?.lng) return;
+    const place = aiPlan?.days?.[dayIdx]?.places?.[placeIdx];
+    if (!place?.lat || !place?.lng) return;
 
-  const latlng = new window.naver.maps.LatLng(place.lat, place.lng);
+    const latlng = new window.naver.maps.LatLng(place.lat, place.lng);
 
-  // ✅ 무조건 이동
-  mapInstance.current.panTo(latlng);
-  mapInstance.current.setZoom(14);
+    mapInstance.current.panTo(latlng);
+    mapInstance.current.setZoom(14);
 
-  // ✅ 마커도 있으면 bounce까지
-  const targetMarker = markersRef.current.find(
-    (m) => m.customDay === dayIdx && m.customIndex === placeIdx
-  );
+    const targetMarker = markersRef.current.find(
+      (m) => m.customDay === dayIdx && m.customIndex === placeIdx
+    );
 
-  if (targetMarker) {
-    targetMarker.setAnimation(window.naver.maps.Animation.BOUNCE);
-    setTimeout(() => targetMarker.setAnimation(null), 1200);
-  }
-}, [activePlace, aiPlan]);
+    if (targetMarker) {
+      targetMarker.setAnimation(window.naver.maps.Animation.BOUNCE);
+      setTimeout(() => targetMarker.setAnimation(null), 1200);
+    }
+  }, [activePlace, aiPlan]);
 
   console.log("activePlace:", activePlace);
-console.log("markers:", markersRef.current.length);
+  console.log("markers:", markersRef.current.length);
 
   return (
     <div

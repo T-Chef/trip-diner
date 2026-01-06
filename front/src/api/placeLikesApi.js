@@ -1,4 +1,3 @@
-// src/api/placeLikesApi.js
 import { http } from "./http";
 
 function lsKey(userId) {
@@ -17,18 +16,20 @@ function setLocalLike(userId, contentId, liked) {
 
   localStorage.setItem(key, JSON.stringify(updated));
 
-  window.dispatchEvent(new CustomEvent("placeLikesChanged", { detail: { userId } }));
-
+  window.dispatchEvent(
+    new CustomEvent("placeLikesChanged", { detail: { userId } })
+  );
 }
 
 function clearLocalLikes(userId) {
   const key = lsKey(userId);
   localStorage.setItem(key, JSON.stringify([]));
 
-  window.dispatchEvent(new CustomEvent("placeLikesChanged", { detail: { userId } }));
+  window.dispatchEvent(
+    new CustomEvent("placeLikesChanged", { detail: { userId } })
+  );
 }
 
-/** 서버 응답에서 배열만 뽑기 */
 function extractList(res) {
   const raw = res?.data;
   if (Array.isArray(raw)) return raw;
@@ -40,7 +41,6 @@ function extractList(res) {
 
 export const placeLikesApi = {
   toggle: async (payload) => {
-    // ✅ http를 쓰면 토큰 자동으로 붙음
     const res = await http.post("/place/likes", payload);
 
     setLocalLike(payload.userId, payload.contentId, payload.liked);
@@ -49,7 +49,6 @@ export const placeLikesApi = {
 
   meta: (params) => http.get("/place/likes/meta", { params }),
 
-  /** ✅ listByUser는 배열을 반환 */
   listByUser: async (userId) => {
     const res = await http.get(`/place/likes/user/${userId}`);
     return extractList(res);

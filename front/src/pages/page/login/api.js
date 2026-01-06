@@ -1,4 +1,3 @@
-// front/src/pages/page/login/api.js
 import axios from "axios";
 
 const api = axios.create({
@@ -12,7 +11,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-let refreshPromise = null; // ✅ refresh 동시 호출 방지
+let refreshPromise = null;
 
 api.interceptors.response.use(
   (res) => res,
@@ -29,7 +28,7 @@ api.interceptors.response.use(
       original._retry = true;
 
       try {
-        // ✅ refresh는 무조건 1번만 실행되게
+        // refresh는 무조건 1번만 실행되게
         if (!refreshPromise) {
           refreshPromise = api.post("/auth/refresh");
         }

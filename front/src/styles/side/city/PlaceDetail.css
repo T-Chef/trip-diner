@@ -1,13 +1,4 @@
-/* =========================================
-   PlaceDetail.css — 완성본 (중복 제거 + 요구사항 반영)
-   - Hero 저장 칩: 저장됨 + bump 때만 아주 약한 shine 1회
-   - 본문 저장 버튼: 저장됨 상태에서 상시 미세 글로우(10% 정도)
-   - pdSavedGlow / 키프레임 중복 제거
-   - ::after는 파티클(❤)로 유지 (shine 중복 X)
-   ========================================= */
-
 .place-detail-page{
-  /* theme tokens */
   --ink: #2a2018;
   --ink-2: rgba(42,32,24,0.74);
   --muted: rgba(70,55,45,0.58);
@@ -24,12 +15,10 @@
   min-height: 100vh;
   width: 100%;
 
-  /* Header가 fixed라서 위쪽 여백은 padding-top으로 처리 */
   padding: 80px 0 80px;
 
   font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
 
-  /* 전체 배경 */
   background:
     radial-gradient(1400px 520px at 50% 0%, rgba(255,255,255,0.65), rgba(255,255,255,0) 60%),
     #e8d6c2;
@@ -45,7 +34,6 @@
   pointer-events: none;
 }
 
-/* 로딩/에러 */
 .place-detail-loading{
   position: relative;
   z-index: 1;
@@ -56,9 +44,6 @@
   color: rgba(42,32,24,0.72);
 }
 
-/* =========================
-   큰 카드(페이지 셸)
-========================= */
 .pd-hero,
 .pd-content{
   position: relative;
@@ -83,14 +68,11 @@
 
 .pd-content{
   border-radius: 0 0 24px 24px;
-  margin-top: -10px;      /* 위 카드랑 자연스럽게 붙이기 */
+  margin-top: -10px;    
   border-top: 0;
   padding-top: 18px;
 }
 
-/* =========================
-   HERO
-========================= */
 .pd-back-btn{
   position: absolute;
   top: 14px;
@@ -147,7 +129,6 @@
   filter: contrast(1.02) saturate(1.05);
 }
 
-/* 이미지 위 그라데이션/조명 */
 .pd-hero-image-wrap::after{
   content:"";
   position:absolute;
@@ -169,9 +150,6 @@
   text-shadow: 0 2px 10px rgba(0,0,0,0.40);
 }
 
-/* =========================
-   HERO TOP-RIGHT ACTIONS
-========================= */
 .pd-hero-actions{
   position: absolute;
   top: 14px;
@@ -184,7 +162,6 @@
   justify-content: flex-end;
 }
 
-/* 공통 액션 칩 */
 .pd-hero-action{
   display: inline-flex;
   align-items: center;
@@ -224,16 +201,13 @@
   box-shadow: 0 10px 18px rgba(0,0,0,0.10);
 }
 
-/* 저장(좋아요) — 기본 */
 .pd-hero-action--like{
   position: relative;
-  overflow: hidden; /* shine가 칩 밖으로 안 새게 */
+  overflow: hidden;
 }
 
-/* 하트 아이콘(앞) */
 .pd-hero-action--like::before{ content: "❤️"; }
 
-/* 저장됨(상시) */
 .pd-hero-action--like.is-active{
   background: rgba(255,90,95,0.90);
   border-color: rgba(255,90,95,0.35);
@@ -248,9 +222,7 @@
   background: rgba(255,90,95,0.96);
 }
 
-/* ✅ 저장됨 + bump일 때만: Pop + Glow + 약한 Shine 1회 */
 .pd-hero-action--like.is-active.is-bump{
-  /* base(핑크) + shine overlay(1회) */
   background-image:
     linear-gradient(180deg, rgba(255,90,95,0.90), rgba(255,90,95,0.90)),
     linear-gradient(
@@ -276,18 +248,15 @@
   100% { background-position: 0 0, 120% 0; }
 }
 
-/* bump일 때 버튼 자체도 통통 (non-active에서도 쓰고 싶으면 남겨둬도 됨) */
 .pd-hero-action--like.is-bump{
   animation: pdChipPop 520ms cubic-bezier(.2,.9,.2,1) 1;
 }
 
-/* 앞의 ❤️만 따로 뿅! */
 .pd-hero-action--like.is-bump::before{
   animation: pdHeartPop 520ms cubic-bezier(.2,.9,.2,1) 1;
   transform-origin: center;
 }
 
-/* 작은 하트 파티클(1개) */
 .pd-hero-action--like.is-bump::after{
   content: "❤";
   position: absolute;
@@ -301,7 +270,6 @@
   filter: drop-shadow(0 6px 10px rgba(0,0,0,0.18));
 }
 
-/* 공유 토스트 */
 .pd-hero-toast{
   position: absolute;
   top: 58px;
@@ -398,9 +366,6 @@
 
 .pd-chip--click:active{ transform: translateY(0px); }
 
-/* =========================
-   ACTIONS / BUTTON
-========================= */
 .pd-actions{
   display:flex;
   gap: 10px;
@@ -435,7 +400,6 @@
 
 .pd-btn:active{ transform: translateY(1px); }
 
-/* primary */
 .pd-btn.primary{
   background: linear-gradient(180deg, rgba(154,107,66,0.95), rgba(111,74,45,0.95));
   border-color: rgba(111,74,45,0.65);
@@ -445,13 +409,11 @@
   background: linear-gradient(180deg, rgba(154,107,66,1), rgba(111,74,45,1));
 }
 
-/* 저장됨(본문) */
 .pd-btn.primary.active{
   background: linear-gradient(180deg, rgba(255,90,95,0.95), rgba(219,58,62,0.95));
   border-color: rgba(219,58,62,0.65);
 }
 
-/* ✅ 본문 버튼: 저장됨 상태 상시 미세 글로우(10% 정도) */
 .pd-like-btn.active{
   box-shadow:
     0 10px 18px rgba(0,0,0,0.10),
@@ -465,9 +427,6 @@
     0 0 18px rgba(255,90,95,0.14);
 }
 
-/* =========================
-   MAIN GRID
-========================= */
 .pd-main-grid{
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1.25fr);
@@ -476,9 +435,6 @@
 
 .pd-left, .pd-right{ min-width: 0; }
 
-/* =========================
-   SECTION CARD
-========================= */
 .pd-section{
   border-radius: 18px;
   background:
@@ -509,7 +465,6 @@
   margin-top: 1px;
 }
 
-/* ALERT / ONE-LINE / TAGS */
 .pd-alert{
   margin-bottom: 10px;
   padding: 10px 12px;
@@ -554,7 +509,6 @@
   font-weight: 900;
 }
 
-/* INFO LIST */
 .pd-info-list{
   list-style: none;
   padding: 12px;
@@ -617,9 +571,6 @@
 
 .pd-info-link:active{ transform: translateY(0px); }
 
-/* =========================
-   MAP
-========================= */
 .pd-map{
   width: 100%;
   height: 270px;
@@ -639,7 +590,6 @@
   color: rgba(42,32,24,0.55);
 }
 
-/* MAP CARD + HIGHLIGHT + TOAST */
 .pd-map-card{
   position: relative;
   border-radius: 14px;
@@ -718,9 +668,6 @@
 
 .pd-map-toast__text{ line-height: 1; }
 
-/* =========================
-   KEYFRAMES (중복 없음)
-========================= */
 @keyframes pdChipPop{
   0%   { transform: translateY(0) scale(1); }
   35%  { transform: translateY(-1px) scale(1.05); }
@@ -747,9 +694,6 @@
   100% { box-shadow: 0 10px 18px rgba(0,0,0,0.12), 0 0 0 0 rgba(255,90,95,0.00), 0 0 18px rgba(255,90,95,0.28); }
 }
 
-/* =========================
-   RESPONSIVE
-========================= */
 @media (max-width: 900px){
   .place-detail-page{ padding-top: 80px; }
 
@@ -797,9 +741,6 @@
   }
 }
 
-/* =========================
-   MOTION REDUCE
-========================= */
 @media (prefers-reduced-motion: reduce){
   .pd-hero-action--like.is-bump,
   .pd-hero-action--like.is-bump::before,

@@ -1,4 +1,3 @@
-  /* 공통 변수 */
   :root {
     --content-width: 820px;
     --panel-width: 240px;
@@ -14,8 +13,7 @@
     --city-accent-2: #d7b06a;
     --city-shadow: rgba(0,0,0,0.12);
   }
-
-  /* 전체 페이지 */
+  
   .city-page-wrapper {
     width: 100%;
     min-height: 100vh;
@@ -32,7 +30,6 @@
     position: relative;
   }
 
-  /* 중앙 박스 */
   .city-content-box {
     width: var(--content-width);
     margin: 0 auto;
@@ -59,10 +56,6 @@
     pointer-events:none;
   }
 
-  /* ==========================
-    양 옆 떠 있는 패널 (Weather / Filter)
-  ========================== */
-
   .floating-left {
     position: fixed;
     top: 80px;
@@ -77,14 +70,12 @@
     z-index: 5;
   }
 
-  /* 중앙 박스 기준으로 왼쪽 */
   .floating-left {
     left: calc(
       50% - (var(--content-width) / 2) - var(--panel-width) - var(--layout-gap) + var(--side-offset-left)
     );
   }
 
-  /* 중앙 박스 기준으로 오른p쪽 */
   .floating-right {
     left: calc(
       50% + (var(--content-width) / 2) + var(--layout-gap) + var(--side-offset-right)
@@ -112,17 +103,15 @@
     box-shadow: none;
   }
 
-  /* ✅ 가운데 타이틀 + 양옆 라인 (이미 있으면 덮어써도 OK) */
 .city-section-head.center{
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 14px;
-  margin: 12px 0 16px; /* 섹션 타이틀 아래 간격 살짝 확보 */
+  margin: 12px 0 16px;
 }
 
-/* ✅ 라인 */
 .city-section-head.center::before,
 .city-section-head.center::after{
   content: "";
@@ -139,7 +128,6 @@
   opacity: 0.9;
 }
 
-/* ✅ 타이틀이 라인 위에서 더 또렷하게(가독성 + 고급 느낌) */
 .city-section-head.center .city-section-title{
   padding: 4px 10px;
 }

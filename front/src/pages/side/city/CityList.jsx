@@ -1,4 +1,3 @@
-// src/components/city/CityList.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import CityListItem from "./CityListItem";
 import axios from "axios";
@@ -7,7 +6,7 @@ import "../../../styles/side/city/CityList.css";
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:4000/api";
 
 const _placeCache = new Map();
-const PLACE_TTL = 5 * 60 * 1000;;
+const PLACE_TTL = 5 * 60 * 1000;
 const _placeInflight = new Map();
 
 const isCanceled = (err) =>
@@ -68,7 +67,10 @@ function acquirePlacesRequest(key, makeRequest) {
   const existing = _placeInflight.get(key);
   if (existing) {
     existing.refs += 1;
-    return { promise: existing.promise, release: () => releasePlacesRequest(key) };
+    return {
+      promise: existing.promise,
+      release: () => releasePlacesRequest(key),
+    };
   }
 
   const ctrl = new AbortController();
@@ -106,6 +108,7 @@ export default function CityList({ areaCode, sigunguCode, keyword, userId }) {
 
   const safeKeyword = useMemo(() => (keyword ?? "").trim(), [keyword]);
 
+  // 데이터 로드
   useEffect(() => {
     let alive = true;
 
@@ -116,7 +119,6 @@ export default function CityList({ areaCode, sigunguCode, keyword, userId }) {
     const AI_ON = false;
     const ENHANCE_ON = false;
 
-    // ✅ 항상 인기순 고정 + Tour API도 조회수 정렬
     const ARRANGE = "D";
     const RANDOM_OFF = 0;
     const TOP_BUCKET = 50;
@@ -147,7 +149,10 @@ export default function CityList({ areaCode, sigunguCode, keyword, userId }) {
       if (AI_ON) params.ai = 1;
       if (ENHANCE_ON) params.enhance = 1;
 
-      const res = await axios.get(`${API_BASE}/place/places`, { params, signal });
+      const res = await axios.get(`${API_BASE}/place/places`, {
+        params,
+        signal,
+      });
       return normalizePlaceResponse(res.data);
     });
 
@@ -161,7 +166,7 @@ export default function CityList({ areaCode, sigunguCode, keyword, userId }) {
 
         if (message) setErrorMsg(message);
 
-        // 방어 정렬(지역은 물론, 전국도 후보 순서가 이미 골고루지만 readcount로 한번 더 정리)
+        // 인기순 정렬
         const sorted = [...list].sort(
           (a, b) => Number(b.readcount ?? 0) - Number(a.readcount ?? 0)
         );
@@ -228,13 +233,23 @@ export default function CityList({ areaCode, sigunguCode, keyword, userId }) {
     <div className="city-list-grid">
       <div className="city-list-left">
         {places.slice(0, 5).map((p, idx) => (
-          <CityListItem key={p.contentId} index={idx + 1} item={p} userId={userId} />
+          <CityListItem
+            key={p.contentId}
+            index={idx + 1}
+            item={p}
+            userId={userId}
+          />
         ))}
       </div>
 
       <div className="city-list-right">
         {places.slice(5, 10).map((p, idx) => (
-          <CityListItem key={p.contentId} index={idx + 6} item={p} userId={userId} />
+          <CityListItem
+            key={p.contentId}
+            index={idx + 6}
+            item={p}
+            userId={userId}
+          />
         ))}
       </div>
     </div>
