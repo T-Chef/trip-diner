@@ -14,7 +14,19 @@ export default function AdminQnADetail() {
 
   const fetchQna = async () => {
     try {
-      const res = await axios.get(`${API}/admin/qna/${id}`);
+      const token = localStorage.getItem("adminToken");
+
+      if (!token) {
+        alert("관리자 인증이 필요합니다.");
+        navigate("/admin/login");
+        return;
+      }
+
+      const res = await axios.get(`${API}/admin/qna/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       console.log("상세 응답 ===>", res.data);
 
@@ -39,10 +51,26 @@ export default function AdminQnADetail() {
 
   const submitAnswer = async () => {
     try {
-      await axios.post(`${API}/admin/qna/${id}/answer`, {
-        content: answer,
-        admin_id: 1,
-      });
+      const token = localStorage.getItem("adminToken");
+
+      if (!token) {
+        alert("관리자 인증이 필요합니다.");
+        navigate("/admin/login");
+        return;
+      }
+
+      await axios.post(
+        `${API}/admin/qna/${id}/answer`,
+        {
+          content: answer,
+          admin_id: 1,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       alert("답변 저장 완료");
       fetchQna();
