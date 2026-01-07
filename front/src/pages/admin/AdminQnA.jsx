@@ -1,15 +1,22 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../../styles/admin/AdminQnA.css";
 
 export default function AdminQna() {
   const [qnas, setQnas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const fetchQna = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/admin/qna");
+      const token = localStorage.getItem("adminToken");
+
+      const res = await axios.get("http://localhost:4000/api/admin/qna", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (res.data.success) {
         setQnas(res.data.data);
@@ -18,6 +25,13 @@ export default function AdminQna() {
       }
     } catch (err) {
       console.error("QnA 목록 조회 실패:", err);
+
+      if (err.response?.status === 401) {
+        alert("관리자 인증이 필요합니다.");
+        navigate("/admin/login");
+        return;
+      }
+
       alert("1:1 문의 목록을 불러오지 못했습니다.");
     } finally {
       setLoading(false);

@@ -54,6 +54,7 @@ import AdminUsers from "./pages/admin/AdminUsers.jsx";
 import AdminPosts from "./pages/admin/AdminPosts.jsx";
 import AdminQnA from "./pages/admin/AdminQnA.jsx";
 import AdminQnADetail from "./pages/admin/AdminQnADetail.jsx";
+import AdminRoute from "./pages/admin/AdminRoute.jsx";
 
 // 비밀번호 재설정
 import ForgotPassword from "./pages/pw/ForgotPassword";
@@ -82,21 +83,36 @@ export default function App() {
       <Routes>
         {/* 관리자 */}
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin" element={<AdminHome />} />
-        <Route path="/admin/*" element={<AdminLayout />}>
+
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminHome />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/*"
+          element={
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
+          }
+        >
           <Route path="users" element={<AdminUsers />} />
           <Route path="posts" element={<AdminPosts />} />
           <Route path="qna" element={<AdminQnA />} />
           <Route path="qna/:id" element={<AdminQnADetail />} />
         </Route>
 
-        {/* 일반 유저 */}
+        {/* 일반 회원 */}
         <Route
           path="/*"
           element={
             <Layout user={user} setUser={setUser}>
               <Routes>
-                {/* 홈 */}
                 <Route
                   path="/"
                   element={<Home user={user} setUser={setUser} />}
@@ -134,7 +150,7 @@ export default function App() {
 
                 <Route path="/calendar" element={<Calendar user={user} />} />
 
-                {/* Trip-Diner */}
+                {/* Trip */}
                 <Route
                   path="/trip"
                   element={
@@ -160,7 +176,6 @@ export default function App() {
                   path="/schedule/result"
                   element={<Navigate to="/trip/result" replace />}
                 />
-
                 <Route
                   path="/schedule/pick-start-date"
                   element={<PickStartDatePage />}
